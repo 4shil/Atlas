@@ -7,7 +7,7 @@ import React, { memo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurOverlay } from './BlurOverlay';
-import { useTheme } from '@/theme';
+import { useTheme } from '../theme';
 
 interface HeaderOverlayProps {
     title?: string;

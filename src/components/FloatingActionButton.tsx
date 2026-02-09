@@ -10,7 +10,7 @@ import Animated, {
     useSharedValue,
     withSpring,
 } from 'react-native-reanimated';
-import { useTheme } from '@/theme';
+import { useTheme } from '../theme';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 

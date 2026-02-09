@@ -6,7 +6,7 @@
 import React, { memo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { useTheme } from '@/theme';
+import { useTheme } from '../theme';
 
 interface BlurOverlayProps {
     intensity?: number;

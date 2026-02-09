@@ -1,53 +1,54 @@
 {
-    "compilerOptions": {
-        "strict": true,
-        "target": "ESNext",
-        "lib": [
-            "DOM",
-            "ESNext"
-        ],
-        "jsx": "react-native",
-        "module": "ESNext",
-        "moduleResolution": "bundler",
-        "resolveJsonModule": true,
-        "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "noEmit": true,
-        "isolatedModules": true,
-        "paths": {
-            "@/*": [
-                "./src/*"
-            ],
-            "@theme/*": [
-                "./src/theme/*"
-            ],
-            "@components/*": [
-                "./src/components/*"
-            ],
-            "@screens/*": [
-                "./src/screens/*"
-            ],
-            "@features/*": [
-                "./src/features/*"
-            ],
-            "@hooks/*": [
-                "./src/hooks/*"
-            ],
-            "@utils/*": [
-                "./src/utils/*"
-            ]
-        },
-        "baseUrl": "."
-    },
-    "include": [
-        "**/*.ts",
-        "**/*.tsx",
-        ".expo/types/**/*.ts",
-        "expo-env.d.ts"
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "lib": [
+      "DOM",
+      "ESNext"
     ],
-    "exclude": [
-        "node_modules"
-    ]
+    "jsx": "react-native",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@theme/*": [
+        "./src/theme/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@screens/*": [
+        "./src/screens/*"
+      ],
+      "@features/*": [
+        "./src/features/*"
+      ],
+      "@hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ]
+    },
+    "baseUrl": "."
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "extends": "expo/tsconfig.base"
 }
