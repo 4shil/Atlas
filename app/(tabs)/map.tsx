@@ -1,36 +1,27 @@
 /**
  * Atlas — Map Screen
  * Interactive world map with goal pins
+ * Note: Uses placeholder until react-native-maps is properly configured
  */
 
-import React, { useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import React, { useCallback } from 'react';
+import { View, Text, StyleSheet, Dimensions, FlatList, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { useTheme } from '../../src/theme';
-import { useGoalsWithLocation, useGoalsStore, getGoalStatus } from '../../src/features/goals';
+import { useGoalsWithLocation, getGoalStatus, categoryMeta } from '../../src/features/goals';
 import { HeaderOverlay, FloatingActionButton } from '../../src/components';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-// Dark map style for cinematic feel
-const darkMapStyle = [
-    { elementType: 'geometry', stylers: [{ color: '#1d1d1d' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#757575' }] },
-    { elementType: 'labels.text.stroke', stylers: [{ color: '#212121' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#000000' }] },
-    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2c2c2c' }] },
-];
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function MapScreen() {
     const router = useRouter();
-    const mapRef = useRef<MapView>(null);
-    const { colors, typography, spacing } = useTheme();
+    const { colors, typography, spacing, radius } = useTheme();
     const insets = useSafeAreaInsets();
     const goalsWithLocation = useGoalsWithLocation();
 
-    const handleMarkerPress = useCallback((id: string) => {
+    const handleGoalPress = useCallback((id: string) => {
         router.push(`/goal/${id}`);
     }, [router]);
 
@@ -38,23 +29,27 @@ export default function MapScreen() {
         router.push('/goal/create');
     }, [router]);
 
-    const getMarkerColor = (status: string) => {
-        switch (status) {
-            case 'completed': return colors.status.completed;
-            case 'planned': return colors.status.planned;
-            case 'wishlist': return colors.status.wishlist;
-            default: return colors.accent.primary;
-        }
-    };
-
     const styles = StyleSheet.create({
         container: {
             flex: 1,
             backgroundColor: colors.background.primary,
         },
-        map: {
-            width: SCREEN_WIDTH,
-            height: SCREEN_HEIGHT,
+        listContent: {
+            paddingTop: insets.top + 60,
+            paddingBottom: 100 + insets.bottom,
+            paddingHorizontal: spacing.screen.horizontal,
+        },
+        headerSection: {
+            marginBottom: spacing.section.margin,
+        },
+        headerTitle: {
+            ...typography.displayLarge,
+            color: colors.text.primary,
+            marginBottom: spacing.component.xs,
+        },
+        headerSubtitle: {
+            ...typography.body,
+            color: colors.text.secondary,
         },
         emptyContainer: {
             flex: 1,
@@ -77,28 +72,53 @@ export default function MapScreen() {
             color: colors.text.secondary,
             textAlign: 'center',
         },
-        legendContainer: {
-            position: 'absolute',
-            bottom: 100 + insets.bottom,
-            left: spacing.screen.horizontal,
-            backgroundColor: colors.overlay.blur,
-            borderRadius: 12,
-            padding: spacing.component.sm,
-        },
-        legendItem: {
+        locationCard: {
             flexDirection: 'row',
+            backgroundColor: colors.background.secondary,
+            borderRadius: radius.medium,
+            marginBottom: spacing.list.gap,
+            overflow: 'hidden',
+        },
+        cardImage: {
+            width: 100,
+            height: 100,
+        },
+        cardImagePlaceholder: {
+            width: 100,
+            height: 100,
+            backgroundColor: colors.background.tertiary,
             alignItems: 'center',
+            justifyContent: 'center',
+        },
+        cardContent: {
+            flex: 1,
+            padding: spacing.component.sm,
+            justifyContent: 'center',
+        },
+        cardTitle: {
+            ...typography.headingSmall,
+            color: colors.text.primary,
             marginBottom: 4,
         },
-        legendDot: {
-            width: 10,
-            height: 10,
-            borderRadius: 5,
-            marginRight: 8,
+        cardLocation: {
+            ...typography.body,
+            color: colors.text.secondary,
+            marginBottom: 4,
         },
-        legendText: {
+        statusRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
+        statusDot: {
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            marginRight: 6,
+        },
+        statusText: {
             ...typography.caption,
-            color: colors.text.primary,
+            color: colors.text.muted,
+            textTransform: 'capitalize',
         },
     });
 
@@ -106,7 +126,7 @@ export default function MapScreen() {
     if (goalsWithLocation.length === 0) {
         return (
             <View style={styles.container}>
-                <HeaderOverlay title="World Map" transparent />
+                <HeaderOverlay title="Locations" transparent />
                 <View style={styles.emptyContainer}>
                     <Text style={styles.emptyIcon}>🗺️</Text>
                     <Text style={styles.emptyTitle}>Your map awaits</Text>
@@ -119,57 +139,54 @@ export default function MapScreen() {
         );
     }
 
+    const renderLocationCard = ({ item }: { item: typeof goalsWithLocation[0] }) => {
+        const status = getGoalStatus(item);
+        const category = categoryMeta[item.category];
+
+        return (
+            <Pressable style={styles.locationCard} onPress={() => handleGoalPress(item.id)}>
+                {item.image ? (
+                    <Image source={{ uri: item.image }} style={styles.cardImage} contentFit="cover" />
+                ) : (
+                    <View style={styles.cardImagePlaceholder}>
+                        <Text style={{ fontSize: 32 }}>{category.emoji}</Text>
+                    </View>
+                )}
+                <View style={styles.cardContent}>
+                    <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+                    {item.location && (
+                        <Text style={styles.cardLocation}>
+                            📍 {item.location.city}, {item.location.country}
+                        </Text>
+                    )}
+                    <View style={styles.statusRow}>
+                        <View style={[styles.statusDot, { backgroundColor: colors.status[status] }]} />
+                        <Text style={styles.statusText}>{status}</Text>
+                    </View>
+                </View>
+            </Pressable>
+        );
+    };
+
     return (
         <View style={styles.container}>
-            <HeaderOverlay title="World Map" transparent />
+            <HeaderOverlay title="Locations" transparent />
 
-            <MapView
-                ref={mapRef}
-                style={styles.map}
-                provider={PROVIDER_GOOGLE}
-                customMapStyle={darkMapStyle}
-                initialRegion={{
-                    latitude: 20,
-                    longitude: 0,
-                    latitudeDelta: 100,
-                    longitudeDelta: 100,
-                }}
-            >
-                {goalsWithLocation.map((goal) => {
-                    if (!goal.location) return null;
-                    const status = getGoalStatus(goal);
-
-                    return (
-                        <Marker
-                            key={goal.id}
-                            coordinate={{
-                                latitude: goal.location.latitude,
-                                longitude: goal.location.longitude,
-                            }}
-                            title={goal.title}
-                            description={`${goal.location.city}, ${goal.location.country}`}
-                            pinColor={getMarkerColor(status)}
-                            onPress={() => handleMarkerPress(goal.id)}
-                        />
-                    );
-                })}
-            </MapView>
-
-            {/* Legend */}
-            <View style={styles.legendContainer}>
-                <View style={styles.legendItem}>
-                    <View style={[styles.legendDot, { backgroundColor: colors.status.completed }]} />
-                    <Text style={styles.legendText}>Completed</Text>
-                </View>
-                <View style={styles.legendItem}>
-                    <View style={[styles.legendDot, { backgroundColor: colors.status.planned }]} />
-                    <Text style={styles.legendText}>Planned</Text>
-                </View>
-                <View style={styles.legendItem}>
-                    <View style={[styles.legendDot, { backgroundColor: colors.status.wishlist }]} />
-                    <Text style={styles.legendText}>Wishlist</Text>
-                </View>
-            </View>
+            <FlatList
+                data={goalsWithLocation}
+                keyExtractor={(item) => item.id}
+                renderItem={renderLocationCard}
+                contentContainerStyle={styles.listContent}
+                showsVerticalScrollIndicator={false}
+                ListHeaderComponent={
+                    <View style={styles.headerSection}>
+                        <Text style={styles.headerTitle}>{goalsWithLocation.length}</Text>
+                        <Text style={styles.headerSubtitle}>
+                            {goalsWithLocation.length === 1 ? 'destination' : 'destinations'}
+                        </Text>
+                    </View>
+                }
+            />
 
             <FloatingActionButton onPress={handleCreatePress} icon="+" />
         </View>
