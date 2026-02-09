@@ -9,9 +9,9 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { Image } from 'expo-image';
-import { useTheme } from '../../src/theme';
-import { useGoals, Goal, getGoalStatus, categoryMeta } from '../../src/features/goals';
-import { HeaderOverlay, FloatingActionButton } from '../../src/components';
+import { useTheme } from '../../theme';
+import { useGoals, Goal, getGoalStatus, categoryMeta } from '../../features/goals';
+import { HeaderOverlay, FloatingActionButton } from '../../components';
 
 interface YearSection {
     title: string;

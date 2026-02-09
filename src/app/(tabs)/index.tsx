@@ -7,9 +7,9 @@ import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, Dimensions, Pressable, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '../../src/theme';
-import { useGoals, useGoalsStore } from '../../src/features/goals';
-import { GoalCard, FloatingActionButton, HeaderOverlay } from '../../src/components';
+import { useTheme } from '../../theme';
+import { useGoals, useGoalsStore } from '../../features/goals';
+import { GoalCard, FloatingActionButton, HeaderOverlay } from '../../components';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 

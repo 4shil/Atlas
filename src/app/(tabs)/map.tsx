@@ -9,9 +9,9 @@ import { View, Text, StyleSheet, Dimensions, FlatList, Pressable } from 'react-n
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import { useTheme } from '../../src/theme';
-import { useGoalsWithLocation, getGoalStatus, categoryMeta } from '../../src/features/goals';
-import { HeaderOverlay, FloatingActionButton } from '../../src/components';
+import { useTheme } from '../../theme';
+import { useGoalsWithLocation, getGoalStatus, categoryMeta } from '../../features/goals';
+import { HeaderOverlay, FloatingActionButton } from '../../components';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

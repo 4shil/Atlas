@@ -6,7 +6,7 @@ import { Tabs } from 'expo-router';
 import { Text, View, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '../../src/theme';
+import { useTheme } from '../../theme';
 
 function TabIcon({ icon, label, focused }: { icon: string; label: string; focused: boolean }) {
     const { colors, typography } = useTheme();

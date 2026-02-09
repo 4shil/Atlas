@@ -9,9 +9,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
-import { useTheme } from '../../src/theme';
-import { useGoalsStore, categoryMeta, getGoalStatus } from '../../src/features/goals';
-import { HeaderOverlay, BlurOverlay } from '../../src/components';
+import { useTheme } from '../../theme';
+import { useGoalsStore, categoryMeta, getGoalStatus } from '../../features/goals';
+import { HeaderOverlay, BlurOverlay } from '../../components';
 
 export default function GoalDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();

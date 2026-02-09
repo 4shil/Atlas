@@ -9,9 +9,9 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Image } from 'expo-image';
-import { useTheme } from '../../src/theme';
-import { useCompletedGoals, Goal, categoryMeta } from '../../src/features/goals';
-import { HeaderOverlay } from '../../src/components';
+import { useTheme } from '../../theme';
+import { useCompletedGoals, Goal, categoryMeta } from '../../features/goals';
+import { HeaderOverlay } from '../../components';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const GRID_GAP = 8;

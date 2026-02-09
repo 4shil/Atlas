@@ -7,7 +7,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ThemeProvider, useTheme } from '../src/theme';
+import { ThemeProvider, useTheme } from '../theme';
 
 function RootLayoutNav() {
     const { colors, isDark } = useTheme();

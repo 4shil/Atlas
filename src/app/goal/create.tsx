@@ -17,9 +17,9 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useTheme } from '../../src/theme';
-import { useGoalsStore, GoalCategory, categoryMeta, createEmptyGoal } from '../../src/features/goals';
-import { HeaderOverlay } from '../../src/components';
+import { useTheme } from '../../theme';
+import { useGoalsStore, GoalCategory, categoryMeta, createEmptyGoal } from '../../features/goals';
+import { HeaderOverlay } from '../../components';
 
 const categories = Object.entries(categoryMeta) as [GoalCategory, { label: string; emoji: string }][];
 
