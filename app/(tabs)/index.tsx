@@ -4,14 +4,8 @@
  */
 
 import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Pressable, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import Carousel from 'react-native-reanimated-carousel';
-import Animated, {
-    useSharedValue,
-    useAnimatedStyle,
-    interpolate,
-} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../src/theme';
 import { useGoals, useGoalsStore } from '../../src/features/goals';
@@ -27,23 +21,25 @@ export default function GalleryScreen() {
     const activeGoals = useGoalsStore(state => state.getActiveGoals());
 
     const handleGoalPress = useCallback((id: string) => {
-        router.push(`/goal/${id}`);
+        router.push(`/goal/${id}` as any);
     }, [router]);
 
     const handleCreatePress = useCallback(() => {
-        router.push('/goal/create');
+        router.push('/goal/create' as any);
     }, [router]);
 
     const styles = StyleSheet.create({
         container: {
             flex: 1,
             backgroundColor: colors.background.primary,
+            minHeight: Platform.OS === 'web' ? '100vh' as any : undefined,
         },
         emptyContainer: {
             flex: 1,
             alignItems: 'center',
             justifyContent: 'center',
             paddingHorizontal: spacing.screen.horizontal,
+            paddingTop: insets.top + 60,
         },
         emptyIcon: {
             fontSize: 64,
@@ -60,21 +56,26 @@ export default function GalleryScreen() {
             color: colors.text.secondary,
             textAlign: 'center',
         },
-        carouselContainer: {
+        goalsList: {
             flex: 1,
+            paddingTop: insets.top + 60,
+            paddingHorizontal: spacing.screen.horizontal,
+            paddingBottom: 100 + insets.bottom,
         },
-        pageIndicator: {
-            position: 'absolute',
-            top: insets.top + 60,
-            right: spacing.screen.horizontal,
-            backgroundColor: colors.overlay.blur,
-            paddingHorizontal: spacing.component.sm,
-            paddingVertical: spacing.component.xs / 2,
-            borderRadius: 12,
+        goalItem: {
+            backgroundColor: colors.background.secondary,
+            borderRadius: 16,
+            padding: spacing.component.md,
+            marginBottom: spacing.list.gap,
         },
-        pageText: {
-            ...typography.caption,
+        goalTitle: {
+            ...typography.headingMedium,
             color: colors.text.primary,
+            marginBottom: 4,
+        },
+        goalDescription: {
+            ...typography.body,
+            color: colors.text.secondary,
         },
     });
 
@@ -99,30 +100,26 @@ export default function GalleryScreen() {
         );
     }
 
+    // Simple list view for now (carousel can be added back later)
     return (
         <View style={styles.container}>
             <HeaderOverlay title="Atlas" transparent />
 
-            <View style={styles.carouselContainer}>
-                <Carousel
-                    loop
-                    width={SCREEN_WIDTH}
-                    height={SCREEN_HEIGHT}
-                    data={activeGoals}
-                    scrollAnimationDuration={600}
-                    mode="parallax"
-                    modeConfig={{
-                        parallaxScrollingScale: 0.9,
-                        parallaxScrollingOffset: 50,
-                    }}
-                    renderItem={({ item }) => (
-                        <GoalCard
-                            goal={item}
-                            variant="full"
-                            onPress={() => handleGoalPress(item.id)}
-                        />
-                    )}
-                />
+            <View style={styles.goalsList}>
+                {activeGoals.map((goal) => (
+                    <Pressable
+                        key={goal.id}
+                        style={styles.goalItem}
+                        onPress={() => handleGoalPress(goal.id)}
+                    >
+                        <Text style={styles.goalTitle}>{goal.title}</Text>
+                        {goal.description && (
+                            <Text style={styles.goalDescription} numberOfLines={2}>
+                                {goal.description}
+                            </Text>
+                        )}
+                    </Pressable>
+                ))}
             </View>
 
             <FloatingActionButton

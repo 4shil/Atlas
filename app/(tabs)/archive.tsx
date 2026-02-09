@@ -25,7 +25,7 @@ export default function ArchiveScreen() {
     const completedGoals = useCompletedGoals();
 
     const handleGoalPress = useCallback((id: string) => {
-        router.push(`/goal/${id}`);
+        router.push(`/goal/${id}` as any);
     }, [router]);
 
     const styles = StyleSheet.create({

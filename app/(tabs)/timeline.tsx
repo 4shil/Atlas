@@ -45,11 +45,11 @@ export default function TimelineScreen() {
     }, [goals]);
 
     const handleGoalPress = useCallback((id: string) => {
-        router.push(`/goal/${id}`);
+        router.push(`/goal/${id}` as any);
     }, [router]);
 
     const handleCreatePress = useCallback(() => {
-        router.push('/goal/create');
+        router.push('/goal/create' as any);
     }, [router]);
 
     const styles = StyleSheet.create({
