@@ -4,13 +4,10 @@
         "slug": "atlas",
         "version": "1.0.0",
         "orientation": "portrait",
-        "icon": "./assets/icon.png",
         "scheme": "atlas",
         "userInterfaceStyle": "automatic",
         "newArchEnabled": true,
         "splash": {
-            "image": "./assets/splash-icon.png",
-            "resizeMode": "contain",
             "backgroundColor": "#000000"
         },
         "ios": {
@@ -18,16 +15,11 @@
             "bundleIdentifier": "com.atlas.app"
         },
         "android": {
-            "adaptiveIcon": {
-                "foregroundImage": "./assets/adaptive-icon.png",
-                "backgroundColor": "#000000"
-            },
             "package": "com.atlas.app"
         },
         "web": {
             "bundler": "metro",
-            "output": "static",
-            "favicon": "./assets/favicon.png"
+            "output": "static"
         },
         "plugins": [
             "expo-router"
