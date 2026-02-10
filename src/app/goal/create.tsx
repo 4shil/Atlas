@@ -19,7 +19,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
 import { useGoalsStore, GoalCategory, categoryMeta, createEmptyGoal } from '../../features/goals';
-import { HeaderOverlay } from '../../components';
+import { HeaderOverlay, LocationPicker } from '../../components';
+
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Image } from 'expo-image';
@@ -36,8 +37,13 @@ export default function CreateGoalScreen() {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState<GoalCategory>('travel');
-    const [locationCity, setLocationCity] = useState('');
-    const [locationCountry, setLocationCountry] = useState('');
+    const [location, setLocation] = useState<{
+        latitude: number;
+        longitude: number;
+        city: string;
+        country: string;
+    } | null>(null);
+    const [showLocationPicker, setShowLocationPicker] = useState(false);
     const [image, setImage] = useState<string | null>(null);
     const [timelineDate, setTimelineDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
@@ -62,27 +68,30 @@ export default function CreateGoalScreen() {
         }
     };
 
+    const handleLocationSelect = (newLocation: { latitude: number; longitude: number; city: string; country: string }) => {
+        setLocation(newLocation);
+    };
+
     const handleCreate = useCallback(() => {
         if (!title.trim()) return;
 
         const goalData = {
             ...createEmptyGoal(),
+
             title: title.trim(),
             description: description.trim(),
             category,
             image,
             timelineDate,
-            location: locationCity && locationCountry ? {
-                latitude: 0, // Would be set by map picker in full implementation
-                longitude: 0,
-                city: locationCity.trim(),
-                country: locationCountry.trim(),
+            location: location ? {
+                ...location,
+                placeId: undefined,
             } : null,
         };
 
         addGoal(goalData);
         router.back();
-    }, [title, description, category, locationCity, locationCountry, image, timelineDate, addGoal, router]);
+    }, [title, description, category, location, image, timelineDate, addGoal, router]);
 
     const isValid = title.trim().length > 0;
 
@@ -332,28 +341,24 @@ export default function CreateGoalScreen() {
                 {/* Location */}
                 <Animated.View style={styles.inputGroup} entering={FadeInDown.delay(250).duration(400)}>
                     <Text style={styles.label}>LOCATION (OPTIONAL)</Text>
-                    <View style={styles.locationRow}>
-                        <View style={styles.locationInput}>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="City"
-                                placeholderTextColor={colors.text.muted}
-                                value={locationCity}
-                                onChangeText={setLocationCity}
-                            />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Country"
-                                placeholderTextColor={colors.text.muted}
-                                value={locationCountry}
-                                onChangeText={setLocationCountry}
-                            />
-                        </View>
-                    </View>
+                    <Pressable
+                        style={styles.dateButton}
+                        onPress={() => setShowLocationPicker(true)}
+                    >
+                        <Text style={[styles.dateText, !location && { color: colors.text.muted }]}>
+                            {location ? `${location.city}, ${location.country}` : 'Pick a location on map...'}
+                        </Text>
+                    </Pressable>
                 </Animated.View>
             </ScrollView>
+
+            <LocationPicker
+                visible={showLocationPicker}
+                onClose={() => setShowLocationPicker(false)}
+                onSelect={handleLocationSelect}
+                initialLocation={location}
+            />
+
 
             {/* Create Button */}
             <Pressable
@@ -363,6 +368,6 @@ export default function CreateGoalScreen() {
             >
                 <Text style={styles.createButtonText}>CREATE DREAM</Text>
             </Pressable>
-        </KeyboardAvoidingView>
+        </KeyboardAvoidingView >
     );
 }
