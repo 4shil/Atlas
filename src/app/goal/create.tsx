@@ -20,6 +20,9 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
 import { useGoalsStore, GoalCategory, categoryMeta, createEmptyGoal } from '../../features/goals';
 import { HeaderOverlay } from '../../components';
+import * as ImagePicker from 'expo-image-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Image } from 'expo-image';
 
 const categories = Object.entries(categoryMeta) as [GoalCategory, { label: string; emoji: string }][];
 
@@ -35,6 +38,29 @@ export default function CreateGoalScreen() {
     const [category, setCategory] = useState<GoalCategory>('travel');
     const [locationCity, setLocationCity] = useState('');
     const [locationCountry, setLocationCountry] = useState('');
+    const [image, setImage] = useState<string | null>(null);
+    const [timelineDate, setTimelineDate] = useState(new Date());
+    const [showDatePicker, setShowDatePicker] = useState(false);
+
+    const pickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [16, 9],
+            quality: 0.8,
+        });
+
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+    };
+
+    const handleDateChange = (event: any, selectedDate?: Date) => {
+        setShowDatePicker(false);
+        if (selectedDate) {
+            setTimelineDate(selectedDate);
+        }
+    };
 
     const handleCreate = useCallback(() => {
         if (!title.trim()) return;
@@ -44,6 +70,8 @@ export default function CreateGoalScreen() {
             title: title.trim(),
             description: description.trim(),
             category,
+            image,
+            timelineDate,
             location: locationCity && locationCountry ? {
                 latitude: 0, // Would be set by map picker in full implementation
                 longitude: 0,
@@ -54,7 +82,7 @@ export default function CreateGoalScreen() {
 
         addGoal(goalData);
         router.back();
-    }, [title, description, category, locationCity, locationCountry, addGoal, router]);
+    }, [title, description, category, locationCity, locationCountry, image, timelineDate, addGoal, router]);
 
     const isValid = title.trim().length > 0;
 
@@ -151,6 +179,39 @@ export default function CreateGoalScreen() {
             ...typography.label,
             color: isValid ? colors.text.inverted : colors.text.muted,
         },
+        imagePickerContainer: {
+            height: 200,
+            backgroundColor: colors.background.secondary,
+            borderRadius: radius.medium,
+            overflow: 'hidden',
+            marginBottom: spacing.component.md,
+        },
+        imagePreview: {
+            width: '100%',
+            height: '100%',
+        },
+        imagePlaceholder: {
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        imagePlaceholderIcon: {
+            fontSize: 32,
+            marginBottom: spacing.component.xs,
+        },
+        imagePlaceholderText: {
+            ...typography.label,
+            color: colors.text.secondary,
+        },
+        dateButton: {
+            backgroundColor: colors.background.secondary,
+            padding: spacing.component.md,
+            borderRadius: radius.medium,
+        },
+        dateText: {
+            ...typography.body,
+            color: colors.text.primary,
+        },
     });
 
     return (
@@ -174,6 +235,20 @@ export default function CreateGoalScreen() {
                     <Text style={styles.headerSubtitle}>
                         What experience do you want to add to your life?
                     </Text>
+                </Animated.View>
+
+                {/* Image Picker */}
+                <Animated.View style={styles.inputGroup} entering={FadeInDown.delay(50).duration(400)}>
+                    <Pressable onPress={pickImage} style={styles.imagePickerContainer}>
+                        {image ? (
+                            <Image source={{ uri: image }} style={styles.imagePreview} contentFit="cover" transition={200} />
+                        ) : (
+                            <View style={styles.imagePlaceholder}>
+                                <Text style={styles.imagePlaceholderIcon}>📷</Text>
+                                <Text style={styles.imagePlaceholderText}>Add Cover Image</Text>
+                            </View>
+                        )}
+                    </Pressable>
                 </Animated.View>
 
                 {/* Title */}
@@ -226,6 +301,32 @@ export default function CreateGoalScreen() {
                             </View>
                         ))}
                     </View>
+                </Animated.View>
+
+                {/* Target Date */}
+                <Animated.View style={styles.inputGroup} entering={FadeInDown.delay(225).duration(400)}>
+                    <Text style={styles.label}>TARGET DATE</Text>
+                    <Pressable
+                        style={styles.dateButton}
+                        onPress={() => setShowDatePicker(true)}
+                    >
+                        <Text style={styles.dateText}>
+                            {timelineDate.toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                            })}
+                        </Text>
+                    </Pressable>
+                    {showDatePicker && (
+                        <DateTimePicker
+                            value={timelineDate}
+                            mode="date"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            onChange={handleDateChange}
+                            minimumDate={new Date()}
+                        />
+                    )}
                 </Animated.View>
 
                 {/* Location */}
