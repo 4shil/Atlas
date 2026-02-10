@@ -8,3 +8,5 @@ export { FloatingActionButton } from './FloatingActionButton';
 export { HeaderOverlay } from './HeaderOverlay';
 export { LocationPicker } from './LocationPicker';
 
+
+export { default as TimelineItem } from './TimelineItem';
