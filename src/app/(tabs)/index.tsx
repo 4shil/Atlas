@@ -11,7 +11,10 @@ import { useTheme } from '../../theme';
 import { useGoals, useGoalsStore } from '../../features/goals';
 import { GoalCard, FloatingActionButton, HeaderOverlay } from '../../components';
 
+import Carousel from 'react-native-reanimated-carousel';
+
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 
 export default function GalleryScreen() {
     const router = useRouter();
@@ -105,22 +108,28 @@ export default function GalleryScreen() {
         <View style={styles.container}>
             <HeaderOverlay title="Atlas" transparent />
 
-            <View style={styles.goalsList}>
-                {activeGoals.map((goal) => (
-                    <Pressable
-                        key={goal.id}
-                        style={styles.goalItem}
-                        onPress={() => handleGoalPress(goal.id)}
-                    >
-                        <Text style={styles.goalTitle}>{goal.title}</Text>
-                        {goal.description && (
-                            <Text style={styles.goalDescription} numberOfLines={2}>
-                                {goal.description}
-                            </Text>
-                        )}
-                    </Pressable>
-                ))}
-            </View>
+            <Carousel
+                loop={false}
+                width={SCREEN_WIDTH}
+                height={SCREEN_HEIGHT}
+                vertical={true}
+                data={activeGoals}
+                scrollAnimationDuration={1000}
+                mode="parallax"
+                modeConfig={{
+                    parallaxScrollingScale: 0.9,
+                    parallaxScrollingOffset: 50,
+                }}
+                renderItem={({ item }) => (
+                    <View style={{ flex: 1 }}>
+                        <GoalCard
+                            goal={item}
+                            onPress={() => handleGoalPress(item.id)}
+                            variant="full"
+                        />
+                    </View>
+                )}
+            />
 
             <FloatingActionButton
                 onPress={handleCreatePress}
