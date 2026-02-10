@@ -3,8 +3,8 @@
  * Fullscreen goal view with actions
  */
 
-import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,6 +12,8 @@ import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
 import { useGoalsStore, categoryMeta, getGoalStatus } from '../../features/goals';
 import { HeaderOverlay, BlurOverlay } from '../../components';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function GoalDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -23,6 +25,152 @@ export default function GoalDetailScreen() {
     const markComplete = useGoalsStore(state => state.markComplete);
     const markIncomplete = useGoalsStore(state => state.markIncomplete);
     const deleteGoal = useGoalsStore(state => state.deleteGoal);
+
+    // Style generation with memoization to prevent re-creation on render
+    const styles = useMemo(() => StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background.primary,
+        },
+        errorContainer: {
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        scrollContent: {
+            paddingBottom: insets.bottom + 100, // Space for action bar
+        },
+        imageContainer: {
+            height: SCREEN_WIDTH * 1.2, // Cinematic portrait aspect
+            width: '100%',
+            backgroundColor: colors.background.tertiary,
+        },
+        image: {
+            ...StyleSheet.absoluteFillObject,
+        },
+        imageOverlay: {
+            ...StyleSheet.absoluteFillObject,
+            justifyContent: 'flex-end',
+        },
+        imageGradient: {
+            height: 300,
+            justifyContent: 'flex-end',
+            padding: spacing.screen.horizontal,
+            paddingBottom: spacing.section.gap,
+        },
+        statusBadge: {
+            alignSelf: 'flex-start',
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: spacing.component.sm,
+            paddingVertical: spacing.component.xs / 2,
+            borderRadius: radius.full,
+            marginBottom: spacing.component.sm,
+        },
+        statusDot: {
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            marginRight: 6,
+        },
+        statusText: {
+            ...typography.caption,
+            color: colors.text.primary,
+            textTransform: 'capitalize',
+        },
+        title: {
+            ...typography.displayLarge,
+            color: colors.text.inverted,
+            textShadowColor: 'rgba(0,0,0,0.5)',
+            textShadowOffset: { width: 0, height: 2 },
+            textShadowRadius: 4,
+        },
+        content: {
+            padding: spacing.screen.horizontal,
+            marginTop: spacing.section.margin,
+        },
+        section: {
+            marginBottom: spacing.section.gap,
+        },
+        sectionTitle: {
+            ...typography.label,
+            color: colors.text.secondary,
+            marginBottom: spacing.component.xs,
+        },
+        sectionContent: {
+            ...typography.body,
+            color: colors.text.primary,
+            lineHeight: 24,
+        },
+        metaRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: spacing.component.md,
+            marginBottom: spacing.section.gap,
+        },
+        metaItem: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.background.secondary,
+            paddingHorizontal: spacing.component.sm,
+            paddingVertical: spacing.component.xs,
+            borderRadius: radius.medium,
+        },
+        metaIcon: {
+            fontSize: 16,
+            marginRight: 6,
+        },
+        metaText: {
+            ...typography.bodySmall,
+            color: colors.text.primary,
+        },
+        actionsContainer: {
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            paddingHorizontal: spacing.screen.horizontal,
+            paddingTop: spacing.component.md,
+            paddingBottom: insets.bottom + spacing.component.md,
+        },
+        actionButton: {
+            flex: 1,
+            height: spacing.touch.large,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: radius.medium,
+        },
+        primaryAction: {
+            backgroundColor: goal?.completed ? colors.background.tertiary : colors.status.completed,
+            marginBottom: spacing.component.sm,
+        },
+        dangerAction: {
+            backgroundColor: 'transparent',
+            borderWidth: 1,
+            borderColor: colors.status.error,
+        },
+        actionText: {
+            ...typography.label,
+            color: colors.text.inverted,
+        },
+        dangerText: {
+            ...typography.label,
+            color: colors.status.error,
+        },
+        notesSection: {
+            backgroundColor: colors.background.secondary,
+            borderRadius: radius.medium,
+            padding: spacing.component.md,
+            borderLeftWidth: 2,
+            borderLeftColor: colors.accent.primary,
+        },
+        notesText: {
+            ...typography.body,
+            color: colors.text.secondary,
+            fontStyle: 'italic',
+        },
+    }), [colors, spacing, radius, insets, typography, goal?.completed]);
 
     if (!goal) {
         return (
@@ -77,163 +225,60 @@ export default function GoalDetailScreen() {
         });
     };
 
-    const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            backgroundColor: colors.background.primary,
-        },
-        errorContainer: {
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        imageContainer: {
-            height: 400,
-            width: '100%',
-        },
-        image: {
-            ...StyleSheet.absoluteFillObject,
-        },
-        imageOverlay: {
-            ...StyleSheet.absoluteFillObject,
-            justifyContent: 'flex-end',
-        },
-        imageGradient: {
-            height: 200,
-            justifyContent: 'flex-end',
-            padding: spacing.screen.horizontal,
-        },
-        statusBadge: {
-            alignSelf: 'flex-start',
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: spacing.component.sm,
-            paddingVertical: spacing.component.xs / 2,
-            borderRadius: radius.full,
-            marginBottom: spacing.component.sm,
-        },
-        statusDot: {
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            marginRight: 6,
-        },
-        statusText: {
-            ...typography.caption,
-            color: colors.text.primary,
-            textTransform: 'capitalize',
-        },
-        title: {
-            ...typography.displayLarge,
-            color: colors.text.primary,
-        },
-        content: {
-            padding: spacing.screen.horizontal,
-            paddingBottom: insets.bottom + 100,
-        },
-        section: {
-            marginBottom: spacing.section.gap,
-        },
-        sectionTitle: {
-            ...typography.label,
-            color: colors.text.secondary,
-            marginBottom: spacing.component.xs,
-        },
-        sectionContent: {
-            ...typography.body,
-            color: colors.text.primary,
-        },
-        categoryRow: {
-            flexDirection: 'row',
-            alignItems: 'center',
-        },
-        categoryEmoji: {
-            fontSize: 24,
-            marginRight: spacing.component.xs,
-        },
-        locationRow: {
-            flexDirection: 'row',
-            alignItems: 'center',
-        },
-        locationIcon: {
-            fontSize: 20,
-            marginRight: spacing.component.xs,
-        },
-        actionsContainer: {
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            paddingHorizontal: spacing.screen.horizontal,
-            paddingVertical: spacing.component.md,
-            paddingBottom: insets.bottom + spacing.component.md,
-            backgroundColor: colors.background.secondary,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-        },
-        actionButton: {
-            flex: 1,
-            height: spacing.touch.comfortable,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: radius.medium,
-            marginHorizontal: spacing.component.xs / 2,
-        },
-        primaryAction: {
-            backgroundColor: goal.completed ? colors.text.secondary : colors.status.completed,
-        },
-        dangerAction: {
-            backgroundColor: colors.status.error,
-        },
-        actionText: {
-            ...typography.label,
-            color: colors.text.inverted,
-        },
-        notesSection: {
-            backgroundColor: colors.background.secondary,
-            borderRadius: radius.medium,
-            padding: spacing.component.md,
-        },
-        notesText: {
-            ...typography.body,
-            color: colors.text.secondary,
-            fontStyle: 'italic',
-        },
-    });
-
     return (
         <View style={styles.container}>
-            <HeaderOverlay
-                leftAction={{ icon: '←', onPress: () => router.back() }}
-                transparent
-            />
-
-            <ScrollView showsVerticalScrollIndicator={false}>
-                {/* Hero Image */}
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
+                {/* Immersive Hero */}
                 <View style={styles.imageContainer}>
                     {goal.image ? (
-                        <Image source={{ uri: goal.image }} style={styles.image} contentFit="cover" />
+                        <Image source={{ uri: goal.image }} style={styles.image} contentFit="cover" transition={400} />
                     ) : (
                         <View style={[styles.image, { backgroundColor: colors.background.secondary, alignItems: 'center', justifyContent: 'center' }]}>
-                            <Text style={{ fontSize: 80 }}>{category.emoji}</Text>
+                            <Text style={{ fontSize: 100 }}>{category.emoji}</Text>
                         </View>
                     )}
                     <View style={styles.imageOverlay}>
+                        {/* Gradient scrim for text readability */}
+                        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.3)' }]} />
                         <Animated.View
-                            style={[styles.imageGradient, { backgroundColor: 'rgba(0,0,0,0.6)' }]}
-                            entering={FadeIn.duration(400)}
+                            style={styles.imageGradient}
+                            entering={FadeIn.duration(600)}
                         >
-                            <View style={[styles.statusBadge, { backgroundColor: colors.overlay.blur }]}>
+                            <View style={[styles.statusBadge, { backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }]}>
                                 <View style={[styles.statusDot, { backgroundColor: colors.status[status] }]} />
-                                <Text style={styles.statusText}>{status}</Text>
+                                <Text style={[styles.statusText, { color: '#FFFFFF' }]}>{status}</Text>
                             </View>
                             <Text style={styles.title}>{goal.title}</Text>
                         </Animated.View>
                     </View>
                 </View>
 
-                {/* Content */}
-                <Animated.View style={styles.content} entering={SlideInUp.delay(200).duration(400)}>
+                {/* Main Content */}
+                <Animated.View style={styles.content} entering={SlideInUp.delay(200).duration(500)}>
+
+                    {/* Meta Data Row (Category, Location, Date) */}
+                    <View style={styles.metaRow}>
+                        <View style={styles.metaItem}>
+                            <Text style={styles.metaIcon}>{category.emoji}</Text>
+                            <Text style={styles.metaText}>{category.label}</Text>
+                        </View>
+
+                        {goal.location && (
+                            <View style={styles.metaItem}>
+                                <Text style={styles.metaIcon}>📍</Text>
+                                <Text style={styles.metaText}>{goal.location.city}</Text>
+                            </View>
+                        )}
+
+                        <View style={styles.metaItem}>
+                            <Text style={styles.metaIcon}>📅</Text>
+                            <Text style={styles.metaText}>{formatDate(goal.timelineDate)}</Text>
+                        </View>
+                    </View>
+
                     {/* Description */}
                     {goal.description && (
                         <View style={styles.section}>
@@ -242,43 +287,7 @@ export default function GoalDetailScreen() {
                         </View>
                     )}
 
-                    {/* Category */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>CATEGORY</Text>
-                        <View style={styles.categoryRow}>
-                            <Text style={styles.categoryEmoji}>{category.emoji}</Text>
-                            <Text style={styles.sectionContent}>{category.label}</Text>
-                        </View>
-                    </View>
-
-                    {/* Location */}
-                    {goal.location && (
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>LOCATION</Text>
-                            <View style={styles.locationRow}>
-                                <Text style={styles.locationIcon}>📍</Text>
-                                <Text style={styles.sectionContent}>
-                                    {goal.location.city}, {goal.location.country}
-                                </Text>
-                            </View>
-                        </View>
-                    )}
-
-                    {/* Timeline Date */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>TARGET DATE</Text>
-                        <Text style={styles.sectionContent}>{formatDate(goal.timelineDate)}</Text>
-                    </View>
-
-                    {/* Completed Date */}
-                    {goal.completed && goal.completedAt && (
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>COMPLETED ON</Text>
-                            <Text style={styles.sectionContent}>{formatDate(goal.completedAt)}</Text>
-                        </View>
-                    )}
-
-                    {/* Notes */}
+                    {/* Notes / Reflection */}
                     {goal.notes && (
                         <View style={styles.section}>
                             <Text style={styles.sectionTitle}>REFLECTION</Text>
@@ -290,34 +299,29 @@ export default function GoalDetailScreen() {
                 </Animated.View>
             </ScrollView>
 
-            {/* Actions */}
-            <View style={styles.actionsContainer}>
+            <HeaderOverlay
+                leftAction={{ icon: '←', onPress: () => router.back() }}
+                transparent
+            />
+
+            {/* Floating Actions */}
+            <BlurOverlay style={styles.actionsContainer} intensity={20}>
                 <Pressable
                     style={[styles.actionButton, styles.primaryAction]}
                     onPress={handleComplete}
                 >
                     <Text style={styles.actionText}>
-                        {goal.completed ? 'MARK INCOMPLETE' : 'MARK COMPLETE'}
+                        {goal.completed ? 'MARK AS INCOMPLETE' : 'COMPLETE DREAM'}
                     </Text>
                 </Pressable>
+
                 <Pressable
                     style={[styles.actionButton, styles.dangerAction]}
                     onPress={handleDelete}
                 >
-                    <Text style={styles.actionText}>DELETE</Text>
+                    <Text style={styles.dangerText}>DELETE DREAM</Text>
                 </Pressable>
-            </View>
+            </BlurOverlay>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    errorContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-});
