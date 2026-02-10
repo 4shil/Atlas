@@ -1,27 +1,123 @@
 /**
  * Atlas — Map Screen
  * Interactive world map with goal pins
- * Note: Uses placeholder until react-native-maps is properly configured
  */
 
-import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, Dimensions, FlatList, Pressable } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { View, StyleSheet, Dimensions, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Image } from 'expo-image';
+import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useTheme } from '../../theme';
 import { useGoalsWithLocation, getGoalStatus, categoryMeta } from '../../features/goals';
 import { HeaderOverlay, FloatingActionButton } from '../../components';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Cinematic Dark Map Style
+const mapStyle = [
+    {
+        "elementType": "geometry",
+        "stylers": [{ "color": "#212121" }]
+    },
+    {
+        "elementType": "labels.icon",
+        "stylers": [{ "visibility": "off" }]
+    },
+    {
+        "elementType": "labels.text.fill",
+        "stylers": [{ "color": "#757575" }]
+    },
+    {
+        "elementType": "labels.text.stroke",
+        "stylers": [{ "color": "#212121" }]
+    },
+    {
+        "featureType": "administrative",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#757575" }]
+    },
+    {
+        "featureType": "administrative.country",
+        "elementType": "labels.text.fill",
+        "stylers": [{ "color": "#9e9e9e" }]
+    },
+    {
+        "featureType": "administrative.land_parcel",
+        "stylers": [{ "visibility": "off" }]
+    },
+    {
+        "featureType": "administrative.locality",
+        "elementType": "labels.text.fill",
+        "stylers": [{ "color": "#bdbdbd" }]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "labels.text.fill",
+        "stylers": [{ "color": "#757575" }]
+    },
+    {
+        "featureType": "poi.park",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#181818" }]
+    },
+    {
+        "featureType": "poi.park",
+        "elementType": "labels.text.fill",
+        "stylers": [{ "color": "#616161" }]
+    },
+    {
+        "featureType": "poi.park",
+        "elementType": "labels.text.stroke",
+        "stylers": [{ "color": "#1b1b1b" }]
+    },
+    {
+        "featureType": "road",
+        "elementType": "geometry.fill",
+        "stylers": [{ "color": "#2c2c2c" }]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#373737" }]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#3c3c3c" }]
+    },
+    {
+        "featureType": "road.highway.controlled_access",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#4e4e4e" }]
+    },
+    {
+        "featureType": "road.local",
+        "elementType": "labels.text.fill",
+        "stylers": [{ "color": "#616161" }]
+    },
+    {
+        "featureType": "transit",
+        "elementType": "labels.text.fill",
+        "stylers": [{ "color": "#757575" }]
+    },
+    {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#000000" }]
+    },
+    {
+        "featureType": "water",
+        "elementType": "labels.text.fill",
+        "stylers": [{ "color": "#3d3d3d" }]
+    }
+];
 
 export default function MapScreen() {
     const router = useRouter();
-    const { colors, typography, spacing, radius } = useTheme();
-    const insets = useSafeAreaInsets();
+    const { colors } = useTheme();
     const goalsWithLocation = useGoalsWithLocation();
 
-    const handleGoalPress = useCallback((id: string) => {
+    const handleMarkerPress = useCallback((id: string) => {
         router.push(`/goal/${id}` as any);
     }, [router]);
 
@@ -29,165 +125,68 @@ export default function MapScreen() {
         router.push('/goal/create' as any);
     }, [router]);
 
+    const initialRegion = useMemo(() => {
+        // Default to a world view or user's first goal
+        if (goalsWithLocation.length > 0) {
+            return {
+                latitude: goalsWithLocation[0].location!.latitude,
+                longitude: goalsWithLocation[0].location!.longitude,
+                latitudeDelta: 10,
+                longitudeDelta: 10,
+            };
+        }
+        return {
+            latitude: 20,
+            longitude: 0,
+            latitudeDelta: 60,
+            longitudeDelta: 60,
+        };
+    }, [goalsWithLocation]);
+
     const styles = StyleSheet.create({
         container: {
             flex: 1,
             backgroundColor: colors.background.primary,
         },
-        listContent: {
-            paddingTop: insets.top + 60,
-            paddingBottom: 100 + insets.bottom,
-            paddingHorizontal: spacing.screen.horizontal,
-        },
-        headerSection: {
-            marginBottom: spacing.section.margin,
-        },
-        headerTitle: {
-            ...typography.displayLarge,
-            color: colors.text.primary,
-            marginBottom: spacing.component.xs,
-        },
-        headerSubtitle: {
-            ...typography.body,
-            color: colors.text.secondary,
-        },
-        emptyContainer: {
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingHorizontal: spacing.screen.horizontal,
-        },
-        emptyIcon: {
-            fontSize: 64,
-            marginBottom: spacing.component.md,
-        },
-        emptyTitle: {
-            ...typography.headingLarge,
-            color: colors.text.primary,
-            textAlign: 'center',
-            marginBottom: spacing.component.sm,
-        },
-        emptyDescription: {
-            ...typography.body,
-            color: colors.text.secondary,
-            textAlign: 'center',
-        },
-        locationCard: {
-            flexDirection: 'row',
-            backgroundColor: colors.background.secondary,
-            borderRadius: radius.medium,
-            marginBottom: spacing.list.gap,
-            overflow: 'hidden',
-        },
-        cardImage: {
-            width: 100,
-            height: 100,
-        },
-        cardImagePlaceholder: {
-            width: 100,
-            height: 100,
-            backgroundColor: colors.background.tertiary,
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        cardContent: {
-            flex: 1,
-            padding: spacing.component.sm,
-            justifyContent: 'center',
-        },
-        cardTitle: {
-            ...typography.headingSmall,
-            color: colors.text.primary,
-            marginBottom: 4,
-        },
-        cardLocation: {
-            ...typography.body,
-            color: colors.text.secondary,
-            marginBottom: 4,
-        },
-        statusRow: {
-            flexDirection: 'row',
-            alignItems: 'center',
-        },
-        statusDot: {
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            marginRight: 6,
-        },
-        statusText: {
-            ...typography.caption,
-            color: colors.text.muted,
-            textTransform: 'capitalize',
+        map: {
+            width: SCREEN_WIDTH,
+            height: SCREEN_HEIGHT,
         },
     });
 
-    // Empty state
-    if (goalsWithLocation.length === 0) {
-        return (
-            <View style={styles.container}>
-                <HeaderOverlay title="Locations" transparent />
-                <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyIcon}>🗺️</Text>
-                    <Text style={styles.emptyTitle}>Your map awaits</Text>
-                    <Text style={styles.emptyDescription}>
-                        Add locations to your dreams and watch your world come alive.
-                    </Text>
-                </View>
-                <FloatingActionButton onPress={handleCreatePress} icon="+" />
-            </View>
-        );
-    }
-
-    const renderLocationCard = ({ item }: { item: typeof goalsWithLocation[0] }) => {
-        const status = getGoalStatus(item);
-        const category = categoryMeta[item.category];
-
-        return (
-            <Pressable style={styles.locationCard} onPress={() => handleGoalPress(item.id)}>
-                {item.image ? (
-                    <Image source={{ uri: item.image }} style={styles.cardImage} contentFit="cover" />
-                ) : (
-                    <View style={styles.cardImagePlaceholder}>
-                        <Text style={{ fontSize: 32 }}>{category.emoji}</Text>
-                    </View>
-                )}
-                <View style={styles.cardContent}>
-                    <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-                    {item.location && (
-                        <Text style={styles.cardLocation}>
-                            📍 {item.location.city}, {item.location.country}
-                        </Text>
-                    )}
-                    <View style={styles.statusRow}>
-                        <View style={[styles.statusDot, { backgroundColor: colors.status[status] }]} />
-                        <Text style={styles.statusText}>{status}</Text>
-                    </View>
-                </View>
-            </Pressable>
-        );
-    };
-
     return (
         <View style={styles.container}>
+            <MapView
+                style={styles.map}
+                provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
+                customMapStyle={mapStyle}
+                initialRegion={initialRegion}
+                rotateEnabled={false}
+                pitchEnabled={false}
+                toolbarEnabled={false}
+            >
+                {goalsWithLocation.map((goal) => {
+                    const category = categoryMeta[goal.category];
+                    const status = getGoalStatus(goal);
+                    const pinColor = status === 'completed' ? colors.status.completed : colors.accent.primary;
+
+                    return (
+                        <Marker
+                            key={goal.id}
+                            coordinate={{
+                                latitude: goal.location!.latitude,
+                                longitude: goal.location!.longitude,
+                            }}
+                            title={goal.title}
+                            description={goal.location!.city}
+                            onCalloutPress={() => handleMarkerPress(goal.id)}
+                            pinColor={pinColor}
+                        />
+                    )
+                })}
+            </MapView>
+
             <HeaderOverlay title="Locations" transparent />
-
-            <FlatList
-                data={goalsWithLocation}
-                keyExtractor={(item) => item.id}
-                renderItem={renderLocationCard}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
-                ListHeaderComponent={
-                    <View style={styles.headerSection}>
-                        <Text style={styles.headerTitle}>{goalsWithLocation.length}</Text>
-                        <Text style={styles.headerSubtitle}>
-                            {goalsWithLocation.length === 1 ? 'destination' : 'destinations'}
-                        </Text>
-                    </View>
-                }
-            />
-
             <FloatingActionButton onPress={handleCreatePress} icon="+" />
         </View>
     );
