@@ -25,6 +25,12 @@ export interface Goal {
     location: Location | null;
 }
 
+export interface PersistedGoal extends Omit<Goal, 'createdAt' | 'timelineDate' | 'completedAt'> {
+    createdAt: string;
+    timelineDate: string;
+    completedAt: string | null;
+}
+
 export type GoalCategory =
     | 'travel'
     | 'adventure'
@@ -66,6 +72,24 @@ export function getGoalStatus(goal: Goal): GoalStatus {
     if (goal.completed) return 'completed';
     if (!goal.timelineDate || goal.timelineDate > new Date()) return 'wishlist';
     return 'planned';
+}
+
+export function normalizeGoalDates(goal: Goal | PersistedGoal): Goal {
+    return {
+        ...goal,
+        createdAt: new Date(goal.createdAt),
+        timelineDate: new Date(goal.timelineDate),
+        completedAt: goal.completedAt ? new Date(goal.completedAt) : null,
+    };
+}
+
+export function serializeGoalDates(goal: Goal): PersistedGoal {
+    return {
+        ...goal,
+        createdAt: goal.createdAt.toISOString(),
+        timelineDate: goal.timelineDate.toISOString(),
+        completedAt: goal.completedAt ? goal.completedAt.toISOString() : null,
+    };
 }
 
 export function createEmptyGoal(): Omit<Goal, 'id' | 'createdAt'> {

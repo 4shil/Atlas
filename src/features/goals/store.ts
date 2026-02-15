@@ -6,7 +6,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Goal, GoalCategory, generateGoalId, getGoalStatus } from './types';
+import { Goal, GoalCategory, generateGoalId, normalizeGoalDates, PersistedGoal, serializeGoalDates } from './types';
 
 // ============================================
 // STORE INTERFACE
@@ -35,6 +35,10 @@ interface GoalsState {
     getTotalCount: () => number;
     getCompletedCount: () => number;
     getCategories: () => GoalCategory[];
+}
+
+interface PersistedGoalsState {
+    goals: PersistedGoal[];
 }
 
 // ============================================
@@ -150,8 +154,21 @@ export const useGoalsStore = create<GoalsState>()(
         {
             name: 'atlas-goals-storage',
             storage: createJSONStorage(() => AsyncStorage),
-            // Serialize dates properly
-            partialize: (state) => ({ goals: state.goals }),
+            partialize: (state) => ({
+                goals: state.goals.map(serializeGoalDates),
+            }),
+            merge: (persistedState, currentState) => {
+                const typedPersistedState = persistedState as PersistedGoalsState | undefined;
+
+                if (!typedPersistedState?.goals) {
+                    return currentState;
+                }
+
+                return {
+                    ...currentState,
+                    goals: typedPersistedState.goals.map(normalizeGoalDates),
+                };
+            },
         }
     )
 );

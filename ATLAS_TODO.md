@@ -7,6 +7,48 @@
 
 ---
 
+## 🚧 Rebuild Plan (v2 — Feb 15, 2026)
+
+This replaces ad-hoc implementation with a strict PRD + Design System driven rebuild.
+
+### Phase A — Foundation Reset (In Progress)
+- [x] Rebuild roadmap and governance checkpoints
+- [x] Harden goal persistence with date-safe serialization
+- [ ] Remove remaining hardcoded UI values from core navigation + goal flows
+- [ ] Normalize all screen primitives to semantic tokens only
+- [ ] Add lightweight seed fixtures for deterministic UI development
+
+### Phase B — App Shell + Navigation
+- [x] Tab shell visual refresh (tokenized cinematic bar)
+- [ ] Root navigation transitions mapped to motion tokens
+- [ ] Header/FAB consistency across all screens
+- [ ] Route-level loading and empty-state conventions
+
+### Phase C — Goal Lifecycle (MVP)
+- [ ] Rebuild create/edit/detail screens around a single form model
+- [ ] Add explicit goal status flow (`wishlist` / `planned` / `completed`)
+- [ ] Validation + error handling for required fields
+- [ ] Reflection notes + completion transition behavior
+
+### Phase D — Experiences Surfaces
+- [ ] Gallery: immersive vertical carousel + parallax rhythm
+- [ ] Map: pin system with tokenized status states + interaction polish
+- [ ] Timeline: year-grouped story flow + visual continuity
+- [ ] Archive: completed vault with date grouping
+
+### Phase E — Quality, Accessibility, Performance
+- [ ] Reduced motion plumbing to all animated surfaces
+- [ ] WCAG contrast + touch target audit (44px+)
+- [ ] Render performance pass for carousel, maps, and lists
+- [ ] Stabilization tests and release checklist
+
+### Phase F — Post-MVP Extension Hooks
+- [ ] Cloud sync boundaries and migration readiness
+- [ ] Share/export hooks
+- [ ] AI/analytics extension points
+
+---
+
 ## 📋 Document Analysis Summary
 
 ### PRD Key Insights

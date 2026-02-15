@@ -81,7 +81,7 @@ export default function GoalDetailScreen() {
         title: {
             ...typography.displayLarge,
             color: colors.text.inverted,
-            textShadowColor: 'rgba(0,0,0,0.5)',
+            textShadowColor: colors.overlay.dark,
             textShadowOffset: { width: 0, height: 2 },
             textShadowRadius: 4,
         },
@@ -242,14 +242,14 @@ export default function GoalDetailScreen() {
                     )}
                     <View style={styles.imageOverlay}>
                         {/* Gradient scrim for text readability */}
-                        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.3)' }]} />
+                        <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay.light }]} />
                         <Animated.View
                             style={styles.imageGradient}
                             entering={FadeIn.duration(600)}
                         >
-                            <View style={[styles.statusBadge, { backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }]}>
+                            <View style={[styles.statusBadge, { backgroundColor: colors.overlay.blur }]}>
                                 <View style={[styles.statusDot, { backgroundColor: colors.status[status] }]} />
-                                <Text style={[styles.statusText, { color: '#FFFFFF' }]}>{status}</Text>
+                                <Text style={styles.statusText}>{status}</Text>
                             </View>
                             <Text style={styles.title}>{goal.title}</Text>
                         </Animated.View>
