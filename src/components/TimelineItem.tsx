@@ -14,6 +14,10 @@ interface TimelineItemProps {
 
 export default function TimelineItem({ item, index, isLast, onPress }: TimelineItemProps) {
     const { colors, typography, spacing, radius } = useTheme();
+    const timelineThickness = StyleSheet.hairlineWidth * 2;
+    const timelineDotSize = spacing.component.sm - spacing.component.xs / 2;
+    const timelineColumnWidth = spacing.component.md + spacing.component.sm;
+    const timelineCardHeight = spacing.section.margin * 3 + spacing.component.sm;
 
     const status = getGoalStatus(item);
     const category = categoryMeta[item.category];
@@ -29,26 +33,26 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
         },
         timelineColumn: {
             alignItems: 'center',
-            width: 40,
+            width: timelineColumnWidth,
             marginRight: spacing.component.sm,
         },
         lineTop: {
-            width: 2,
+            width: timelineThickness,
             flex: 1,
             backgroundColor: colors.border.subtle,
-            marginBottom: 4,
+            marginBottom: spacing.component.xs / 2,
         },
         lineBottom: {
-            width: 2,
+            width: timelineThickness,
             flex: 1,
             backgroundColor: isLast ? 'transparent' : colors.border.subtle,
-            marginTop: 4,
+            marginTop: spacing.component.xs / 2,
         },
         dot: {
-            width: 12,
-            height: 12,
-            borderRadius: 6,
-            borderWidth: 2,
+            width: timelineDotSize,
+            height: timelineDotSize,
+            borderRadius: timelineDotSize / 2,
+            borderWidth: timelineThickness,
             borderColor: colors.background.primary,
             zIndex: 1,
         },
@@ -61,14 +65,14 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
             borderRadius: radius.medium,
             overflow: 'hidden',
             flexDirection: 'row',
-            height: 100,
+            height: timelineCardHeight,
         },
         image: {
-            width: 100,
+            width: timelineCardHeight,
             height: '100%',
         },
         imagePlaceholder: {
-            width: 100,
+            width: timelineCardHeight,
             height: '100%',
             backgroundColor: colors.background.tertiary,
             alignItems: 'center',
@@ -82,12 +86,12 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
         date: {
             ...typography.caption,
             color: colors.text.secondary,
-            marginBottom: 4,
+            marginBottom: spacing.component.xs / 2,
         },
         title: {
             ...typography.headingSmall,
             color: colors.text.primary,
-            marginBottom: 4,
+            marginBottom: spacing.component.xs / 2,
         },
         location: {
             ...typography.caption,
@@ -95,17 +99,17 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
         },
         categoryBadge: {
             position: 'absolute',
-            top: 8,
-            right: 8,
+            top: spacing.component.xs,
+            right: spacing.component.xs,
             backgroundColor: colors.overlay.blur,
-            paddingHorizontal: 6,
-            paddingVertical: 2,
-            borderRadius: 8,
+            paddingHorizontal: spacing.component.xs / 2,
+            paddingVertical: spacing.component.xs / 4,
+            borderRadius: radius.small,
         },
         categoryText: {
-            fontSize: 10,
+            ...typography.caption,
         },
-    }), [colors, spacing, radius, typography, isLast]);
+    }), [colors, spacing, radius, typography, isLast, timelineCardHeight, timelineColumnWidth, timelineDotSize, timelineThickness]);
 
     return (
         <Animated.View
@@ -130,7 +134,7 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
                         <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" />
                     ) : (
                         <View style={styles.imagePlaceholder}>
-                            <Text style={{ fontSize: 32 }}>{category.emoji}</Text>
+                            <Text style={{ fontSize: typography.headingLarge.fontSize }}>{category.emoji}</Text>
                         </View>
                     )}
 

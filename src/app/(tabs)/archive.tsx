@@ -14,15 +14,15 @@ import { useCompletedGoals, Goal, categoryMeta } from '../../features/goals';
 import { HeaderOverlay } from '../../components';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const GRID_GAP = 8;
-const NUM_COLUMNS = 2;
-const ITEM_WIDTH = (SCREEN_WIDTH - 32 - GRID_GAP) / NUM_COLUMNS;
 
 export default function ArchiveScreen() {
     const router = useRouter();
     const { colors, typography, spacing, radius } = useTheme();
     const insets = useSafeAreaInsets();
     const completedGoals = useCompletedGoals();
+    const gridGap = spacing.component.xs;
+    const numColumns = 2;
+    const itemWidth = (SCREEN_WIDTH - spacing.screen.horizontal * 2 - gridGap) / numColumns;
 
     const handleGoalPress = useCallback((id: string) => {
         router.push(`/goal/${id}` as any);
@@ -35,7 +35,7 @@ export default function ArchiveScreen() {
         },
         listContent: {
             paddingTop: insets.top + 60,
-            paddingBottom: 100 + insets.bottom,
+            paddingBottom: spacing.screen.bottom + insets.bottom,
             paddingHorizontal: spacing.screen.horizontal,
         },
         statsContainer: {
@@ -51,10 +51,10 @@ export default function ArchiveScreen() {
             color: colors.text.secondary,
         },
         gridItem: {
-            width: ITEM_WIDTH,
-            height: ITEM_WIDTH * 1.3,
-            marginBottom: GRID_GAP,
-            marginRight: GRID_GAP,
+            width: itemWidth,
+            height: itemWidth * 1.3,
+            marginBottom: gridGap,
+            marginRight: gridGap,
             borderRadius: radius.medium,
             overflow: 'hidden',
             backgroundColor: colors.background.secondary,
@@ -76,16 +76,16 @@ export default function ArchiveScreen() {
         gridDate: {
             ...typography.caption,
             color: colors.text.secondary,
-            marginTop: 2,
+            marginTop: spacing.component.xs / 4,
         },
         completedBadge: {
             position: 'absolute',
-            top: 8,
-            left: 8,
+            top: spacing.component.xs,
+            left: spacing.component.xs,
             backgroundColor: colors.status.completed,
-            width: 24,
-            height: 24,
-            borderRadius: 12,
+            width: spacing.component.md,
+            height: spacing.component.md,
+            borderRadius: radius.full,
             alignItems: 'center',
             justifyContent: 'center',
         },
@@ -132,7 +132,7 @@ export default function ArchiveScreen() {
                         <Image source={{ uri: item.image }} style={styles.gridImage} contentFit="cover" />
                     ) : (
                         <View style={[styles.gridImage, { backgroundColor: colors.background.tertiary, alignItems: 'center', justifyContent: 'center' }]}>
-                            <Text style={{ fontSize: 32 }}>{categoryMeta[item.category].emoji}</Text>
+                            <Text style={{ fontSize: typography.headingLarge.fontSize }}>{categoryMeta[item.category].emoji}</Text>
                         </View>
                     )}
 
@@ -183,7 +183,7 @@ export default function ArchiveScreen() {
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
                 ListHeaderComponent={renderHeader}
-                numColumns={NUM_COLUMNS}
+                numColumns={numColumns}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
             />
