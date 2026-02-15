@@ -35,7 +35,7 @@ function FloatingActionButtonComponent({
     }));
 
     const handlePressIn = () => {
-        scale.value = withSpring(0.9, motion.springs.quick);
+        scale.value = withSpring(motion.presets.cardPress.scale, motion.springs.quick);
     };
 
     const handlePressOut = () => {

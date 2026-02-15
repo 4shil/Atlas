@@ -94,6 +94,7 @@ export default function CreateGoalScreen() {
     }, [title, description, category, location, image, timelineDate, addGoal, router]);
 
     const isValid = title.trim().length > 0;
+    const categoryGap = spacing.component.xs / 2;
 
     const styles = StyleSheet.create({
         container: {
@@ -133,17 +134,17 @@ export default function CreateGoalScreen() {
             color: colors.text.primary,
         },
         textArea: {
-            minHeight: 100,
+            minHeight: spacing.touch.large * 2,
             textAlignVertical: 'top',
         },
         categoryGrid: {
             flexDirection: 'row',
             flexWrap: 'wrap',
-            marginHorizontal: -4,
+            marginHorizontal: -categoryGap,
         },
         categoryItem: {
             width: '25%',
-            padding: 4,
+            padding: categoryGap,
         },
         categoryButton: {
             alignItems: 'center',
@@ -157,7 +158,7 @@ export default function CreateGoalScreen() {
         },
         categoryEmoji: {
             fontSize: 24,
-            marginBottom: 4,
+            marginBottom: categoryGap,
         },
         categoryLabel: {
             ...typography.caption,
@@ -189,7 +190,7 @@ export default function CreateGoalScreen() {
             color: isValid ? colors.text.inverted : colors.text.muted,
         },
         imagePickerContainer: {
-            height: 200,
+            height: spacing.section.gap * 4,
             backgroundColor: colors.background.secondary,
             borderRadius: radius.medium,
             overflow: 'hidden',

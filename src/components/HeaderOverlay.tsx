@@ -28,7 +28,7 @@ function HeaderOverlayComponent({
     rightAction,
     transparent = true,
 }: HeaderOverlayProps) {
-    const { colors, typography, spacing } = useTheme();
+    const { colors, typography, spacing, zIndex } = useTheme();
     const insets = useSafeAreaInsets();
 
     const styles = StyleSheet.create({
@@ -37,7 +37,7 @@ function HeaderOverlayComponent({
             top: 0,
             left: 0,
             right: 0,
-            zIndex: 100,
+            zIndex: zIndex.header,
         },
         content: {
             flexDirection: 'row',

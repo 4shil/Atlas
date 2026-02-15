@@ -17,7 +17,7 @@ function TabIcon({ icon, label, focused }: { icon: TabIconName; label: string; f
     const iconColor = focused ? colors.accent.primary : colors.text.secondary;
 
     return (
-        <View style={styles.tabIcon}>
+        <View style={[styles.tabIcon, { paddingTop: spacing.component.xs }]}>
             <Ionicons name={icon} size={22} color={iconColor} />
             <Text style={[
                 typography.caption,
@@ -30,8 +30,9 @@ function TabIcon({ icon, label, focused }: { icon: TabIconName; label: string; f
 }
 
 export default function TabLayout() {
-    const { colors } = useTheme();
+    const { colors, spacing } = useTheme();
     const insets = useSafeAreaInsets();
+    const tabBarBaseHeight = spacing.touch.large + spacing.component.lg;
 
     return (
         <Tabs
@@ -42,7 +43,7 @@ export default function TabLayout() {
                     backgroundColor: 'transparent',
                     borderTopWidth: StyleSheet.hairlineWidth,
                     borderTopColor: colors.border.subtle,
-                    height: 80 + insets.bottom,
+                    height: tabBarBaseHeight + insets.bottom,
                     paddingBottom: insets.bottom,
                 },
                 tabBarBackground: () => (
@@ -97,6 +98,5 @@ const styles = StyleSheet.create({
     tabIcon: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingTop: 8,
     },
 });
