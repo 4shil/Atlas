@@ -38,6 +38,42 @@ export const rawColors = {
     },
 } as const;
 
+export interface Colors {
+    background: {
+        primary: string;
+        secondary: string;
+        tertiary: string;
+        inverted: string;
+    };
+    text: {
+        primary: string;
+        secondary: string;
+        tertiary: string;
+        inverted: string;
+        muted: string;
+    };
+    accent: {
+        primary: string;
+        secondary: string;
+    };
+    status: {
+        completed: string;
+        planned: string;
+        wishlist: string;
+        error: string;
+    };
+    border: {
+        subtle: string;
+        medium: string;
+        strong: string;
+    };
+    overlay: {
+        blur: string;
+        light: string;
+        dark: string;
+    };
+}
+
 // ============================================
 // SEMANTIC COLOR TOKENS (Intent-Driven)
 // ============================================
@@ -80,14 +116,14 @@ export const semanticColors = {
         light: 'rgba(0, 0, 0, 0.3)',
         dark: 'rgba(0, 0, 0, 0.8)',
     },
-} as const;
+} satisfies Colors;
 
 // ============================================
 // THEME VARIANTS
 // ============================================
 export type ThemeMode = 'dark' | 'light' | 'highContrast';
 
-export const themes: Record<ThemeMode, typeof semanticColors> = {
+export const themes: Record<ThemeMode, Colors> = {
     dark: semanticColors,
 
     light: {
@@ -154,5 +190,3 @@ export const themes: Record<ThemeMode, typeof semanticColors> = {
         },
     },
 };
-
-export type Colors = typeof semanticColors;
