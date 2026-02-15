@@ -25,6 +25,8 @@ export default function GoalDetailScreen() {
     const markComplete = useGoalsStore(state => state.markComplete);
     const markIncomplete = useGoalsStore(state => state.markIncomplete);
     const deleteGoal = useGoalsStore(state => state.deleteGoal);
+    const actionBarOffset = spacing.screen.bottom + insets.bottom;
+    const timelineDotSize = spacing.component.xs;
 
     // Style generation with memoization to prevent re-creation on render
     const styles = useMemo(() => StyleSheet.create({
@@ -38,7 +40,7 @@ export default function GoalDetailScreen() {
             justifyContent: 'center',
         },
         scrollContent: {
-            paddingBottom: insets.bottom + 100, // Space for action bar
+            paddingBottom: actionBarOffset + spacing.screen.bottom,
         },
         imageContainer: {
             height: SCREEN_WIDTH * 1.2, // Cinematic portrait aspect
@@ -53,7 +55,7 @@ export default function GoalDetailScreen() {
             justifyContent: 'flex-end',
         },
         imageGradient: {
-            height: 300,
+            height: spacing.section.gap * 6,
             justifyContent: 'flex-end',
             padding: spacing.screen.horizontal,
             paddingBottom: spacing.section.gap,
@@ -68,10 +70,10 @@ export default function GoalDetailScreen() {
             marginBottom: spacing.component.sm,
         },
         statusDot: {
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            marginRight: 6,
+            width: timelineDotSize,
+            height: timelineDotSize,
+            borderRadius: timelineDotSize / 2,
+            marginRight: spacing.component.xs,
         },
         statusText: {
             ...typography.caption,
@@ -100,7 +102,6 @@ export default function GoalDetailScreen() {
         sectionContent: {
             ...typography.body,
             color: colors.text.primary,
-            lineHeight: 24,
         },
         metaRow: {
             flexDirection: 'row',
@@ -119,7 +120,7 @@ export default function GoalDetailScreen() {
         },
         metaIcon: {
             fontSize: 16,
-            marginRight: 6,
+            marginRight: spacing.component.xs / 2,
         },
         metaText: {
             ...typography.bodySmall,
@@ -237,7 +238,7 @@ export default function GoalDetailScreen() {
                         <Image source={{ uri: goal.image }} style={styles.image} contentFit="cover" transition={400} />
                     ) : (
                         <View style={[styles.image, { backgroundColor: colors.background.secondary, alignItems: 'center', justifyContent: 'center' }]}>
-                            <Text style={{ fontSize: 100 }}>{category.emoji}</Text>
+                            <Text style={{ fontSize: typography.displayLarge.fontSize * 2 }}>{category.emoji}</Text>
                         </View>
                     )}
                     <View style={styles.imageOverlay}>
