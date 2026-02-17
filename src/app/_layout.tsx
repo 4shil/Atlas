@@ -10,7 +10,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '../theme';
 
 function RootLayoutNav() {
-    const { colors, isDark } = useTheme();
+    const { colors, isDark, isReducedMotion } = useTheme();
 
     return (
         <>
@@ -21,7 +21,7 @@ function RootLayoutNav() {
                     contentStyle: {
                         backgroundColor: colors.background.primary,
                     },
-                    animation: 'fade',
+                    animation: isReducedMotion ? 'fade' : 'fade_from_bottom',
                 }}
             >
                 <Stack.Screen name="(tabs)" />
@@ -29,14 +29,14 @@ function RootLayoutNav() {
                     name="goal/[id]"
                     options={{
                         presentation: 'modal',
-                        animation: 'slide_from_bottom',
+                        animation: isReducedMotion ? 'fade' : 'slide_from_bottom',
                     }}
                 />
                 <Stack.Screen
                     name="goal/create"
                     options={{
                         presentation: 'modal',
-                        animation: 'slide_from_bottom',
+                        animation: isReducedMotion ? 'fade' : 'slide_from_bottom',
                     }}
                 />
             </Stack>

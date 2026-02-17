@@ -4,7 +4,7 @@
  */
 
 import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Dimensions, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -20,9 +20,33 @@ export default function ArchiveScreen() {
     const { colors, typography, spacing, radius } = useTheme();
     const insets = useSafeAreaInsets();
     const completedGoals = useCompletedGoals();
+    const headerOffset = insets.top + spacing.screen.top;
     const gridGap = spacing.component.xs;
     const numColumns = 2;
     const itemWidth = (SCREEN_WIDTH - spacing.screen.horizontal * 2 - gridGap) / numColumns;
+    const groupedGoals = completedGoals.reduce<Record<string, Goal[]>>((acc, goal) => {
+        const completedYear = goal.completedAt
+            ? new Date(goal.completedAt).getFullYear().toString()
+            : new Date(goal.timelineDate).getFullYear().toString();
+
+        if (!acc[completedYear]) {
+            acc[completedYear] = [];
+        }
+
+        acc[completedYear].push(goal);
+        return acc;
+    }, {});
+
+    const groupedByYear = Object.entries(groupedGoals)
+        .sort(([a], [b]) => Number(b) - Number(a))
+        .map(([year, goals]) => ({
+            year,
+            goals: goals.sort((a, b) => {
+                const dateA = a.completedAt ? new Date(a.completedAt).getTime() : new Date(a.timelineDate).getTime();
+                const dateB = b.completedAt ? new Date(b.completedAt).getTime() : new Date(b.timelineDate).getTime();
+                return dateB - dateA;
+            }),
+        }));
 
     const handleGoalPress = useCallback((id: string) => {
         router.push(`/goal/${id}` as any);
@@ -34,7 +58,7 @@ export default function ArchiveScreen() {
             backgroundColor: colors.background.primary,
         },
         listContent: {
-            paddingTop: insets.top + 60,
+            paddingTop: headerOffset,
             paddingBottom: spacing.screen.bottom + insets.bottom,
             paddingHorizontal: spacing.screen.horizontal,
         },
@@ -49,6 +73,35 @@ export default function ArchiveScreen() {
         statsSubtitle: {
             ...typography.body,
             color: colors.text.secondary,
+        },
+        yearSection: {
+            marginBottom: spacing.section.margin,
+        },
+        yearHeader: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: spacing.component.sm,
+        },
+        yearPill: {
+            backgroundColor: colors.background.tertiary,
+            borderRadius: radius.full,
+            paddingHorizontal: spacing.component.sm,
+            paddingVertical: spacing.component.xs / 2,
+            marginRight: spacing.component.sm,
+        },
+        yearText: {
+            ...typography.label,
+            color: colors.text.primary,
+        },
+        yearLine: {
+            flex: 1,
+            height: StyleSheet.hairlineWidth,
+            backgroundColor: colors.border.subtle,
+        },
+        yearGrid: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            marginRight: -gridGap,
         },
         gridItem: {
             width: itemWidth,
@@ -126,7 +179,7 @@ export default function ArchiveScreen() {
             : '';
 
         return (
-            <Animated.View entering={FadeIn.delay(index * 50).duration(300)}>
+            <Animated.View key={item.id} entering={FadeIn.delay(index * 50).duration(300)}>
                 <Pressable style={styles.gridItem} onPress={() => handleGoalPress(item.id)}>
                     {item.image ? (
                         <Image source={{ uri: item.image }} style={styles.gridImage} contentFit="cover" />
@@ -178,15 +231,24 @@ export default function ArchiveScreen() {
         <View style={styles.container}>
             <HeaderOverlay title="Archive" transparent />
 
-            <FlatList
-                data={completedGoals}
-                keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-                ListHeaderComponent={renderHeader}
-                numColumns={numColumns}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
-            />
+            <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+                {renderHeader()}
+
+                {groupedByYear.map((group) => (
+                    <View key={group.year} style={styles.yearSection}>
+                        <View style={styles.yearHeader}>
+                            <View style={styles.yearPill}>
+                                <Text style={styles.yearText}>{group.year}</Text>
+                            </View>
+                            <View style={styles.yearLine} />
+                        </View>
+
+                        <View style={styles.yearGrid}>
+                            {group.goals.map((goal, index) => renderItem({ item: goal, index }))}
+                        </View>
+                    </View>
+                ))}
+            </ScrollView>
         </View>
     );
 }

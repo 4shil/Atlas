@@ -10,7 +10,7 @@ import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
-import { useGoalsStore, categoryMeta, getGoalStatus } from '../../features/goals';
+import { useGoalsStore, useGoal, categoryMeta, getGoalStatus } from '../../features/goals';
 import { HeaderOverlay, BlurOverlay } from '../../components';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -21,12 +21,46 @@ export default function GoalDetailScreen() {
     const { colors, typography, spacing, radius } = useTheme();
     const insets = useSafeAreaInsets();
 
-    const goal = useGoalsStore(state => state.getGoalById(id));
+    const goal = useGoal(id ?? '');
     const markComplete = useGoalsStore(state => state.markComplete);
     const markIncomplete = useGoalsStore(state => state.markIncomplete);
     const deleteGoal = useGoalsStore(state => state.deleteGoal);
     const actionBarOffset = spacing.screen.bottom + insets.bottom;
     const timelineDotSize = spacing.component.xs;
+
+    const handleComplete = useCallback(() => {
+        if (!goal) {
+            return;
+        }
+
+        if (goal.completed) {
+            markIncomplete(goal.id);
+        } else {
+            markComplete(goal.id);
+        }
+    }, [goal, markComplete, markIncomplete]);
+
+    const handleDelete = useCallback(() => {
+        if (!goal) {
+            return;
+        }
+
+        Alert.alert(
+            'Delete Dream',
+            'Are you sure you want to delete this dream? This cannot be undone.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: () => {
+                        deleteGoal(goal.id);
+                        router.back();
+                    }
+                },
+            ]
+        );
+    }, [goal, deleteGoal, router]);
 
     // Style generation with memoization to prevent re-creation on render
     const styles = useMemo(() => StyleSheet.create({
@@ -171,7 +205,7 @@ export default function GoalDetailScreen() {
             color: colors.text.secondary,
             fontStyle: 'italic',
         },
-    }), [colors, spacing, radius, insets, typography, goal?.completed]);
+    }), [colors, spacing, radius, insets, typography, goal?.completed, actionBarOffset, timelineDotSize]);
 
     if (!goal) {
         return (
@@ -191,32 +225,6 @@ export default function GoalDetailScreen() {
 
     const status = getGoalStatus(goal);
     const category = categoryMeta[goal.category];
-
-    const handleComplete = useCallback(() => {
-        if (goal.completed) {
-            markIncomplete(goal.id);
-        } else {
-            markComplete(goal.id);
-        }
-    }, [goal, markComplete, markIncomplete]);
-
-    const handleDelete = useCallback(() => {
-        Alert.alert(
-            'Delete Dream',
-            'Are you sure you want to delete this dream? This cannot be undone.',
-            [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                    text: 'Delete',
-                    style: 'destructive',
-                    onPress: () => {
-                        deleteGoal(goal.id);
-                        router.back();
-                    }
-                },
-            ]
-        );
-    }, [goal.id, deleteGoal, router]);
 
     const formatDate = (date: Date) => {
         return new Date(date).toLocaleDateString('en-US', {
@@ -293,7 +301,7 @@ export default function GoalDetailScreen() {
                         <View style={styles.section}>
                             <Text style={styles.sectionTitle}>REFLECTION</Text>
                             <View style={styles.notesSection}>
-                                <Text style={styles.notesText}>"{goal.notes}"</Text>
+                                <Text style={styles.notesText}>“{goal.notes}”</Text>
                             </View>
                         </View>
                     )}

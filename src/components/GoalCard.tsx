@@ -10,7 +10,6 @@ import Animated, {
     useAnimatedStyle,
     useSharedValue,
     withSpring,
-    interpolate,
 } from 'react-native-reanimated';
 import { useTheme } from '../theme';
 import { Goal, categoryMeta, getGoalStatus } from '../features/goals';

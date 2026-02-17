@@ -14,14 +14,14 @@ This replaces ad-hoc implementation with a strict PRD + Design System driven reb
 ### Phase A — Foundation Reset (In Progress)
 - [x] Rebuild roadmap and governance checkpoints
 - [x] Harden goal persistence with date-safe serialization
-- [ ] Remove remaining hardcoded UI values from core navigation + goal flows
-- [ ] Normalize all screen primitives to semantic tokens only
+- [x] Remove remaining hardcoded UI values from core navigation + goal flows
+- [x] Normalize all screen primitives to semantic tokens only
 - [ ] Add lightweight seed fixtures for deterministic UI development
 
 ### Phase B — App Shell + Navigation
 - [x] Tab shell visual refresh (tokenized cinematic bar)
-- [ ] Root navigation transitions mapped to motion tokens
-- [ ] Header/FAB consistency across all screens
+- [x] Root navigation transitions mapped to motion tokens
+- [x] Header/FAB consistency across all screens
 - [ ] Route-level loading and empty-state conventions
 
 ### Phase C — Goal Lifecycle (MVP)

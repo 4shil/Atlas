@@ -5,7 +5,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
-import { themes, semanticColors, type ThemeMode, type Colors } from './tokens/colors';
+import { themes, type ThemeMode, type Colors } from './tokens/colors';
 import { typography, type Typography } from './tokens/typography';
 import { spacing, space, type Spacing, type Space } from './tokens/spacing';
 import { radius, elevation, zIndex, type Radius, type Elevation, type ZIndex } from './tokens/layout';

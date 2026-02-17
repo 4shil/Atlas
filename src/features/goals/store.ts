@@ -5,6 +5,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Goal, GoalCategory, generateGoalId, normalizeGoalDates, PersistedGoal, serializeGoalDates } from './types';
 
@@ -177,7 +178,7 @@ export const useGoalsStore = create<GoalsState>()(
 // SELECTOR HOOKS
 // ============================================
 export const useGoals = () => useGoalsStore(state => state.goals);
-export const useGoal = (id: string) => useGoalsStore(state => state.getGoalById(id));
-export const useCompletedGoals = () => useGoalsStore(state => state.getCompletedGoals());
-export const useActiveGoals = () => useGoalsStore(state => state.getActiveGoals());
-export const useGoalsWithLocation = () => useGoalsStore(state => state.getGoalsWithLocation());
+export const useGoal = (id: string) => useGoalsStore(state => state.goals.find(goal => goal.id === id));
+export const useCompletedGoals = () => useGoalsStore(useShallow(state => state.goals.filter(goal => goal.completed)));
+export const useActiveGoals = () => useGoalsStore(useShallow(state => state.goals.filter(goal => !goal.completed)));
+export const useGoalsWithLocation = () => useGoalsStore(useShallow(state => state.goals.filter(goal => goal.location !== null)));

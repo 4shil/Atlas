@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Pressable, Modal, Platform, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, Pressable, Modal, Dimensions } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useTheme } from '../theme';
@@ -27,7 +27,7 @@ const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export function LocationPicker({ visible, onClose, onSelect, initialLocation }: LocationPickerProps) {
-    const { colors, typography, spacing, radius } = useTheme();
+    const { colors, spacing } = useTheme();
     const insets = useSafeAreaInsets();
 
     // Default to a neutral location (e.g., center of map or user location)
@@ -62,7 +62,7 @@ export function LocationPicker({ visible, onClose, onSelect, initialLocation }: 
                 }
             })();
         }
-    }, [visible]);
+    }, [visible, selectedCoord]);
 
     const handleMapPress = async (e: any) => {
         const coordinate = e.nativeEvent.coordinate;

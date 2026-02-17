@@ -30,7 +30,7 @@ function TabIcon({ icon, label, focused }: { icon: TabIconName; label: string; f
 }
 
 export default function TabLayout() {
-    const { colors, spacing } = useTheme();
+    const { colors, spacing, isDark } = useTheme();
     const insets = useSafeAreaInsets();
     const tabBarBaseHeight = spacing.touch.large + spacing.component.lg;
 
@@ -49,7 +49,7 @@ export default function TabLayout() {
                 tabBarBackground: () => (
                     <BlurView
                         intensity={24}
-                        tint="dark"
+                        tint={isDark ? 'dark' : 'light'}
                         style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay.blur }]}
                     />
                 ),

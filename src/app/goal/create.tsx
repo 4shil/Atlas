@@ -31,6 +31,7 @@ export default function CreateGoalScreen() {
     const router = useRouter();
     const { colors, typography, spacing, radius } = useTheme();
     const insets = useSafeAreaInsets();
+    const headerOffset = insets.top + spacing.screen.top;
     const addGoal = useGoalsStore(state => state.addGoal);
 
     // Form state
@@ -102,9 +103,9 @@ export default function CreateGoalScreen() {
             backgroundColor: colors.background.primary,
         },
         scrollContent: {
-            paddingTop: insets.top + 60,
+            paddingTop: headerOffset,
             paddingHorizontal: spacing.screen.horizontal,
-            paddingBottom: insets.bottom + 100,
+            paddingBottom: insets.bottom + spacing.screen.bottom + spacing.component.lg,
         },
         header: {
             marginBottom: spacing.section.gap,

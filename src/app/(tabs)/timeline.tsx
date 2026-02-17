@@ -22,6 +22,8 @@ export default function TimelineScreen() {
     const { colors, typography, spacing, radius } = useTheme();
     const insets = useSafeAreaInsets();
     const goals = useGoals();
+    const headerOffset = insets.top + spacing.screen.top;
+    const bottomOffset = insets.bottom + spacing.screen.bottom;
 
     // Group goals by year
     const sections = useMemo<YearSection[]>(() => {
@@ -57,8 +59,8 @@ export default function TimelineScreen() {
             backgroundColor: colors.background.primary,
         },
         listContent: {
-            paddingTop: insets.top + 60,
-            paddingBottom: 100 + insets.bottom,
+            paddingTop: headerOffset,
+            paddingBottom: bottomOffset,
             paddingHorizontal: spacing.screen.horizontal,
         },
         sectionHeader: {
@@ -71,7 +73,7 @@ export default function TimelineScreen() {
         yearPill: {
             backgroundColor: colors.background.tertiary,
             paddingHorizontal: spacing.component.md,
-            paddingVertical: 6,
+            paddingVertical: spacing.component.xs / 2,
             borderRadius: radius.full,
             marginRight: spacing.component.md,
         },
@@ -82,7 +84,7 @@ export default function TimelineScreen() {
         },
         yearLine: {
             flex: 1,
-            height: 1,
+            height: StyleSheet.hairlineWidth,
             backgroundColor: colors.border.subtle,
         },
         emptyContainer: {
@@ -106,7 +108,7 @@ export default function TimelineScreen() {
             color: colors.text.secondary,
             textAlign: 'center',
         },
-    }), [colors, spacing, radius, insets, typography]);
+    }), [colors, spacing, radius, typography, headerOffset, bottomOffset]);
 
     const renderSectionHeader = ({ section }: { section: YearSection }) => (
         <View style={styles.sectionHeader}>

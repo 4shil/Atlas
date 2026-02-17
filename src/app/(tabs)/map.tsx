@@ -4,12 +4,12 @@
  */
 
 import React, { useCallback, useMemo } from 'react';
-import { View, StyleSheet, Dimensions, Platform } from 'react-native';
+import { View, StyleSheet, Dimensions, Platform, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useTheme } from '../../theme';
-import { useGoalsWithLocation, getGoalStatus, categoryMeta } from '../../features/goals';
-import { HeaderOverlay, FloatingActionButton } from '../../components';
+import { useGoalsWithLocation, getGoalStatus } from '../../features/goals';
+import { HeaderOverlay, FloatingActionButton, BlurOverlay } from '../../components';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -114,7 +114,7 @@ const mapStyle = [
 
 export default function MapScreen() {
     const router = useRouter();
-    const { colors } = useTheme();
+    const { colors, typography, spacing, radius } = useTheme();
     const goalsWithLocation = useGoalsWithLocation();
 
     const handleMarkerPress = useCallback((id: string) => {
@@ -152,6 +152,23 @@ export default function MapScreen() {
             width: SCREEN_WIDTH,
             height: SCREEN_HEIGHT,
         },
+        emptyOverlay: {
+            position: 'absolute',
+            left: spacing.screen.horizontal,
+            right: spacing.screen.horizontal,
+            bottom: spacing.screen.bottom + spacing.touch.large + spacing.component.md,
+            borderRadius: radius.medium,
+            padding: spacing.component.sm,
+        },
+        emptyTitle: {
+            ...typography.headingSmall,
+            color: colors.text.primary,
+            marginBottom: spacing.component.xs / 2,
+        },
+        emptyDescription: {
+            ...typography.bodySmall,
+            color: colors.text.secondary,
+        },
     });
 
     return (
@@ -166,9 +183,13 @@ export default function MapScreen() {
                 toolbarEnabled={false}
             >
                 {goalsWithLocation.map((goal) => {
-                    const category = categoryMeta[goal.category];
                     const status = getGoalStatus(goal);
-                    const pinColor = status === 'completed' ? colors.status.completed : colors.accent.primary;
+                    const pinColor =
+                        status === 'completed'
+                            ? colors.status.completed
+                            : status === 'wishlist'
+                                ? colors.status.wishlist
+                                : colors.status.planned;
 
                     return (
                         <Marker
@@ -187,6 +208,16 @@ export default function MapScreen() {
             </MapView>
 
             <HeaderOverlay title="Locations" transparent />
+
+            {goalsWithLocation.length === 0 && (
+                <BlurOverlay style={styles.emptyOverlay} intensity={18}>
+                    <Text style={styles.emptyTitle}>No pinned goals yet</Text>
+                    <Text style={styles.emptyDescription}>
+                        Add a location to a dream and it will appear on your world map.
+                    </Text>
+                </BlurOverlay>
+            )}
+
             <FloatingActionButton onPress={handleCreatePress} icon="+" />
         </View>
     );
