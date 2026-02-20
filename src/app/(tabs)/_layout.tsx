@@ -4,20 +4,31 @@
 
 import { Tabs } from 'expo-router';
 import { Text, View, StyleSheet } from 'react-native';
-import type { ComponentProps } from 'react';
+import { useEffect, type ComponentProps } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
 
 type TabIconName = ComponentProps<typeof Ionicons>['name'];
 
 function TabIcon({ icon, label, focused }: { icon: TabIconName; label: string; focused: boolean }) {
-    const { colors, typography, spacing } = useTheme();
+    const { colors, typography, spacing, motion } = useTheme();
     const iconColor = focused ? colors.accent.primary : colors.text.secondary;
+    const progress = useSharedValue(focused ? 1 : 0);
+
+    useEffect(() => {
+        progress.value = withSpring(focused ? 1 : 0, motion.springs.medium);
+    }, [focused, motion.springs.medium, progress]);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: 0.95 + progress.value * 0.08 }],
+        opacity: 0.75 + progress.value * 0.25,
+    }));
 
     return (
-        <View style={[styles.tabIcon, { paddingTop: spacing.component.xs }]}>
+        <Animated.View style={[styles.tabIcon, { paddingTop: spacing.component.xs }, animatedStyle]}>
             <Ionicons name={icon} size={22} color={iconColor} />
             <Text style={[
                 typography.caption,
@@ -25,7 +36,7 @@ function TabIcon({ icon, label, focused }: { icon: TabIconName; label: string; f
             ]}>
                 {label}
             </Text>
-        </View>
+        </Animated.View>
     );
 }
 
