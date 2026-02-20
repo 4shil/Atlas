@@ -151,6 +151,8 @@ export default function GoalDetailScreen() {
             paddingHorizontal: spacing.component.sm,
             paddingVertical: spacing.component.xs,
             borderRadius: radius.medium,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
         },
         metaIcon: {
             fontSize: 16,
@@ -168,6 +170,8 @@ export default function GoalDetailScreen() {
             paddingHorizontal: spacing.screen.horizontal,
             paddingTop: spacing.component.md,
             paddingBottom: insets.bottom + spacing.component.md,
+            borderTopWidth: StyleSheet.hairlineWidth,
+            borderTopColor: colors.border.subtle,
         },
         actionButton: {
             flex: 1,
@@ -199,6 +203,8 @@ export default function GoalDetailScreen() {
             padding: spacing.component.md,
             borderLeftWidth: 2,
             borderLeftColor: colors.accent.primary,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
         },
         notesText: {
             ...typography.body,
@@ -251,7 +257,7 @@ export default function GoalDetailScreen() {
                     )}
                     <View style={styles.imageOverlay}>
                         {/* Gradient scrim for text readability */}
-                        <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay.light }]} />
+                        <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay.dark }]} />
                         <Animated.View
                             style={styles.imageGradient}
                             entering={FadeIn.duration(600)}
