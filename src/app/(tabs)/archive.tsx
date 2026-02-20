@@ -64,6 +64,10 @@ export default function ArchiveScreen() {
         },
         statsContainer: {
             marginBottom: spacing.section.margin,
+            borderRadius: radius.large,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
+            padding: spacing.component.md,
         },
         statsTitle: {
             ...typography.displayLarge,
@@ -111,6 +115,8 @@ export default function ArchiveScreen() {
             borderRadius: radius.medium,
             overflow: 'hidden',
             backgroundColor: colors.background.secondary,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
         },
         gridImage: {
             width: '100%',
@@ -152,6 +158,14 @@ export default function ArchiveScreen() {
             alignItems: 'center',
             justifyContent: 'center',
             paddingHorizontal: spacing.screen.horizontal,
+        },
+        emptyCard: {
+            width: '100%',
+            borderRadius: radius.large,
+            padding: spacing.component.lg,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
+            alignItems: 'center',
         },
         emptyIcon: {
             fontSize: 64,
