@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme';
 import { useActiveGoals } from '../../features/goals';
-import { GoalCard, FloatingActionButton, HeaderOverlay } from '../../components';
+import { BlurOverlay, GoalCard, FloatingActionButton, HeaderOverlay } from '../../components';
 
 import Carousel from 'react-native-reanimated-carousel';
 
@@ -18,7 +18,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function GalleryScreen() {
     const router = useRouter();
-    const { colors, typography, spacing, motion } = useTheme();
+    const { colors, typography, spacing, motion, radius } = useTheme();
     const insets = useSafeAreaInsets();
     const headerOffset = insets.top + spacing.screen.top;
     const bottomOffset = insets.bottom + spacing.screen.bottom;
@@ -45,6 +45,14 @@ export default function GalleryScreen() {
             paddingHorizontal: spacing.screen.horizontal,
             paddingTop: headerOffset,
         },
+        emptyCard: {
+            width: '100%',
+            borderRadius: radius.large,
+            padding: spacing.component.lg,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
+            alignItems: 'center',
+        },
         emptyIcon: {
             fontSize: 64,
             marginBottom: spacing.component.md,
@@ -66,21 +74,6 @@ export default function GalleryScreen() {
             paddingHorizontal: spacing.screen.horizontal,
             paddingBottom: bottomOffset,
         },
-        goalItem: {
-            backgroundColor: colors.background.secondary,
-            borderRadius: 16,
-            padding: spacing.component.md,
-            marginBottom: spacing.list.gap,
-        },
-        goalTitle: {
-            ...typography.headingMedium,
-            color: colors.text.primary,
-            marginBottom: spacing.component.xs / 2,
-        },
-        goalDescription: {
-            ...typography.body,
-            color: colors.text.secondary,
-        },
     });
 
     // Empty state
@@ -89,11 +82,13 @@ export default function GalleryScreen() {
             <View style={styles.container}>
                 <HeaderOverlay title="Atlas" transparent />
                 <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyIcon}>🌍</Text>
-                    <Text style={styles.emptyTitle}>Your journey begins here</Text>
-                    <Text style={styles.emptyDescription}>
-                        Create your first dream destination and start building your life&apos;s gallery.
-                    </Text>
+                    <BlurOverlay style={styles.emptyCard} intensity={30}>
+                        <Text style={styles.emptyIcon}>🌍</Text>
+                        <Text style={styles.emptyTitle}>Your journey begins here</Text>
+                        <Text style={styles.emptyDescription}>
+                            Create your first dream destination and start building your life&apos;s gallery.
+                        </Text>
+                    </BlurOverlay>
                 </View>
                 <FloatingActionButton
                     onPress={handleCreatePress}
