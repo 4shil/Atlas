@@ -44,7 +44,7 @@ export default function TabLayout() {
                     borderTopWidth: 0,
                     height: tabBarBaseHeight + insets.bottom,
                     marginHorizontal: spacing.screen.horizontal,
-                    marginBottom: insets.bottom + spacing.component.sm,
+                    marginBottom: spacing.component.sm,
                     borderRadius: radius.hero,
                     overflow: 'hidden',
                     paddingBottom: insets.bottom,
