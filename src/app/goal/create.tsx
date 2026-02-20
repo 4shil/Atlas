@@ -19,7 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
 import { useGoalsStore, GoalCategory, categoryMeta, createEmptyGoal } from '../../features/goals';
-import { HeaderOverlay, LocationPicker } from '../../components';
+import { BlurOverlay, HeaderOverlay, LocationPicker } from '../../components';
 
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -133,6 +133,8 @@ export default function CreateGoalScreen() {
             padding: spacing.component.md,
             ...typography.body,
             color: colors.text.primary,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
         },
         textArea: {
             minHeight: spacing.touch.large * 2,
@@ -153,9 +155,12 @@ export default function CreateGoalScreen() {
             paddingVertical: spacing.component.sm,
             borderRadius: radius.medium,
             backgroundColor: colors.background.secondary,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
         },
         categorySelected: {
             backgroundColor: colors.accent.primary,
+            borderColor: colors.accent.primary,
         },
         categoryEmoji: {
             fontSize: 24,
@@ -176,15 +181,23 @@ export default function CreateGoalScreen() {
             marginRight: spacing.component.sm,
         },
         createButton: {
-            position: 'absolute',
-            bottom: insets.bottom + spacing.component.md,
-            left: spacing.screen.horizontal,
-            right: spacing.screen.horizontal,
             height: spacing.touch.large,
             backgroundColor: isValid ? colors.accent.primary : colors.background.tertiary,
             borderRadius: radius.medium,
             alignItems: 'center',
             justifyContent: 'center',
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: isValid ? colors.accent.primary : colors.border.subtle,
+        },
+        createContainer: {
+            position: 'absolute',
+            bottom: insets.bottom + spacing.component.md,
+            left: spacing.screen.horizontal,
+            right: spacing.screen.horizontal,
+            padding: spacing.component.xs,
+            borderRadius: radius.large,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
         },
         createButtonText: {
             ...typography.label,
@@ -218,6 +231,8 @@ export default function CreateGoalScreen() {
             backgroundColor: colors.background.secondary,
             padding: spacing.component.md,
             borderRadius: radius.medium,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
         },
         dateText: {
             ...typography.body,
@@ -363,13 +378,15 @@ export default function CreateGoalScreen() {
 
 
             {/* Create Button */}
-            <Pressable
-                style={styles.createButton}
-                onPress={handleCreate}
-                disabled={!isValid}
-            >
-                <Text style={styles.createButtonText}>CREATE DREAM</Text>
-            </Pressable>
+            <BlurOverlay style={styles.createContainer} intensity={30}>
+                <Pressable
+                    style={styles.createButton}
+                    onPress={handleCreate}
+                    disabled={!isValid}
+                >
+                    <Text style={styles.createButtonText}>CREATE DREAM</Text>
+                </Pressable>
+            </BlurOverlay>
         </KeyboardAvoidingView >
     );
 }
