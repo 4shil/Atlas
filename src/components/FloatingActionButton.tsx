@@ -31,6 +31,8 @@ function FloatingActionButtonComponent({
     const { colors, typography, spacing, radius, elevation, motion } = useTheme();
     const insets = useSafeAreaInsets();
     const scale = useSharedValue(1);
+    const tabBarBaseHeight = spacing.touch.large + spacing.component.md;
+    const fabBottomOffset = insets.bottom + tabBarBaseHeight + spacing.component.md;
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ scale: scale.value }],
@@ -49,7 +51,7 @@ function FloatingActionButtonComponent({
     const styles = StyleSheet.create({
         container: {
             position: 'absolute',
-            bottom: insets.bottom + spacing.component.md,
+            bottom: fabBottomOffset,
             right: spacing.screen.horizontal,
             flexDirection: 'row',
             alignItems: 'center',
