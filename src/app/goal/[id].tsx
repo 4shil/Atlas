@@ -8,7 +8,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Dimensions } from
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
 import { useGoalsStore, useGoal, categoryMeta, getGoalStatus } from '../../features/goals';
 import { HeaderOverlay, BlurOverlay } from '../../components';
@@ -272,7 +272,7 @@ export default function GoalDetailScreen() {
                 </View>
 
                 {/* Main Content */}
-                <Animated.View style={styles.content} entering={SlideInUp.delay(200).duration(500)}>
+                <Animated.View style={styles.content} entering={FadeIn.delay(120).duration(220)}>
 
                     {/* Meta Data Row (Category, Location, Date) */}
                     <View style={styles.metaRow}>

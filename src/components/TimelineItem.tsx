@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Image } from 'expo-image';
-import Animated, { FadeInRight } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme } from '../theme';
 import { Goal, getGoalStatus, categoryMeta } from '../features/goals';
 
@@ -115,7 +115,7 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
     }), [colors, spacing, radius, typography, isLast, timelineCardHeight, timelineColumnWidth, timelineDotSize, timelineThickness]);
 
     return (
-        <Animated.View style={styles.container} entering={FadeInRight.delay(index * 80).duration(320)}>
+        <Animated.View style={styles.container} entering={FadeIn.delay(index * 40).duration(180)}>
             <View style={styles.timelineColumn}>
                 {/* 
                    For a continuous line, we can just have one line through the item.
