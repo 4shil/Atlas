@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
 import { useGoalsStore, GoalCategory, categoryMeta, createEmptyGoal } from '../../features/goals';
 import { BlurOverlay, HeaderOverlay, LocationPicker } from '../../components';
@@ -256,7 +256,7 @@ export default function CreateGoalScreen() {
                 keyboardShouldPersistTaps="handled"
             >
                 {/* Header */}
-                <Animated.View style={styles.header} entering={FadeInDown.duration(400)}>
+                <Animated.View style={styles.header} entering={FadeIn.duration(220)}>
                     <Text style={styles.headerTitle}>New Dream</Text>
                     <Text style={styles.headerSubtitle}>
                         What experience do you want to add to your life?
@@ -264,7 +264,7 @@ export default function CreateGoalScreen() {
                 </Animated.View>
 
                 {/* Image Picker */}
-                <Animated.View style={styles.inputGroup} entering={FadeInDown.delay(50).duration(400)}>
+                <Animated.View style={styles.inputGroup} entering={FadeIn.delay(40).duration(220)}>
                     <Pressable onPress={pickImage} style={styles.imagePickerContainer}>
                         {image ? (
                             <Image source={{ uri: image }} style={styles.imagePreview} contentFit="cover" transition={200} />
@@ -278,7 +278,7 @@ export default function CreateGoalScreen() {
                 </Animated.View>
 
                 {/* Title */}
-                <Animated.View style={styles.inputGroup} entering={FadeInDown.delay(100).duration(400)}>
+                <Animated.View style={styles.inputGroup} entering={FadeIn.delay(80).duration(220)}>
                     <Text style={styles.label}>TITLE</Text>
                     <TextInput
                         style={styles.input}
@@ -290,7 +290,7 @@ export default function CreateGoalScreen() {
                 </Animated.View>
 
                 {/* Description */}
-                <Animated.View style={styles.inputGroup} entering={FadeInDown.delay(150).duration(400)}>
+                <Animated.View style={styles.inputGroup} entering={FadeIn.delay(120).duration(220)}>
                     <Text style={styles.label}>DESCRIPTION (OPTIONAL)</Text>
                     <TextInput
                         style={[styles.input, styles.textArea]}
@@ -304,7 +304,7 @@ export default function CreateGoalScreen() {
                 </Animated.View>
 
                 {/* Category */}
-                <Animated.View style={styles.inputGroup} entering={FadeInDown.delay(200).duration(400)}>
+                <Animated.View style={styles.inputGroup} entering={FadeIn.delay(160).duration(220)}>
                     <Text style={styles.label}>CATEGORY</Text>
                     <View style={styles.categoryGrid}>
                         {categories.map(([key, value]) => (
@@ -330,7 +330,7 @@ export default function CreateGoalScreen() {
                 </Animated.View>
 
                 {/* Target Date */}
-                <Animated.View style={styles.inputGroup} entering={FadeInDown.delay(225).duration(400)}>
+                <Animated.View style={styles.inputGroup} entering={FadeIn.delay(200).duration(220)}>
                     <Text style={styles.label}>TARGET DATE</Text>
                     <Pressable
                         style={styles.dateButton}
@@ -356,7 +356,7 @@ export default function CreateGoalScreen() {
                 </Animated.View>
 
                 {/* Location */}
-                <Animated.View style={styles.inputGroup} entering={FadeInDown.delay(250).duration(400)}>
+                <Animated.View style={styles.inputGroup} entering={FadeIn.delay(240).duration(220)}>
                     <Text style={styles.label}>LOCATION (OPTIONAL)</Text>
                     <Pressable
                         style={styles.dateButton}

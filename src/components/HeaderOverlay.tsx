@@ -6,7 +6,7 @@
 import React, { memo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { BlurOverlay } from './BlurOverlay';
 import { useTheme } from '../theme';
 
@@ -74,7 +74,7 @@ function HeaderOverlayComponent({
     });
 
     const content = (
-        <Animated.View style={styles.content} entering={FadeInDown.duration(280)}>
+        <Animated.View style={styles.content} entering={FadeIn.duration(180)}>
             {leftAction ? (
                 <Pressable style={styles.actionButton} onPress={leftAction.onPress}>
                     <Text style={styles.actionIcon}>{leftAction.icon}</Text>

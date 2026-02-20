@@ -6,7 +6,6 @@
 import React, { memo } from 'react';
 import { StyleSheet, Pressable, Text } from 'react-native';
 import Animated, {
-    FadeInUp,
     useAnimatedStyle,
     useSharedValue,
     withSpring,
@@ -84,7 +83,6 @@ function FloatingActionButtonComponent({
     return (
         <AnimatedPressable
             style={[styles.container, animatedStyle]}
-            entering={FadeInUp.duration(motion.duration.medium)}
             onPress={onPress}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
