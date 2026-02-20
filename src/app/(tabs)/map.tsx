@@ -3,10 +3,11 @@
  * Interactive world map with goal pins
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, Dimensions, Platform, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps';
+import * as Location from 'expo-location';
 import { useTheme } from '../../theme';
 import { useGoalsWithLocation, getGoalStatus } from '../../features/goals';
 import { HeaderOverlay, FloatingActionButton, BlurOverlay } from '../../components';
@@ -116,6 +117,54 @@ export default function MapScreen() {
     const router = useRouter();
     const { colors, typography, spacing, radius } = useTheme();
     const goalsWithLocation = useGoalsWithLocation();
+    const [userRegion, setUserRegion] = useState<{
+        latitude: number;
+        longitude: number;
+        latitudeDelta: number;
+        longitudeDelta: number;
+    } | null>(null);
+    const [locationDenied, setLocationDenied] = useState(false);
+
+    useEffect(() => {
+        let mounted = true;
+
+        const loadUserLocation = async () => {
+            try {
+                const permission = await Location.requestForegroundPermissionsAsync();
+
+                if (permission.status !== 'granted') {
+                    if (mounted) setLocationDenied(true);
+                    return;
+                }
+
+                const current = await Location.getCurrentPositionAsync({
+                    accuracy: Location.Accuracy.Balanced,
+                });
+
+                if (!mounted) {
+                    return;
+                }
+
+                setLocationDenied(false);
+                setUserRegion({
+                    latitude: current.coords.latitude,
+                    longitude: current.coords.longitude,
+                    latitudeDelta: 10,
+                    longitudeDelta: 10,
+                });
+            } catch {
+                if (mounted) {
+                    setLocationDenied(true);
+                }
+            }
+        };
+
+        loadUserLocation();
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     const handleMarkerPress = useCallback((id: string) => {
         router.push(`/goal/${id}` as any);
@@ -126,7 +175,10 @@ export default function MapScreen() {
     }, [router]);
 
     const initialRegion = useMemo(() => {
-        // Default to a world view or user's first goal
+        if (userRegion) {
+            return userRegion;
+        }
+
         if (goalsWithLocation.length > 0) {
             return {
                 latitude: goalsWithLocation[0].location!.latitude,
@@ -141,7 +193,7 @@ export default function MapScreen() {
             latitudeDelta: 60,
             longitudeDelta: 60,
         };
-    }, [goalsWithLocation]);
+    }, [goalsWithLocation, userRegion]);
 
     const styles = StyleSheet.create({
         container: {
@@ -180,6 +232,8 @@ export default function MapScreen() {
                 provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
                 customMapStyle={mapStyle}
                 initialRegion={initialRegion}
+                showsUserLocation
+                showsMyLocationButton
                 rotateEnabled={false}
                 pitchEnabled={false}
                 toolbarEnabled={false}
@@ -202,6 +256,7 @@ export default function MapScreen() {
                             }}
                             title={goal.title}
                             description={goal.location!.city}
+                            onPress={() => handleMarkerPress(goal.id)}
                             onCalloutPress={() => handleMarkerPress(goal.id)}
                             pinColor={pinColor}
                         />
@@ -213,9 +268,13 @@ export default function MapScreen() {
 
             {goalsWithLocation.length === 0 && (
                 <BlurOverlay style={styles.emptyOverlay} intensity={30}>
-                    <Text style={styles.emptyTitle}>No pinned goals yet</Text>
+                    <Text style={styles.emptyTitle}>
+                        {locationDenied ? 'Location permission needed' : 'No pinned goals yet'}
+                    </Text>
                     <Text style={styles.emptyDescription}>
-                        Add a location to a dream and it will appear on your world map.
+                        {locationDenied
+                            ? 'Enable location access to center the map around your real position.'
+                            : 'Add a location to a dream and it will appear on your world map.'}
                     </Text>
                 </BlurOverlay>
             )}
