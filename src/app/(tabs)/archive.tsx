@@ -11,7 +11,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { Image } from 'expo-image';
 import { useTheme } from '../../theme';
 import { useCompletedGoals, Goal, categoryMeta } from '../../features/goals';
-import { HeaderOverlay } from '../../components';
+import { BlurOverlay, HeaderOverlay } from '../../components';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
