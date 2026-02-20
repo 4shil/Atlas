@@ -157,13 +157,15 @@ export default function MapScreen() {
             left: spacing.screen.horizontal,
             right: spacing.screen.horizontal,
             bottom: spacing.screen.bottom + spacing.touch.large + spacing.component.md,
-            borderRadius: radius.medium,
-            padding: spacing.component.sm,
+            borderRadius: radius.large,
+            padding: spacing.component.md,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
         },
         emptyTitle: {
             ...typography.headingSmall,
             color: colors.text.primary,
-            marginBottom: spacing.component.xs / 2,
+            marginBottom: spacing.component.xs,
         },
         emptyDescription: {
             ...typography.bodySmall,
@@ -210,7 +212,7 @@ export default function MapScreen() {
             <HeaderOverlay title="Locations" transparent />
 
             {goalsWithLocation.length === 0 && (
-                <BlurOverlay style={styles.emptyOverlay} intensity={18}>
+                <BlurOverlay style={styles.emptyOverlay} intensity={30}>
                     <Text style={styles.emptyTitle}>No pinned goals yet</Text>
                     <Text style={styles.emptyDescription}>
                         Add a location to a dream and it will appear on your world map.

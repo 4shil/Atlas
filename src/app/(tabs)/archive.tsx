@@ -217,12 +217,12 @@ export default function ArchiveScreen() {
     };
 
     const renderHeader = () => (
-        <View style={styles.statsContainer}>
+        <BlurOverlay style={styles.statsContainer} intensity={26}>
             <Text style={styles.statsTitle}>{completedGoals.length}</Text>
             <Text style={styles.statsSubtitle}>
                 {completedGoals.length === 1 ? 'dream achieved' : 'dreams achieved'}
             </Text>
-        </View>
+        </BlurOverlay>
     );
 
     // Empty state
@@ -231,11 +231,13 @@ export default function ArchiveScreen() {
             <View style={styles.container}>
                 <HeaderOverlay title="Archive" transparent />
                 <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyIcon}>📦</Text>
-                    <Text style={styles.emptyTitle}>Your memory vault</Text>
-                    <Text style={styles.emptyDescription}>
-                        Completed dreams will be preserved here for you to revisit and reflect upon.
-                    </Text>
+                    <BlurOverlay style={styles.emptyCard} intensity={30}>
+                        <Text style={styles.emptyIcon}>📦</Text>
+                        <Text style={styles.emptyTitle}>Your memory vault</Text>
+                        <Text style={styles.emptyDescription}>
+                            Completed dreams will be preserved here for you to revisit and reflect upon.
+                        </Text>
+                    </BlurOverlay>
                 </View>
             </View>
         );
