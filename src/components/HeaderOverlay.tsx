@@ -28,7 +28,7 @@ function HeaderOverlayComponent({
     rightAction,
     transparent = true,
 }: HeaderOverlayProps) {
-    const { colors, typography, spacing, zIndex } = useTheme();
+    const { colors, typography, spacing, zIndex, radius } = useTheme();
     const insets = useSafeAreaInsets();
 
     const styles = StyleSheet.create({
@@ -46,12 +46,16 @@ function HeaderOverlayComponent({
             paddingTop: insets.top + spacing.component.sm,
             paddingBottom: spacing.component.sm,
             paddingHorizontal: spacing.screen.horizontal,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            borderBottomColor: transparent ? 'transparent' : colors.border.subtle,
         },
         actionButton: {
-            width: spacing.touch.minimum,
-            height: spacing.touch.minimum,
+            width: spacing.touch.comfortable,
+            height: spacing.touch.comfortable,
             alignItems: 'center',
             justifyContent: 'center',
+            borderRadius: radius.full,
+            backgroundColor: colors.overlay.light,
         },
         actionIcon: {
             fontSize: 24,
@@ -91,7 +95,11 @@ function HeaderOverlayComponent({
     );
 
     if (transparent) {
-        return <View style={styles.container}>{content}</View>;
+        return (
+            <BlurOverlay style={styles.container} intensity={30}>
+                {content}
+            </BlurOverlay>
+        );
     }
 
     return (

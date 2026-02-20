@@ -50,6 +50,8 @@ function GoalCardComponent({ goal, onPress, variant = 'full' }: GoalCardProps) {
             borderRadius: variant === 'full' ? 0 : radius.large,
             overflow: 'hidden',
             backgroundColor: colors.background.secondary,
+            borderWidth: variant === 'full' ? 0 : StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
         },
         image: {
             ...StyleSheet.absoluteFillObject,
@@ -76,7 +78,7 @@ function GoalCardComponent({ goal, onPress, variant = 'full' }: GoalCardProps) {
             marginLeft: 4,
         },
         title: {
-            ...typography.headingLarge,
+            ...(variant === 'full' ? typography.displayLarge : typography.headingMedium),
             color: colors.text.primary,
             marginBottom: spacing.component.xs,
         },
@@ -90,7 +92,7 @@ function GoalCardComponent({ goal, onPress, variant = 'full' }: GoalCardProps) {
             alignItems: 'center',
         },
         locationText: {
-            ...typography.caption,
+            ...typography.bodySmall,
             color: colors.text.secondary,
         },
         statusDot: {
