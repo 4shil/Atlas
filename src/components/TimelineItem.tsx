@@ -13,7 +13,7 @@ interface TimelineItemProps {
 }
 
 export default function TimelineItem({ item, index, isLast, onPress }: TimelineItemProps) {
-    const { colors, typography, spacing, radius } = useTheme();
+    const { colors, typography, spacing, radius, elevation } = useTheme();
     const timelineThickness = StyleSheet.hairlineWidth * 2;
     const timelineDotSize = spacing.component.sm - spacing.component.xs / 2;
     const timelineColumnWidth = spacing.component.md + spacing.component.sm;
@@ -66,6 +66,9 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
             overflow: 'hidden',
             flexDirection: 'row',
             height: timelineCardHeight,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
+            ...elevation.card,
         },
         image: {
             width: timelineCardHeight,
@@ -112,10 +115,7 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
     }), [colors, spacing, radius, typography, isLast, timelineCardHeight, timelineColumnWidth, timelineDotSize, timelineThickness]);
 
     return (
-        <Animated.View
-            style={styles.container}
-            entering={FadeInRight.delay(index * 100).duration(400)}
-        >
+        <Animated.View style={styles.container} entering={FadeInRight.delay(index * 80).duration(320)}>
             <View style={styles.timelineColumn}>
                 {/* 
                    For a continuous line, we can just have one line through the item.
