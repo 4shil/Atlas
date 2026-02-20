@@ -30,9 +30,9 @@ function TabIcon({ icon, label, focused }: { icon: TabIconName; label: string; f
 }
 
 export default function TabLayout() {
-    const { colors, spacing, isDark } = useTheme();
+    const { colors, spacing, isDark, radius, elevation } = useTheme();
     const insets = useSafeAreaInsets();
-    const tabBarBaseHeight = spacing.touch.large + spacing.component.lg;
+    const tabBarBaseHeight = spacing.touch.large + spacing.component.md;
 
     return (
         <Tabs
@@ -41,16 +41,20 @@ export default function TabLayout() {
                 tabBarStyle: {
                     position: 'absolute',
                     backgroundColor: 'transparent',
-                    borderTopWidth: StyleSheet.hairlineWidth,
-                    borderTopColor: colors.border.subtle,
+                    borderTopWidth: 0,
                     height: tabBarBaseHeight + insets.bottom,
+                    marginHorizontal: spacing.screen.horizontal,
+                    marginBottom: insets.bottom + spacing.component.sm,
+                    borderRadius: radius.hero,
+                    overflow: 'hidden',
                     paddingBottom: insets.bottom,
+                    ...elevation.overlay,
                 },
                 tabBarBackground: () => (
                     <BlurView
-                        intensity={24}
+                        intensity={40}
                         tint={isDark ? 'dark' : 'light'}
-                        style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay.blur }]}
+                        style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay.blur, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border.subtle }]}
                     />
                 ),
                 tabBarActiveTintColor: colors.accent.primary,
