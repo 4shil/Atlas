@@ -6,6 +6,7 @@
 import React, { memo } from 'react';
 import { StyleSheet, Pressable, Text } from 'react-native';
 import Animated, {
+    FadeInUp,
     useAnimatedStyle,
     useSharedValue,
     withSpring,
@@ -31,19 +32,22 @@ function FloatingActionButtonComponent({
     const { colors, typography, spacing, radius, elevation, motion } = useTheme();
     const insets = useSafeAreaInsets();
     const scale = useSharedValue(1);
+    const rotate = useSharedValue(0);
     const tabBarBaseHeight = spacing.touch.large + spacing.component.md;
     const fabBottomOffset = insets.bottom + tabBarBaseHeight + spacing.component.md;
 
     const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
+        transform: [{ scale: scale.value }, { rotate: `${rotate.value}deg` }],
     }));
 
     const handlePressIn = () => {
         scale.value = withSpring(motion.presets.cardPress.scale, motion.springs.quick);
+        rotate.value = withSpring(icon === '+' ? 15 : 0, motion.springs.quick);
     };
 
     const handlePressOut = () => {
         scale.value = withSpring(1, motion.springs.quick);
+        rotate.value = withSpring(0, motion.springs.quick);
     };
 
     const isPrimary = variant === 'primary';
@@ -80,6 +84,7 @@ function FloatingActionButtonComponent({
     return (
         <AnimatedPressable
             style={[styles.container, animatedStyle]}
+            entering={FadeInUp.duration(motion.duration.medium)}
             onPress={onPress}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
