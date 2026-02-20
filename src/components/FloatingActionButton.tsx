@@ -10,6 +10,7 @@ import Animated, {
     useSharedValue,
     withSpring,
 } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -28,6 +29,7 @@ function FloatingActionButtonComponent({
     variant = 'primary',
 }: FloatingActionButtonProps) {
     const { colors, typography, spacing, radius, elevation, motion } = useTheme();
+    const insets = useSafeAreaInsets();
     const scale = useSharedValue(1);
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -47,7 +49,7 @@ function FloatingActionButtonComponent({
     const styles = StyleSheet.create({
         container: {
             position: 'absolute',
-            bottom: spacing.screen.bottom,
+            bottom: insets.bottom + spacing.component.md,
             right: spacing.screen.horizontal,
             flexDirection: 'row',
             alignItems: 'center',
@@ -57,6 +59,8 @@ function FloatingActionButtonComponent({
             paddingHorizontal: label ? spacing.component.md : 0,
             borderRadius: label ? radius.hero : radius.full,
             backgroundColor: isPrimary ? colors.accent.primary : colors.background.secondary,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: isPrimary ? colors.accent.primary : colors.border.subtle,
             ...elevation.overlay,
         },
         icon: {
