@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme';
 import { useGoals, Goal } from '../../features/goals';
-import { HeaderOverlay, FloatingActionButton } from '../../components';
+import { HeaderOverlay, FloatingActionButton, BlurOverlay } from '../../components';
 import TimelineItem from '../../components/TimelineItem';
 
 interface YearSection {
@@ -67,7 +67,7 @@ export default function TimelineScreen() {
             flexDirection: 'row',
             alignItems: 'center',
             paddingVertical: spacing.component.sm,
-            backgroundColor: colors.background.primary, // Opaque for sticky effect
+            backgroundColor: colors.background.primary,
             marginTop: spacing.component.sm,
         },
         yearPill: {
@@ -92,6 +92,14 @@ export default function TimelineScreen() {
             alignItems: 'center',
             justifyContent: 'center',
             paddingHorizontal: spacing.screen.horizontal,
+        },
+        emptyCard: {
+            width: '100%',
+            borderRadius: radius.large,
+            padding: spacing.component.lg,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
+            alignItems: 'center',
         },
         emptyIcon: {
             fontSize: 64,
@@ -137,11 +145,13 @@ export default function TimelineScreen() {
             <View style={styles.container}>
                 <HeaderOverlay title="Timeline" transparent />
                 <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyIcon}>📅</Text>
-                    <Text style={styles.emptyTitle}>Write your story</Text>
-                    <Text style={styles.emptyDescription}>
-                        Your life timeline will unfold as you add dreams with target dates.
-                    </Text>
+                    <BlurOverlay style={styles.emptyCard} intensity={30}>
+                        <Text style={styles.emptyIcon}>📅</Text>
+                        <Text style={styles.emptyTitle}>Write your story</Text>
+                        <Text style={styles.emptyDescription}>
+                            Your life timeline will unfold as you add dreams with target dates.
+                        </Text>
+                    </BlurOverlay>
                 </View>
                 <FloatingActionButton onPress={handleCreatePress} icon="+" />
             </View>
