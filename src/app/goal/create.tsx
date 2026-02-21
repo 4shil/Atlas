@@ -246,7 +246,7 @@ export default function CreateGoalScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
             <HeaderOverlay
-                leftAction={{ icon: '✕', onPress: () => router.back() }}
+                leftAction={{ icon: 'close', onPress: () => router.back() }}
                 transparent
             />
 

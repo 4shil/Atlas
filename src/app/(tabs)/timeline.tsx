@@ -153,7 +153,7 @@ export default function TimelineScreen() {
                         </Text>
                     </BlurOverlay>
                 </View>
-                <FloatingActionButton onPress={handleCreatePress} icon="+" />
+                <FloatingActionButton onPress={handleCreatePress} icon="add" />
             </View>
         );
     }
@@ -172,7 +172,7 @@ export default function TimelineScreen() {
                 showsVerticalScrollIndicator={false}
             />
 
-            <FloatingActionButton onPress={handleCreatePress} icon="+" />
+            <FloatingActionButton onPress={handleCreatePress} icon="add" />
         </View>
     );
 }

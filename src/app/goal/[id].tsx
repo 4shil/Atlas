@@ -218,7 +218,7 @@ export default function GoalDetailScreen() {
             <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
                 <HeaderOverlay
                     title="Not Found"
-                    leftAction={{ icon: '←', onPress: () => router.back() }}
+                    leftAction={{ icon: 'arrow-back', onPress: () => router.back() }}
                 />
                 <View style={styles.errorContainer}>
                     <Text style={[typography.headingLarge, { color: colors.text.primary }]}>
@@ -315,7 +315,7 @@ export default function GoalDetailScreen() {
             </ScrollView>
 
             <HeaderOverlay
-                leftAction={{ icon: '←', onPress: () => router.back() }}
+                leftAction={{ icon: 'arrow-back', onPress: () => router.back() }}
                 transparent
             />
 
