@@ -2,9 +2,10 @@
  * Atlas Design System — Map Tokens
  */
 
+import type { MapStyleElement } from 'react-native-maps';
 import { rawColors } from './colors';
 
-export const cinematicDarkMapStyle = [
+export const cinematicDarkMapStyle: MapStyleElement[] = [
     {
         elementType: 'geometry',
         stylers: [{ color: rawColors.gray[900] }],
@@ -75,4 +76,4 @@ export const cinematicDarkMapStyle = [
         elementType: 'labels.text.fill',
         stylers: [{ color: rawColors.gray[700] }],
     },
-] as const;
+];

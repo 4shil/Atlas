@@ -195,7 +195,7 @@ export default function ArchiveScreen() {
                         <Image source={{ uri: item.image }} style={styles.gridImage} contentFit="cover" />
                     ) : (
                         <View style={[styles.gridImage, { backgroundColor: colors.background.tertiary, alignItems: 'center', justifyContent: 'center' }]}>
-                            <Ionicons name={categoryMeta[item.category].icon as any} size={28} color={colors.text.primary} />
+                            <Ionicons name={categoryMeta[item.category].icon} size={28} color={colors.text.primary} />
                         </View>
                     )}
 

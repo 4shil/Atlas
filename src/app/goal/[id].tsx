@@ -156,7 +156,6 @@ export default function GoalDetailScreen() {
             borderColor: colors.border.subtle,
         },
         metaIcon: {
-            fontSize: 16,
             marginRight: spacing.component.xs / 2,
         },
         metaText: {
@@ -253,7 +252,7 @@ export default function GoalDetailScreen() {
                         <Image source={{ uri: goal.image }} style={styles.image} contentFit="cover" transition={400} />
                     ) : (
                         <View style={[styles.image, { backgroundColor: colors.background.secondary, alignItems: 'center', justifyContent: 'center' }]}>
-                            <Ionicons name={category.icon as any} size={72} color={colors.text.primary} />
+                            <Ionicons name={category.icon} size={72} color={colors.text.primary} />
                         </View>
                     )}
                     <View style={styles.imageOverlay}>
@@ -278,7 +277,7 @@ export default function GoalDetailScreen() {
                     {/* Meta Data Row (Category, Location, Date) */}
                     <View style={styles.metaRow}>
                         <View style={styles.metaItem}>
-                            <Ionicons name={category.icon as any} size={16} color={colors.text.primary} style={styles.metaIcon} />
+                            <Ionicons name={category.icon} size={16} color={colors.text.primary} style={styles.metaIcon} />
                             <Text style={styles.metaText}>{category.label}</Text>
                         </View>
 

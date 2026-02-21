@@ -179,7 +179,7 @@ export default function MapScreen() {
                 ref={mapRef}
                 style={styles.map}
                 provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
-                customMapStyle={cinematicDarkMapStyle as any}
+                customMapStyle={cinematicDarkMapStyle}
                 initialRegion={initialRegion}
                 showsUserLocation
                 showsMyLocationButton

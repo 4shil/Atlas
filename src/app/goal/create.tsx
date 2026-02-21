@@ -317,7 +317,7 @@ export default function CreateGoalScreen() {
                                     onPress={() => setCategory(key)}
                                 >
                                     <Ionicons
-                                        name={value.icon as any}
+                                        name={value.icon}
                                         size={24}
                                         color={category === key ? colors.text.inverted : colors.text.primary}
                                         style={styles.categoryIcon}
