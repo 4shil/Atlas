@@ -334,7 +334,7 @@ export default function MapScreen() {
                 </Pressable>
             </BlurOverlay>
 
-            <FloatingActionButton onPress={handleCreatePress} icon="+" />
+            <FloatingActionButton onPress={handleCreatePress} icon="add" />
         </View>
     );
 }
