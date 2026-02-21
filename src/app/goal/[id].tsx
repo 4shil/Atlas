@@ -10,7 +10,7 @@ import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
-import { useGoalsStore, useGoal, categoryMeta, getGoalStatus } from '../../features/goals';
+import { useGoalsStore, useGoal, categoryMeta, getGoalStatus, formatGoalDate } from '../../features/goals';
 import { HeaderOverlay, BlurOverlay } from '../../components';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -233,7 +233,7 @@ export default function GoalDetailScreen() {
     const category = categoryMeta[goal.category];
 
     const formatDate = (date: Date) => {
-        return new Date(date).toLocaleDateString('en-US', {
+        return formatGoalDate(date, {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
