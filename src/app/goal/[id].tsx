@@ -9,6 +9,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { useGoalsStore, useGoal, categoryMeta, getGoalStatus, formatGoalDate } from '../../features/goals';
 import { HeaderOverlay, BlurOverlay } from '../../components';
@@ -252,7 +253,7 @@ export default function GoalDetailScreen() {
                         <Image source={{ uri: goal.image }} style={styles.image} contentFit="cover" transition={400} />
                     ) : (
                         <View style={[styles.image, { backgroundColor: colors.background.secondary, alignItems: 'center', justifyContent: 'center' }]}>
-                            <Text style={{ fontSize: typography.displayLarge.fontSize * 2 }}>{category.emoji}</Text>
+                            <Ionicons name={category.icon as any} size={72} color={colors.text.primary} />
                         </View>
                     )}
                     <View style={styles.imageOverlay}>
@@ -277,19 +278,19 @@ export default function GoalDetailScreen() {
                     {/* Meta Data Row (Category, Location, Date) */}
                     <View style={styles.metaRow}>
                         <View style={styles.metaItem}>
-                            <Text style={styles.metaIcon}>{category.emoji}</Text>
+                            <Ionicons name={category.icon as any} size={16} color={colors.text.primary} style={styles.metaIcon} />
                             <Text style={styles.metaText}>{category.label}</Text>
                         </View>
 
                         {goal.location && (
                             <View style={styles.metaItem}>
-                                <Text style={styles.metaIcon}>📍</Text>
+                                <Ionicons name="location" size={16} color={colors.text.primary} style={styles.metaIcon} />
                                 <Text style={styles.metaText}>{goal.location.city}</Text>
                             </View>
                         )}
 
                         <View style={styles.metaItem}>
-                            <Text style={styles.metaIcon}>📅</Text>
+                            <Ionicons name="calendar" size={16} color={colors.text.primary} style={styles.metaIcon} />
                             <Text style={styles.metaText}>{formatDate(goal.timelineDate)}</Text>
                         </View>
                     </View>

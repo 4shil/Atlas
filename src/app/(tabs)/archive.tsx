@@ -9,6 +9,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Image } from 'expo-image';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { useCompletedGoals, Goal, categoryMeta, formatGoalDate } from '../../features/goals';
 import { BlurOverlay, HeaderOverlay } from '../../components';
@@ -148,11 +149,6 @@ export default function ArchiveScreen() {
             alignItems: 'center',
             justifyContent: 'center',
         },
-        completedCheck: {
-            color: colors.text.inverted,
-            fontSize: 14,
-            fontWeight: 'bold',
-        },
         emptyContainer: {
             flex: 1,
             alignItems: 'center',
@@ -199,12 +195,12 @@ export default function ArchiveScreen() {
                         <Image source={{ uri: item.image }} style={styles.gridImage} contentFit="cover" />
                     ) : (
                         <View style={[styles.gridImage, { backgroundColor: colors.background.tertiary, alignItems: 'center', justifyContent: 'center' }]}>
-                            <Text style={{ fontSize: typography.headingLarge.fontSize }}>{categoryMeta[item.category].emoji}</Text>
+                            <Ionicons name={categoryMeta[item.category].icon as any} size={28} color={colors.text.primary} />
                         </View>
                     )}
 
                     <View style={styles.completedBadge}>
-                        <Text style={styles.completedCheck}>✓</Text>
+                        <Ionicons name="checkmark" size={12} color={colors.text.inverted} />
                     </View>
 
                     <View style={styles.gridContent}>
@@ -232,7 +228,7 @@ export default function ArchiveScreen() {
                 <HeaderOverlay title="Archive" transparent />
                 <View style={styles.emptyContainer}>
                     <BlurOverlay style={styles.emptyCard} intensity={30}>
-                        <Text style={styles.emptyIcon}>📦</Text>
+                        <Ionicons name="archive" size={64} color={colors.text.primary} style={{ marginBottom: spacing.component.md }} />
                         <Text style={styles.emptyTitle}>Your memory vault</Text>
                         <Text style={styles.emptyDescription}>
                             Completed dreams will be preserved here for you to revisit and reflect upon.
