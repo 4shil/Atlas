@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Image } from 'expo-image';
 import { useTheme } from '../../theme';
-import { useCompletedGoals, Goal, categoryMeta } from '../../features/goals';
+import { useCompletedGoals, Goal, categoryMeta, formatGoalDate } from '../../features/goals';
 import { BlurOverlay, HeaderOverlay } from '../../components';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -186,7 +186,7 @@ export default function ArchiveScreen() {
 
     const renderItem = ({ item, index }: { item: Goal; index: number }) => {
         const completedDate = item.completedAt
-            ? new Date(item.completedAt).toLocaleDateString('en-US', {
+            ? formatGoalDate(item.completedAt, {
                 month: 'short',
                 year: 'numeric',
             })

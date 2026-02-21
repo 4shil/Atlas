@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme } from '../theme';
-import { Goal, getGoalStatus, categoryMeta } from '../features/goals';
+import { Goal, getGoalStatus, categoryMeta, formatGoalDate } from '../features/goals';
 
 interface TimelineItemProps {
     item: Goal;
@@ -21,7 +21,7 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
 
     const status = getGoalStatus(item);
     const category = categoryMeta[item.category];
-    const date = new Date(item.timelineDate).toLocaleDateString('en-US', {
+    const date = formatGoalDate(item.timelineDate, {
         month: 'short',
         day: 'numeric',
     });
