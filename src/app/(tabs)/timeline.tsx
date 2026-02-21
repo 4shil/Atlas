@@ -24,6 +24,8 @@ export default function TimelineScreen() {
     const goals = useGoals();
     const headerOffset = insets.top + spacing.screen.top;
     const bottomOffset = insets.bottom + spacing.screen.bottom;
+    const tabBarBaseHeight = spacing.touch.large + spacing.component.md;
+    const tabFabBottomOffset = spacing.component.sm + insets.bottom + tabBarBaseHeight + spacing.component.md;
 
     // Group goals by year
     const sections = useMemo<YearSection[]>(() => {
@@ -153,7 +155,7 @@ export default function TimelineScreen() {
                         </Text>
                     </BlurOverlay>
                 </View>
-                <FloatingActionButton onPress={handleCreatePress} icon="add" />
+                <FloatingActionButton onPress={handleCreatePress} icon="add" bottomOffset={tabFabBottomOffset} />
             </View>
         );
     }
@@ -172,7 +174,7 @@ export default function TimelineScreen() {
                 showsVerticalScrollIndicator={false}
             />
 
-            <FloatingActionButton onPress={handleCreatePress} icon="add" />
+            <FloatingActionButton onPress={handleCreatePress} icon="add" bottomOffset={tabFabBottomOffset} />
         </View>
     );
 }

@@ -22,6 +22,8 @@ export default function GalleryScreen() {
     const insets = useSafeAreaInsets();
     const headerOffset = insets.top + spacing.screen.top;
     const bottomOffset = insets.bottom + spacing.screen.bottom;
+    const tabBarBaseHeight = spacing.touch.large + spacing.component.md;
+    const tabFabBottomOffset = spacing.component.sm + insets.bottom + tabBarBaseHeight + spacing.component.md;
     const activeGoals = useActiveGoals();
 
     const handleGoalPress = useCallback((id: string) => {
@@ -94,6 +96,7 @@ export default function GalleryScreen() {
                     onPress={handleCreatePress}
                     icon="add"
                     label="NEW DREAM"
+                    bottomOffset={tabFabBottomOffset}
                 />
             </View>
         );
@@ -130,6 +133,7 @@ export default function GalleryScreen() {
             <FloatingActionButton
                 onPress={handleCreatePress}
                 icon="add"
+                bottomOffset={tabFabBottomOffset}
             />
         </View>
     );
