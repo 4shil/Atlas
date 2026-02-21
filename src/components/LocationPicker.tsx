@@ -171,7 +171,7 @@ export function LocationPicker({ visible, onClose, onSelect, initialLocation }: 
                 </MapView>
 
                 <HeaderOverlay
-                    leftAction={{ icon: '✕', onPress: onClose }}
+                    leftAction={{ icon: 'close', onPress: onClose }}
                     title="Pick Location"
                 />
 

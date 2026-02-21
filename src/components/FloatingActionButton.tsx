@@ -3,37 +3,42 @@
  * Primary action trigger with animated press
  */
 
-import React, { memo } from 'react';
+import React, { memo, type ComponentProps } from 'react';
 import { StyleSheet, Pressable, Text } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
     withSpring,
 } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+type IconName = ComponentProps<typeof Ionicons>['name'];
 
 interface FloatingActionButtonProps {
     onPress: () => void;
-    icon?: string;
+    icon?: IconName;
     label?: string;
     variant?: 'primary' | 'secondary';
+    bottomOffset?: number;
 }
 
 function FloatingActionButtonComponent({
     onPress,
-    icon = '+',
+    icon = 'add',
     label,
     variant = 'primary',
+    bottomOffset,
 }: FloatingActionButtonProps) {
     const { colors, typography, spacing, radius, elevation, motion } = useTheme();
     const insets = useSafeAreaInsets();
     const scale = useSharedValue(1);
     const rotate = useSharedValue(0);
     const tabBarBaseHeight = spacing.touch.large + spacing.component.md;
-    const fabBottomOffset = insets.bottom + tabBarBaseHeight + spacing.component.md;
+    const defaultBottomOffset = insets.bottom + tabBarBaseHeight + spacing.component.md;
+    const fabBottomOffset = bottomOffset ?? defaultBottomOffset;
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ scale: scale.value }, { rotate: `${rotate.value}deg` }],
@@ -41,7 +46,7 @@ function FloatingActionButtonComponent({
 
     const handlePressIn = () => {
         scale.value = withSpring(motion.presets.cardPress.scale, motion.springs.quick);
-        rotate.value = withSpring(icon === '+' ? 15 : 0, motion.springs.quick);
+        rotate.value = withSpring(icon === 'add' ? 15 : 0, motion.springs.quick);
     };
 
     const handlePressOut = () => {
@@ -68,11 +73,6 @@ function FloatingActionButtonComponent({
             borderColor: isPrimary ? colors.accent.primary : colors.border.subtle,
             ...elevation.overlay,
         },
-        icon: {
-            fontSize: 24,
-            color: isPrimary ? colors.text.inverted : colors.text.primary,
-            fontWeight: '300',
-        },
         label: {
             ...typography.label,
             color: isPrimary ? colors.text.inverted : colors.text.primary,
@@ -87,7 +87,11 @@ function FloatingActionButtonComponent({
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
         >
-            <Text style={styles.icon}>{icon}</Text>
+            <Ionicons
+                name={icon}
+                size={24}
+                color={isPrimary ? colors.text.inverted : colors.text.primary}
+            />
             {label && <Text style={styles.label}>{label}</Text>}
         </AnimatedPressable>
     );
