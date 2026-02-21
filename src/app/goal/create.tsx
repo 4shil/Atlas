@@ -17,6 +17,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { useGoalsStore, GoalCategory, categoryMeta, createEmptyGoal } from '../../features/goals';
 import { BlurOverlay, HeaderOverlay, LocationPicker } from '../../components';
@@ -25,7 +26,7 @@ import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Image } from 'expo-image';
 
-const categories = Object.entries(categoryMeta) as [GoalCategory, { label: string; emoji: string }][];
+const categories = Object.entries(categoryMeta) as [GoalCategory, { label: string; icon: string }][];
 
 export default function CreateGoalScreen() {
     const router = useRouter();
@@ -162,8 +163,7 @@ export default function CreateGoalScreen() {
             backgroundColor: colors.accent.primary,
             borderColor: colors.accent.primary,
         },
-        categoryEmoji: {
-            fontSize: 24,
+        categoryIcon: {
             marginBottom: categoryGap,
         },
         categoryLabel: {
@@ -270,7 +270,7 @@ export default function CreateGoalScreen() {
                             <Image source={{ uri: image }} style={styles.imagePreview} contentFit="cover" transition={200} />
                         ) : (
                             <View style={styles.imagePlaceholder}>
-                                <Text style={styles.imagePlaceholderIcon}>📷</Text>
+                                <Ionicons name="image" size={32} color={colors.text.primary} style={styles.imagePlaceholderIcon} />
                                 <Text style={styles.imagePlaceholderText}>Add Cover Image</Text>
                             </View>
                         )}
@@ -316,7 +316,12 @@ export default function CreateGoalScreen() {
                                     ]}
                                     onPress={() => setCategory(key)}
                                 >
-                                    <Text style={styles.categoryEmoji}>{value.emoji}</Text>
+                                    <Ionicons
+                                        name={value.icon as any}
+                                        size={24}
+                                        color={category === key ? colors.text.inverted : colors.text.primary}
+                                        style={styles.categoryIcon}
+                                    />
                                     <Text style={[
                                         styles.categoryLabel,
                                         category === key && styles.categoryLabelSelected,
