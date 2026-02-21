@@ -92,7 +92,7 @@ export default function GalleryScreen() {
                 </View>
                 <FloatingActionButton
                     onPress={handleCreatePress}
-                    icon="+"
+                    icon="add"
                     label="NEW DREAM"
                 />
             </View>
@@ -129,7 +129,7 @@ export default function GalleryScreen() {
 
             <FloatingActionButton
                 onPress={handleCreatePress}
-                icon="+"
+                icon="add"
             />
         </View>
     );
