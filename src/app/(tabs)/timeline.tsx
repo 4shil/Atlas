@@ -7,6 +7,7 @@ import React, { useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, SectionList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { useGoals, Goal } from '../../features/goals';
 import { HeaderOverlay, FloatingActionButton, BlurOverlay } from '../../components';
@@ -148,7 +149,7 @@ export default function TimelineScreen() {
                 <HeaderOverlay title="Timeline" transparent />
                 <View style={styles.emptyContainer}>
                     <BlurOverlay style={styles.emptyCard} intensity={30}>
-                        <Text style={styles.emptyIcon}>📅</Text>
+                        <Ionicons name="calendar" size={64} color={colors.text.primary} style={styles.emptyIcon} />
                         <Text style={styles.emptyTitle}>Write your story</Text>
                         <Text style={styles.emptyDescription}>
                             Your life timeline will unfold as you add dreams with target dates.

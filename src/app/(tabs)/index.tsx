@@ -7,6 +7,7 @@ import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, Dimensions, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { useActiveGoals } from '../../features/goals';
 import { BlurOverlay, GoalCard, FloatingActionButton, HeaderOverlay } from '../../components';
@@ -85,7 +86,7 @@ export default function GalleryScreen() {
                 <HeaderOverlay title="Atlas" transparent />
                 <View style={styles.emptyContainer}>
                     <BlurOverlay style={styles.emptyCard} intensity={30}>
-                        <Text style={styles.emptyIcon}>🌍</Text>
+                        <Ionicons name="globe" size={64} color={colors.text.primary} style={styles.emptyIcon} />
                         <Text style={styles.emptyTitle}>Your journey begins here</Text>
                         <Text style={styles.emptyDescription}>
                             Create your first dream destination and start building your life&apos;s gallery.
