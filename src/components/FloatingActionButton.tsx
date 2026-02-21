@@ -36,8 +36,7 @@ function FloatingActionButtonComponent({
     const insets = useSafeAreaInsets();
     const scale = useSharedValue(1);
     const rotate = useSharedValue(0);
-    const tabBarBaseHeight = spacing.touch.large + spacing.component.md;
-    const defaultBottomOffset = insets.bottom + tabBarBaseHeight + spacing.component.md;
+    const defaultBottomOffset = insets.bottom + spacing.screen.bottom;
     const fabBottomOffset = bottomOffset ?? defaultBottomOffset;
 
     const animatedStyle = useAnimatedStyle(() => ({
