@@ -22,6 +22,8 @@ export default function MapScreen() {
     const { colors, typography, spacing, radius } = useTheme();
     const insets = useSafeAreaInsets();
     const goalsWithLocation = useGoalsWithLocation();
+    const tabBarBaseHeight = spacing.touch.large + spacing.component.md;
+    const tabFabBottomOffset = spacing.component.sm + insets.bottom + tabBarBaseHeight + spacing.component.md;
     const mapRef = useRef<MapView | null>(null);
     const [userRegion, setUserRegion] = useState<{
         latitude: number;
@@ -159,7 +161,7 @@ export default function MapScreen() {
         recenterButtonContainer: {
             position: 'absolute',
             right: spacing.screen.horizontal,
-            bottom: insets.bottom + spacing.touch.large + spacing.component.md + spacing.touch.large + spacing.component.sm,
+            bottom: tabFabBottomOffset + spacing.touch.large + spacing.component.sm,
             width: spacing.touch.large,
             height: spacing.touch.large,
             borderRadius: radius.full,
@@ -236,7 +238,7 @@ export default function MapScreen() {
                 </Pressable>
             </BlurOverlay>
 
-            <FloatingActionButton onPress={handleCreatePress} icon="add" />
+            <FloatingActionButton onPress={handleCreatePress} icon="add" bottomOffset={tabFabBottomOffset} />
         </View>
     );
 }
