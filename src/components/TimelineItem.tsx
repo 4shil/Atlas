@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import { Goal, getGoalStatus, categoryMeta, formatGoalDate } from '../features/goals';
 
@@ -100,6 +101,10 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
             ...typography.caption,
             color: colors.text.secondary,
         },
+        locationRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
         categoryBadge: {
             position: 'absolute',
             top: spacing.component.xs,
@@ -134,7 +139,7 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
                         <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" />
                     ) : (
                         <View style={styles.imagePlaceholder}>
-                            <Text style={{ fontSize: typography.headingLarge.fontSize }}>{category.emoji}</Text>
+                            <Ionicons name={category.icon as any} size={28} color={colors.text.primary} />
                         </View>
                     )}
 
@@ -142,14 +147,15 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
                         <Text style={styles.date}>{date}</Text>
                         <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
                         {item.location && (
-                            <Text style={styles.location}>
-                                📍 {item.location.city}
-                            </Text>
+                            <View style={styles.locationRow}>
+                                <Ionicons name="location" size={14} color={colors.text.secondary} />
+                                <Text style={styles.location}> {item.location.city}</Text>
+                            </View>
                         )}
                     </View>
 
                     <View style={styles.categoryBadge}>
-                        <Text style={styles.categoryText}>{category.emoji}</Text>
+                        <Ionicons name={category.icon as any} size={14} color={colors.text.primary} />
                     </View>
                 </View>
             </Pressable>
