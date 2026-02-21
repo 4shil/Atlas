@@ -3,21 +3,24 @@
  * Transparent header with blur background
  */
 
-import React, { memo } from 'react';
+import React, { memo, type ComponentProps } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 import { BlurOverlay } from './BlurOverlay';
 import { useTheme } from '../theme';
+
+type IconName = ComponentProps<typeof Ionicons>['name'];
 
 interface HeaderOverlayProps {
     title?: string;
     leftAction?: {
-        icon: string;
+        icon: IconName;
         onPress: () => void;
     };
     rightAction?: {
-        icon: string;
+        icon: IconName;
         onPress: () => void;
     };
     transparent?: boolean;
@@ -58,10 +61,6 @@ function HeaderOverlayComponent({
             borderRadius: radius.full,
             backgroundColor: colors.overlay.light,
         },
-        actionIcon: {
-            fontSize: 24,
-            color: colors.text.primary,
-        },
         title: {
             ...typography.headingSmall,
             color: colors.text.primary,
@@ -77,7 +76,7 @@ function HeaderOverlayComponent({
         <Animated.View style={styles.content} entering={FadeIn.duration(180)}>
             {leftAction ? (
                 <Pressable style={styles.actionButton} onPress={leftAction.onPress}>
-                    <Text style={styles.actionIcon}>{leftAction.icon}</Text>
+                    <Ionicons name={leftAction.icon} size={22} color={colors.text.primary} />
                 </Pressable>
             ) : (
                 <View style={styles.placeholder} />
@@ -87,7 +86,7 @@ function HeaderOverlayComponent({
 
             {rightAction ? (
                 <Pressable style={styles.actionButton} onPress={rightAction.onPress}>
-                    <Text style={styles.actionIcon}>{rightAction.icon}</Text>
+                    <Ionicons name={rightAction.icon} size={22} color={colors.text.primary} />
                 </Pressable>
             ) : (
                 <View style={styles.placeholder} />
