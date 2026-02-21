@@ -50,19 +50,19 @@ export type GoalStatus = 'planned' | 'completed' | 'wishlist';
 // ============================================
 // CATEGORY METADATA
 // ============================================
-export const categoryMeta: Record<GoalCategory, { label: string; emoji: string }> = {
-    travel: { label: 'Travel', emoji: '✈️' },
-    adventure: { label: 'Adventure', emoji: '🏔️' },
-    culture: { label: 'Culture', emoji: '🎭' },
-    food: { label: 'Food & Drink', emoji: '🍽️' },
-    nature: { label: 'Nature', emoji: '🌿' },
-    personal: { label: 'Personal', emoji: '💫' },
-    creative: { label: 'Creative', emoji: '🎨' },
-    career: { label: 'Career', emoji: '💼' },
-    wellness: { label: 'Wellness', emoji: '🧘' },
-    social: { label: 'Social', emoji: '👥' },
-    learning: { label: 'Learning', emoji: '📚' },
-    other: { label: 'Other', emoji: '⭐' },
+export const categoryMeta: Record<GoalCategory, { label: string; icon: string }> = {
+    travel: { label: 'Travel', icon: 'airplane' },
+    adventure: { label: 'Adventure', icon: 'compass' },
+    culture: { label: 'Culture', icon: 'color-palette' },
+    food: { label: 'Food & Drink', icon: 'restaurant' },
+    nature: { label: 'Nature', icon: 'leaf' },
+    personal: { label: 'Personal', icon: 'sparkles' },
+    creative: { label: 'Creative', icon: 'brush' },
+    career: { label: 'Career', icon: 'briefcase' },
+    wellness: { label: 'Wellness', icon: 'fitness' },
+    social: { label: 'Social', icon: 'people' },
+    learning: { label: 'Learning', icon: 'book' },
+    other: { label: 'Other', icon: 'star' },
 };
 
 // ============================================

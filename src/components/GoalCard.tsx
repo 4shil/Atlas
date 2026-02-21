@@ -11,6 +11,7 @@ import Animated, {
     useSharedValue,
     withSpring,
 } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import { Goal, categoryMeta, getGoalStatus } from '../features/goals';
 
@@ -122,7 +123,7 @@ function GoalCardComponent({ goal, onPress, variant = 'full' }: GoalCardProps) {
 
             <View style={styles.overlay}>
                 <View style={styles.categoryBadge}>
-                    <Text>{category.emoji}</Text>
+                    <Ionicons name={category.icon as any} size={16} color={colors.text.primary} />
                     <Text style={styles.categoryText}>{category.label}</Text>
                 </View>
 
