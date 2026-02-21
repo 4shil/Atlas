@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Pressable, Modal, Dimensions } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useTheme } from '../theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HeaderOverlay } from './HeaderOverlay';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { Platform } from 'react-native';
 
 interface LocationData {
     latitude: number;
@@ -44,25 +45,73 @@ export function LocationPicker({ visible, onClose, onSelect, initialLocation }: 
 
     const [locationName, setLocationName] = useState<string>('');
     const [isLoadingAddress, setIsLoadingAddress] = useState(false);
+    const [permissionDenied, setPermissionDenied] = useState(false);
 
     useEffect(() => {
-        if (visible && !selectedCoord) {
-            (async () => {
-                let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status === 'granted') {
-                    let location = await Location.getCurrentPositionAsync({});
-                    const newRegion = {
-                        latitude: location.coords.latitude,
-                        longitude: location.coords.longitude,
-                        latitudeDelta: LATITUDE_DELTA,
-                        longitudeDelta: LONGITUDE_DELTA,
-                    };
-                    setRegion(newRegion);
-                    // Don't auto-select user location, just center map
-                }
-            })();
+        if (!visible) {
+            return;
         }
-    }, [visible, selectedCoord]);
+
+        let mounted = true;
+
+        const initializePicker = async () => {
+            if (initialLocation) {
+                setSelectedCoord({
+                    latitude: initialLocation.latitude,
+                    longitude: initialLocation.longitude,
+                });
+                setLocationName(`${initialLocation.city}, ${initialLocation.country}`);
+                setRegion({
+                    latitude: initialLocation.latitude,
+                    longitude: initialLocation.longitude,
+                    latitudeDelta: LATITUDE_DELTA,
+                    longitudeDelta: LONGITUDE_DELTA,
+                });
+                setPermissionDenied(false);
+                return;
+            }
+
+            setSelectedCoord(null);
+            setLocationName('');
+
+            const permission = await Location.requestForegroundPermissionsAsync();
+            if (!mounted) {
+                return;
+            }
+
+            if (permission.status !== 'granted') {
+                setPermissionDenied(true);
+                return;
+            }
+
+            setPermissionDenied(false);
+
+            try {
+                const current = await Location.getCurrentPositionAsync({
+                    accuracy: Location.Accuracy.Balanced,
+                });
+
+                if (!mounted) {
+                    return;
+                }
+
+                setRegion({
+                    latitude: current.coords.latitude,
+                    longitude: current.coords.longitude,
+                    latitudeDelta: LATITUDE_DELTA,
+                    longitudeDelta: LONGITUDE_DELTA,
+                });
+            } catch {
+                setPermissionDenied(true);
+            }
+        };
+
+        initializePicker();
+
+        return () => {
+            mounted = false;
+        };
+    }, [visible, initialLocation]);
 
     const handleMapPress = async (e: any) => {
         const coordinate = e.nativeEvent.coordinate;
@@ -109,8 +158,9 @@ export function LocationPicker({ visible, onClose, onSelect, initialLocation }: 
             <View style={styles.container}>
                 <MapView
                     style={styles.map}
-                    provider={PROVIDER_GOOGLE}
-                    initialRegion={region}
+                    provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
+                    region={region}
+                    onRegionChangeComplete={setRegion}
                     onPress={handleMapPress}
                     showsUserLocation
                     showsMyLocationButton
@@ -124,6 +174,12 @@ export function LocationPicker({ visible, onClose, onSelect, initialLocation }: 
                     leftAction={{ icon: '✕', onPress: onClose }}
                     title="Pick Location"
                 />
+
+                {permissionDenied && !selectedCoord && (
+                    <View style={styles.permissionBanner}>
+                        <Text style={[styles.permissionText, { color: colors.text.primary }]}>Location permission is off. Move the map and tap to pick manually.</Text>
+                    </View>
+                )}
 
                 {/* Bottom Sheet for Selection */}
                 {selectedCoord && (
@@ -178,6 +234,21 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 24,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
+    },
+    permissionBanner: {
+        position: 'absolute',
+        top: 110,
+        left: 16,
+        right: 16,
+        borderRadius: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+    },
+    permissionText: {
+        fontSize: 13,
+        fontWeight: '500',
+        textAlign: 'center',
     },
     locationInfo: {
         marginBottom: 24,

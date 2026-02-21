@@ -3,11 +3,13 @@
  * Interactive world map with goal pins
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, Dimensions, Platform, Text } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { View, StyleSheet, Dimensions, Platform, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
+import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme';
 import { useGoalsWithLocation, getGoalStatus } from '../../features/goals';
 import { HeaderOverlay, FloatingActionButton, BlurOverlay } from '../../components';
@@ -116,7 +118,9 @@ const mapStyle = [
 export default function MapScreen() {
     const router = useRouter();
     const { colors, typography, spacing, radius } = useTheme();
+    const insets = useSafeAreaInsets();
     const goalsWithLocation = useGoalsWithLocation();
+    const mapRef = useRef<MapView | null>(null);
     const [userRegion, setUserRegion] = useState<{
         latitude: number;
         longitude: number;
@@ -174,6 +178,33 @@ export default function MapScreen() {
         router.push('/goal/create' as any);
     }, [router]);
 
+    const handleRecenterPress = useCallback(async () => {
+        try {
+            const permission = await Location.requestForegroundPermissionsAsync();
+            if (permission.status !== 'granted') {
+                setLocationDenied(true);
+                return;
+            }
+
+            const current = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.Balanced,
+            });
+
+            const nextRegion = {
+                latitude: current.coords.latitude,
+                longitude: current.coords.longitude,
+                latitudeDelta: 10,
+                longitudeDelta: 10,
+            };
+
+            setLocationDenied(false);
+            setUserRegion(nextRegion);
+            mapRef.current?.animateToRegion(nextRegion, 450);
+        } catch {
+            setLocationDenied(true);
+        }
+    }, []);
+
     const initialRegion = useMemo(() => {
         if (userRegion) {
             return userRegion;
@@ -223,11 +254,25 @@ export default function MapScreen() {
             ...typography.bodySmall,
             color: colors.text.secondary,
         },
+        recenterButtonContainer: {
+            position: 'absolute',
+            right: spacing.screen.horizontal,
+            bottom: insets.bottom + spacing.touch.large + spacing.component.md + spacing.touch.large + spacing.component.sm,
+            width: spacing.touch.large,
+            height: spacing.touch.large,
+            borderRadius: radius.full,
+            overflow: 'hidden',
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
     });
 
     return (
         <View style={styles.container}>
             <MapView
+                ref={mapRef}
                 style={styles.map}
                 provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
                 customMapStyle={mapStyle}
@@ -278,6 +323,16 @@ export default function MapScreen() {
                     </Text>
                 </BlurOverlay>
             )}
+
+            <BlurOverlay style={styles.recenterButtonContainer} intensity={30}>
+                <Pressable
+                    style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}
+                    onPress={handleRecenterPress}
+                    hitSlop={8}
+                >
+                    <Ionicons name="locate" size={22} color={colors.text.primary} />
+                </Pressable>
+            </BlurOverlay>
 
             <FloatingActionButton onPress={handleCreatePress} icon="+" />
         </View>
