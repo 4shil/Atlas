@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, View, Text, Pressable, Modal, Dimensions } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -28,7 +28,7 @@ const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export function LocationPicker({ visible, onClose, onSelect, initialLocation }: LocationPickerProps) {
-    const { colors, spacing } = useTheme();
+    const { colors, spacing, typography, radius, elevation } = useTheme();
     const insets = useSafeAreaInsets();
 
     // Default to a neutral location (e.g., center of map or user location)
@@ -151,6 +151,68 @@ export function LocationPicker({ visible, onClose, onSelect, initialLocation }: 
         }
     };
 
+    const styles = useMemo(() => StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background.primary,
+        },
+        map: {
+            width: '100%',
+            height: '100%',
+        },
+        bottomSheet: {
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: colors.background.secondary,
+            paddingTop: spacing.component.md,
+            paddingHorizontal: spacing.component.md,
+            borderTopLeftRadius: radius.large,
+            borderTopRightRadius: radius.large,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border.subtle,
+            ...elevation.modal,
+        },
+        permissionBanner: {
+            position: 'absolute',
+            top: spacing.screen.top * 2 + spacing.component.sm / 2,
+            left: spacing.screen.horizontal,
+            right: spacing.screen.horizontal,
+            borderRadius: radius.medium,
+            paddingHorizontal: spacing.component.xs + spacing.component.xs / 2,
+            paddingVertical: spacing.component.xs + spacing.component.xs / 4,
+            backgroundColor: colors.overlay.dark,
+        },
+        permissionText: {
+            ...typography.caption,
+            color: colors.text.primary,
+            textAlign: 'center',
+        },
+        locationInfo: {
+            marginBottom: spacing.component.md,
+        },
+        locationLabel: {
+            ...typography.label,
+            color: colors.text.secondary,
+            marginBottom: spacing.component.xs,
+        },
+        locationName: {
+            ...typography.headingSmall,
+            color: colors.text.primary,
+        },
+        confirmButton: {
+            height: spacing.touch.large,
+            borderRadius: radius.medium,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        confirmButtonText: {
+            ...typography.label,
+            color: colors.text.inverted,
+        },
+    }), [colors, spacing, typography, radius, elevation]);
+
     if (!visible) return null;
 
     return (
@@ -177,7 +239,7 @@ export function LocationPicker({ visible, onClose, onSelect, initialLocation }: 
 
                 {permissionDenied && !selectedCoord && (
                     <View style={styles.permissionBanner}>
-                        <Text style={[styles.permissionText, { color: colors.text.primary }]}>Location permission is off. Move the map and tap to pick manually.</Text>
+                        <Text style={styles.permissionText}>Location permission is off. Move the map and tap to pick manually.</Text>
                     </View>
                 )}
 
@@ -189,10 +251,10 @@ export function LocationPicker({ visible, onClose, onSelect, initialLocation }: 
                         style={[styles.bottomSheet, { paddingBottom: insets.bottom + spacing.component.md }]}
                     >
                         <View style={styles.locationInfo}>
-                            <Text style={[styles.locationLabel, { color: colors.text.secondary }]}>
+                            <Text style={styles.locationLabel}>
                                 SELECTED LOCATION
                             </Text>
-                            <Text style={[styles.locationName, { color: colors.text.primary }]}>
+                            <Text style={styles.locationName}>
                                 {isLoadingAddress ? 'Loading...' : locationName || 'Selected Location'}
                             </Text>
                         </View>
@@ -202,7 +264,7 @@ export function LocationPicker({ visible, onClose, onSelect, initialLocation }: 
                             onPress={handleConfirm}
                             disabled={isLoadingAddress}
                         >
-                            <Text style={[styles.confirmButtonText, { color: colors.text.inverted }]}>
+                            <Text style={styles.confirmButtonText}>
                                 CONFIRM LOCATION
                             </Text>
                         </Pressable>
@@ -212,68 +274,3 @@ export function LocationPicker({ visible, onClose, onSelect, initialLocation }: 
         </Modal>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#000',
-    },
-    map: {
-        width: '100%',
-        height: '100%',
-    },
-    bottomSheet: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'rgba(20, 20, 20, 0.95)',
-        paddingTop: 24,
-        paddingHorizontal: 24,
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-    },
-    permissionBanner: {
-        position: 'absolute',
-        top: 110,
-        left: 16,
-        right: 16,
-        borderRadius: 12,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-        backgroundColor: 'rgba(0,0,0,0.7)',
-    },
-    permissionText: {
-        fontSize: 13,
-        fontWeight: '500',
-        textAlign: 'center',
-    },
-    locationInfo: {
-        marginBottom: 24,
-    },
-    locationLabel: {
-        fontSize: 12,
-        fontWeight: '600',
-        letterSpacing: 1,
-        marginBottom: 8,
-        textTransform: 'uppercase',
-    },
-    locationName: {
-        fontSize: 20,
-        fontWeight: '500',
-    },
-    confirmButton: {
-        height: 56,
-        borderRadius: 16,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    confirmButtonText: {
-        fontSize: 14,
-        fontWeight: '600',
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-    },
-});
