@@ -3,6 +3,11 @@
  * Core data structure for bucket list items
  */
 
+import type { ComponentProps } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+
+type IconName = ComponentProps<typeof Ionicons>['name'];
+
 export interface Location {
     latitude: number;
     longitude: number;
@@ -50,7 +55,7 @@ export type GoalStatus = 'planned' | 'completed' | 'wishlist';
 // ============================================
 // CATEGORY METADATA
 // ============================================
-export const categoryMeta: Record<GoalCategory, { label: string; icon: string }> = {
+export const categoryMeta: Record<GoalCategory, { label: string; icon: IconName }> = {
     travel: { label: 'Travel', icon: 'airplane' },
     adventure: { label: 'Adventure', icon: 'compass' },
     culture: { label: 'Culture', icon: 'color-palette' },

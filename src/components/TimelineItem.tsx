@@ -105,6 +105,9 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
             flexDirection: 'row',
             alignItems: 'center',
         },
+        locationIcon: {
+            marginRight: spacing.component.xs / 2,
+        },
         categoryBadge: {
             position: 'absolute',
             top: spacing.component.xs,
@@ -113,9 +116,6 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
             paddingHorizontal: spacing.component.xs / 2,
             paddingVertical: spacing.component.xs / 4,
             borderRadius: radius.small,
-        },
-        categoryText: {
-            ...typography.caption,
         },
     }), [colors, spacing, radius, typography, isLast, timelineCardHeight, timelineColumnWidth, timelineDotSize, timelineThickness]);
 
@@ -139,7 +139,7 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
                         <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" />
                     ) : (
                         <View style={styles.imagePlaceholder}>
-                            <Ionicons name={category.icon as any} size={28} color={colors.text.primary} />
+                            <Ionicons name={category.icon} size={28} color={colors.text.primary} />
                         </View>
                     )}
 
@@ -148,14 +148,14 @@ export default function TimelineItem({ item, index, isLast, onPress }: TimelineI
                         <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
                         {item.location && (
                             <View style={styles.locationRow}>
-                                <Ionicons name="location" size={14} color={colors.text.secondary} />
-                                <Text style={styles.location}> {item.location.city}</Text>
+                                <Ionicons name="location" size={14} color={colors.text.secondary} style={styles.locationIcon} />
+                                <Text style={styles.location}>{item.location.city}</Text>
                             </View>
                         )}
                     </View>
 
                     <View style={styles.categoryBadge}>
-                        <Ionicons name={category.icon as any} size={14} color={colors.text.primary} />
+                        <Ionicons name={category.icon} size={14} color={colors.text.primary} />
                     </View>
                 </View>
             </Pressable>

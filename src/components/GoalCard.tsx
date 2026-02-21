@@ -123,7 +123,7 @@ function GoalCardComponent({ goal, onPress, variant = 'full' }: GoalCardProps) {
 
             <View style={styles.overlay}>
                 <View style={styles.categoryBadge}>
-                    <Ionicons name={category.icon as any} size={16} color={colors.text.primary} />
+                    <Ionicons name={category.icon} size={16} color={colors.text.primary} />
                     <Text style={styles.categoryText}>{category.label}</Text>
                 </View>
 
