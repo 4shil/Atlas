@@ -3,6 +3,7 @@
  * App entry with providers
  */
 
+import '../../global.css';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -24,21 +25,15 @@ function RootLayoutNav() {
                     animation: isReducedMotion ? 'fade' : 'fade_from_bottom',
                 }}
             >
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen
-                    name="goal/[id]"
-                    options={{
-                        presentation: 'modal',
-                        animation: isReducedMotion ? 'fade' : 'slide_from_bottom',
-                    }}
-                />
-                <Stack.Screen
-                    name="goal/create"
-                    options={{
-                        presentation: 'modal',
-                        animation: isReducedMotion ? 'fade' : 'slide_from_bottom',
-                    }}
-                />
+                <Stack.Screen name="index" />
+                <Stack.Screen name="dashboard" />
+                <Stack.Screen name="gallery" />
+                <Stack.Screen name="map" />
+                <Stack.Screen name="inspiration" />
+                <Stack.Screen name="dark-dashboard" />
+                <Stack.Screen name="dark-gallery" />
+                <Stack.Screen name="dark-map" />
+                <Stack.Screen name="dark-inspiration" />
             </Stack>
         </>
     );
