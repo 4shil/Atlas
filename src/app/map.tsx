@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity, ImageBackground } from
 import { MaterialIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 
 export default function AdventureMapLight() {
     return (
@@ -23,6 +24,7 @@ export default function AdventureMapLight() {
                     source={{ uri: 'https://maps.googleapis.com/maps/api/staticmap?center=35.6895,139.6917&zoom=13&size=800x1200&style=feature:all|element:geometry|color:0xf5f5f5&style=feature:water|element:geometry|color:0xc9c9c9&style=feature:landscape|element:geometry|color:0xe3e3e3&key=YOUR_API_KEY_HERE' }}
                     className="absolute inset-0 w-full h-full opacity-60"
                     style={{ tintColor: 'gray' }}
+                    resizeMode="cover"
                 />
                 <LinearGradient colors={['rgba(240,253,250,0.5)', 'transparent']} className="absolute inset-0 pointer-events-none" />
 
@@ -49,10 +51,22 @@ export default function AdventureMapLight() {
 
                 {/* Top Floating Buttons */}
                 <View className="absolute top-0 left-0 right-0 pt-16 px-6 flex-row justify-between items-start z-30 pointer-events-box-none">
-                    <TouchableOpacity className="w-10 h-10 rounded-full bg-white/80 items-center justify-center shadow-sm border border-white/40">
+                    <TouchableOpacity
+                        className="w-10 h-10 rounded-full bg-white/80 items-center justify-center shadow-sm border border-white/40"
+                        activeOpacity={0.7}
+                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Go back"
+                    >
                         <MaterialIcons name="arrow-back" size={24} color="#374151" />
                     </TouchableOpacity>
-                    <TouchableOpacity className="w-10 h-10 rounded-full bg-white/80 items-center justify-center shadow-sm border border-white/40">
+                    <TouchableOpacity
+                        className="w-10 h-10 rounded-full bg-white/80 items-center justify-center shadow-sm border border-white/40"
+                        activeOpacity={0.7}
+                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Filter map"
+                    >
                         <MaterialIcons name="tune" size={24} color="#374151" />
                     </TouchableOpacity>
                 </View>
@@ -64,7 +78,7 @@ export default function AdventureMapLight() {
                     <View className="w-12 h-1.5 bg-gray-300/60 rounded-full" />
                 </View>
 
-                <ScrollView className="flex-1 px-6 pb-8 pt-2" showsVerticalScrollIndicator={false}>
+                <ScrollView className="flex-1 px-6 pb-8 pt-2" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
                     {/* Current Location */}
                     <View className="mb-6">
                         <Text className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Current Location</Text>
@@ -76,7 +90,13 @@ export default function AdventureMapLight() {
                                     <Text className="text-sm font-medium text-teal-600 ml-1">18°C Partly Cloudy</Text>
                                 </View>
                             </View>
-                            <TouchableOpacity className="w-10 h-10 rounded-full bg-teal-100 items-center justify-center">
+                            <TouchableOpacity
+                                className="w-10 h-10 rounded-full bg-teal-100 items-center justify-center"
+                                activeOpacity={0.7}
+                                onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                                accessibilityRole="button"
+                                accessibilityLabel="Recenter map"
+                            >
                                 <MaterialIcons name="my-location" size={20} color="#0d9488" />
                             </TouchableOpacity>
                         </View>
@@ -89,7 +109,7 @@ export default function AdventureMapLight() {
                             <Text className="text-xs text-teal-600 font-medium">See all</Text>
                         </View>
 
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible pb-4">
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible pb-4" contentContainerStyle={{ paddingRight: 16 }}>
                             {/* Activity 1 */}
                             <View className="w-[240px] h-[160px] relative rounded-2xl overflow-hidden shadow-lg mr-4 bg-gray-200">
                                 <Image source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAt3pWIbvV8Y9AGyrrFl4WY8qE7xnILeTfQ9cu-6hC0Qb9y1Rb2p5qo19cTS64uLvuNMhRI_LOwDLRl2sZm50Iw_l0R5fubyez_XA1XJfcm1TwMBYEh1MYtcv3xw4CqTkWcRZNu7GT0dtjAPuAX6AbzpuNrO5LRrS-w2Rwh5Ca3Gj2GQFSNAVmp7nN74PMQlI_HSAQVkvngoVjvbGSnRp6JDqCPZ-F93eQYJ8d98y580Yw4dL4erG3yGFnPFDlBdn3pXSNSYtaO2Lk' }} className="absolute inset-0 w-full h-full" />
