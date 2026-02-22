@@ -1,15 +1,24 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 
+// Conditionally import MapView — it crashes on web
+let MapView: any = View;
+let Marker: any = View;
+if (Platform.OS !== 'web') {
+    const Maps = require('react-native-maps');
+    MapView = Maps.default;
+    Marker = Maps.Marker;
+}
+
 export default function DarkAdventureMap() {
     const { goals } = useGoalStore();
+    const goalsWithCoords = goals.filter(g => g.location.latitude !== 0 || g.location.longitude !== 0);
 
     return (
         <View className="flex-1 bg-black">
@@ -18,36 +27,43 @@ export default function DarkAdventureMap() {
             {/* Top Map Area 60% */}
             <View className="relative h-[60%] w-full bg-[#050505] z-10 overflow-hidden">
 
-                {/* Real interactive MapView */}
-                <MapView
-                    provider={PROVIDER_DEFAULT}
-                    style={StyleSheet.absoluteFillObject}
-                    initialRegion={{
-                        latitude: 20,
-                        longitude: 0,
-                        latitudeDelta: 100,
-                        longitudeDelta: 100,
-                    }}
-                    userInterfaceStyle="dark"
-                >
-                    {goals.map(goal => (
-                        <Marker
-                            key={goal.id}
-                            coordinate={{
-                                latitude: goal.location.latitude,
-                                longitude: goal.location.longitude,
-                            }}
-                        >
-                            <View className={`w-10 h-10 rounded-full shadow-2xl items-center justify-center border border-white/20 ${goal.completed ? 'bg-green-900/60' : 'bg-[#111]'}`}>
-                                <MaterialIcons
-                                    name={goal.category === 'Foodie' ? 'restaurant' : goal.category === 'Stays' ? 'hotel' : goal.category === 'Travel' ? 'flight' : 'hiking'}
-                                    size={18}
-                                    color={goal.completed ? '#4ade80' : 'white'}
-                                />
-                            </View>
-                        </Marker>
-                    ))}
-                </MapView>
+                {Platform.OS !== 'web' ? (
+                    <MapView
+                        style={StyleSheet.absoluteFillObject}
+                        initialRegion={{
+                            latitude: goalsWithCoords.length > 0 ? goalsWithCoords[0].location.latitude : 20,
+                            longitude: goalsWithCoords.length > 0 ? goalsWithCoords[0].location.longitude : 0,
+                            latitudeDelta: 80,
+                            longitudeDelta: 80,
+                        }}
+                        userInterfaceStyle="dark"
+                    >
+                        {goalsWithCoords.map(goal => (
+                            <Marker
+                                key={goal.id}
+                                coordinate={{
+                                    latitude: goal.location.latitude,
+                                    longitude: goal.location.longitude,
+                                }}
+                                title={goal.title}
+                                description={`${goal.location.city}, ${goal.location.country}`}
+                            >
+                                <View className={`w-10 h-10 rounded-full shadow-2xl items-center justify-center border border-white/20 ${goal.completed ? 'bg-green-900/60' : 'bg-[#111]'}`}>
+                                    <MaterialIcons
+                                        name={goal.category === 'Foodie' ? 'restaurant' : goal.category === 'Stays' ? 'hotel' : goal.category === 'Travel' ? 'flight' : 'hiking'}
+                                        size={18}
+                                        color={goal.completed ? '#4ade80' : 'white'}
+                                    />
+                                </View>
+                            </Marker>
+                        ))}
+                    </MapView>
+                ) : (
+                    <View className="flex-1 bg-[#0f0f13] items-center justify-center">
+                        <MaterialIcons name="map" size={48} color="#333" />
+                        <Text className="text-gray-500 mt-4">Map view not available on web</Text>
+                    </View>
+                )}
 
                 <LinearGradient colors={['rgba(0,0,0,0.8)', 'transparent', 'rgba(0,0,0,0.9)']} className="absolute inset-0 pointer-events-none z-10" />
                 <View className="absolute inset-0 bg-blue-900/10 pointer-events-none z-10" />
@@ -87,7 +103,9 @@ export default function DarkAdventureMap() {
                         <Text className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3">Currently In</Text>
                         <View className="flex-row items-center justify-between">
                             <View>
-                                <Text className="text-3xl font-bold text-white tracking-tight">Tokyo, Japan</Text>
+                                <Text className="text-3xl font-bold text-white tracking-tight">
+                                    {goals.length > 0 ? `${goals[0].location.city}, ${goals[0].location.country}` : 'Everywhere'}
+                                </Text>
                                 <View className="flex-row items-center mt-2 space-x-2">
                                     <MaterialIcons name="cloud" size={18} color="#60a5fa" />
                                     <Text className="text-sm font-medium text-blue-400 ml-2">18°C • Night</Text>
@@ -100,6 +118,7 @@ export default function DarkAdventureMap() {
                                 accessibilityRole="button"
                                 accessibilityLabel="Recenter map"
                             >
+                                <MaterialIcons name="my-location" size={20} color="#60a5fa" />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -112,10 +131,10 @@ export default function DarkAdventureMap() {
                         </View>
 
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible pb-4" contentContainerStyle={{ paddingRight: 16 }}>
-                            {goals.length === 0 ? (
+                            {goals.filter(g => !g.completed).length === 0 ? (
                                 <Text className="text-gray-500">No remaining goals.</Text>
                             ) : (
-                                goals.slice(0, 5).map((goal: Goal) => (
+                                goals.filter(g => !g.completed).slice(0, 5).map((goal: Goal) => (
                                     <View key={goal.id} className="w-[260px] h-[170px] relative rounded-3xl overflow-hidden shadow-black/50 shadow-lg mr-4 border border-white/5 bg-gray-900">
                                         <Image source={{ uri: goal.image }} className="absolute inset-0 w-full h-full opacity-60" resizeMode="cover" />
                                         <LinearGradient colors={['transparent', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,1)']} className="absolute inset-0" />

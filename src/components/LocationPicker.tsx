@@ -1,12 +1,24 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, View, Text, Pressable, Modal, Dimensions } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import { StyleSheet, View, Text, Pressable, Modal, Dimensions, Platform } from 'react-native';
 import * as Location from 'expo-location';
 import { useTheme } from '../theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HeaderOverlay } from './HeaderOverlay';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { Platform } from 'react-native';
+
+// Conditionally import react-native-maps (crashes on web)
+let MapView: any = View;
+let Marker: any = View;
+let PROVIDER_DEFAULT: any = undefined;
+let PROVIDER_GOOGLE: any = undefined;
+if (Platform.OS !== 'web') {
+    const Maps = require('react-native-maps');
+    MapView = Maps.default;
+    Marker = Maps.Marker;
+    PROVIDER_DEFAULT = Maps.PROVIDER_DEFAULT;
+    PROVIDER_GOOGLE = Maps.PROVIDER_GOOGLE;
+}
+type Region = { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number };
 
 interface LocationData {
     latitude: number;
