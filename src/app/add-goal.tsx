@@ -5,6 +5,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Image } from 'expo-image';
 import { useGoalStore } from '../store/useGoalStore';
 
 export default function AddGoal() {
@@ -15,6 +18,22 @@ export default function AddGoal() {
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('Travel');
     const [locationInput, setLocationInput] = useState('');
+    const [image, setImage] = useState<string | null>(null);
+    const [date, setDate] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() + 1)));
+    const [showDatePicker, setShowDatePicker] = useState(false);
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+    };
 
     const categories = ['Travel', 'Adventures', 'Foodie', 'Stays', 'Milestone'];
 
@@ -33,8 +52,8 @@ export default function AddGoal() {
             title,
             description,
             category,
-            image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAt3pWIbvV8Y9AGyrrFl4WY8qE7xnILeTfQ9cu-6hC0Qb9y1Rb2p5qo19cTS64uLvuNMhRI_LOwDLRl2sZm50Iw_l0R5fubyez_XA1XJfcm1TwMBYEh1MYtcv3xw4CqTkWcRZNu7GT0dtjAPuAX6AbzpuNrO5LRrS-w2Rwh5Ca3Gj2GQFSNAVmp7nN74PMQlI_HSAQVkvngoVjvbGSnRp6JDqCPZ-F93eQYJ8d98y580Yw4dL4erG3yGFnPFDlBdn3pXSNSYtaO2Lk', // Mock generic placeholder image
-            timelineDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(), // Defaults to 1 month from now
+            image: image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuAt3pWIbvV8Y9AGyrrFl4WY8qE7xnILeTfQ9cu-6hC0Qb9y1Rb2p5qo19cTS64uLvuNMhRI_LOwDLRl2sZm50Iw_l0R5fubyez_XA1XJfcm1TwMBYEh1MYtcv3xw4CqTkWcRZNu7GT0dtjAPuAX6AbzpuNrO5LRrS-w2Rwh5Ca3Gj2GQFSNAVmp7nN74PMQlI_HSAQVkvngoVjvbGSnRp6JDqCPZ-F93eQYJ8d98y580Yw4dL4erG3yGFnPFDlBdn3pXSNSYtaO2Lk', // Mock generic placeholder image
+            timelineDate: date.toISOString(), // Real date from picker
             notes: '',
             location: {
                 latitude: 0,
@@ -135,6 +154,47 @@ export default function AddGoal() {
                             onChangeText={setLocationInput}
                         />
                     </View>
+                </View>
+
+                <View className="mb-8">
+                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">Target Date</Text>
+                    <TouchableOpacity
+                        className="flex-row items-center bg-white/5 rounded-2xl border border-white/10 px-4 py-4"
+                        onPress={() => setShowDatePicker(true)}
+                    >
+                        <MaterialIcons name="event" size={20} color="#9ca3af" />
+                        <Text className="flex-1 text-white text-base ml-2">
+                            {date.toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
+                        </Text>
+                    </TouchableOpacity>
+                    {showDatePicker && (
+                        <DateTimePicker
+                            value={date}
+                            mode="date"
+                            display="default"
+                            onChange={(event, selectedDate) => {
+                                setShowDatePicker(Platform.OS === 'ios');
+                                if (selectedDate) setDate(selectedDate);
+                            }}
+                        />
+                    )}
+                </View>
+
+                <View className="mb-8">
+                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">Cover Image</Text>
+                    <TouchableOpacity
+                        className="bg-white/5 rounded-2xl border border-white/10 h-48 justify-center items-center overflow-hidden"
+                        onPress={pickImage}
+                    >
+                        {image ? (
+                            <Image source={image} className="w-full h-full" contentFit="cover" />
+                        ) : (
+                            <View className="items-center">
+                                <MaterialIcons name="add-a-photo" size={32} color="#9ca3af" />
+                                <Text className="text-gray-400 mt-2 text-sm font-medium">Select a photo</Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
         </SafeAreaView>

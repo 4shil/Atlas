@@ -85,36 +85,46 @@ export default function DarkInspirationArchive() {
                     </ScrollView>
                 </View>
 
-                {/* Completed Goals */}
+                {/* Trending / Completed Goals */}
                 <View className="px-6 pb-20 mt-4">
                     <View className="flex-row items-center justify-between mb-5">
                         <Text className="text-lg font-semibold text-white">Completed Goals</Text>
                         <Text className="text-xs text-gray-400">View all</Text>
                     </View>
 
-                    <ScrollView showsVerticalScrollIndicator={false} className="overflow-visible pb-6 relative">
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible pb-6 -mx-6 px-6 relative" snapToInterval={192} decelerationRate="fast" contentContainerStyle={{ paddingRight: 32 }}>
                         {completedGoals.length === 0 ? (
-                            <Text className="text-gray-500 text-center mt-4">No completed goals yet.</Text>
+                            <Text className="text-gray-500">No completed goals yet.</Text>
                         ) : (
-                            completedGoals.map((goal: Goal) => (
-                                <View key={goal.id} className="w-full h-40 rounded-[24px] p-5 relative overflow-hidden mb-4 bg-gray-900 border border-white/10 shadow-lg shadow-black/50">
-                                    <Image source={{ uri: goal.image }} className="absolute inset-0 w-full h-full opacity-50" resizeMode="cover" />
-                                    <LinearGradient colors={['rgba(0,0,0,0.8)', 'transparent', 'rgba(0,0,0,0.8)']} className="absolute inset-0 z-0" />
+                            completedGoals.map((goal: Goal, index: number) => {
+                                const colors = [
+                                    ['rgba(127,29,29,0.4)', 'rgba(0,0,0,0.8)', 'transparent'],
+                                    ['rgba(19,78,74,0.4)', 'rgba(0,0,0,0.8)', 'transparent'],
+                                    ['rgba(30,58,138,0.4)', 'rgba(0,0,0,0.8)', 'transparent']
+                                ];
+                                const gradient = colors[index % colors.length];
 
-                                    <View className="relative z-20 h-full flex-row items-center justify-between">
-                                        <View className="flex-1 justify-center">
-                                            <Text className="text-xl font-bold text-white leading-tight mb-1">{goal.title}</Text>
-                                            <View className="flex-row items-center mt-1">
-                                                <MaterialIcons name="place" size={14} color="#9ca3af" />
-                                                <Text className="text-xs text-gray-400 ml-1">{goal.location.city}, {goal.location.country}</Text>
+                                return (
+                                    <View key={goal.id} className="w-48 h-64 rounded-[32px] p-5 relative overflow-hidden mr-4 bg-gray-900 border border-white/10">
+                                        <Image source={{ uri: goal.image }} className="absolute inset-0 w-full h-full opacity-40" resizeMode="cover" />
+                                        <LinearGradient colors={gradient as [string, string, string]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} className="absolute inset-0 z-0" />
+
+                                        <View className="relative z-20 h-full flex-col justify-between">
+                                            <View className="w-11 h-11 rounded-full bg-black/40 border border-white/10 items-center justify-center">
+                                                <MaterialIcons name={goal.category === 'Foodie' ? 'restaurant' : goal.category === 'Stays' ? 'hotel' : goal.category === 'Travel' ? 'flight' : 'hiking'} size={24} color="#f87171" style={{ color: index % 2 === 0 ? '#f87171' : '#2dd4bf' }} />
+                                            </View>
+                                            <View>
+                                                <Text className="text-2xl font-bold text-white leading-tight mb-1" numberOfLines={2}>{goal.title.replace(' ', '\n')}</Text>
+                                                <View className="flex-row flex-wrap mt-2">
+                                                    <View className="px-2 py-0.5 rounded-md bg-white/10 border border-white/5 mr-2 mb-1">
+                                                        <Text className="text-[10px] text-gray-300">{goal.category}</Text>
+                                                    </View>
+                                                </View>
                                             </View>
                                         </View>
-                                        <View className="w-12 h-12 rounded-full bg-green-500/20 items-center justify-center border border-green-500/30">
-                                            <MaterialIcons name="check-circle" size={24} color="#4ade80" />
-                                        </View>
                                     </View>
-                                </View>
-                            ))
+                                )
+                            })
                         )}
                     </ScrollView>
                 </View>

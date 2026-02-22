@@ -1,15 +1,12 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import Carousel from 'react-native-reanimated-carousel';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 import { useRouter } from 'expo-router';
-
-const { width: PAGE_WIDTH } = Dimensions.get('window');
 
 export default function DarkTravelGallery() {
     const { goals } = useGoalStore();
@@ -52,58 +49,74 @@ export default function DarkTravelGallery() {
                 </View>
 
                 {/* Gallery Stack */}
-                <View className="flex-1 items-center justify-center relative w-full mb-12 mt-8">
-                    {goals.length === 0 ? (
-                        <Text className="text-gray-500">No memories to display yet.</Text>
-                    ) : (
-                        <Carousel
-                            loop
-                            width={PAGE_WIDTH * 0.8}
-                            height={PAGE_WIDTH * 1.2}
-                            autoPlay={false}
-                            data={goals}
-                            scrollAnimationDuration={1000}
-                            mode="parallax"
-                            modeConfig={{
-                                parallaxScrollingScale: 0.9,
-                                parallaxScrollingOffset: 50,
-                            }}
-                            renderItem={({ item }: { item: Goal }) => (
-                                <View className="flex-1 rounded-[24px] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.7)] z-20 flex flex-col overflow-hidden bg-gray-900">
-                                    <View className="h-full w-full relative">
-                                        <Image source={{ uri: item.image }} className="absolute inset-0 w-full h-full" resizeMode="cover" />
-                                        <LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} className="absolute inset-0 pointer-events-none" />
-
-                                        <View className="absolute top-4 right-4 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 flex-row items-center">
-                                            {item.completed ? (
-                                                <MaterialIcons name="check-circle" size={14} color="#10b981" />
-                                            ) : (
-                                                <MaterialIcons name="schedule" size={14} color="#60a5fa" />
-                                            )}
+                <View className="flex-1 items-center justify-center relative w-full mb-12">
+                    <View className="w-full h-[480px] relative items-center justify-center pt-8">
+                        {goals.length === 0 ? (
+                            <Text className="text-gray-500">No memories to display yet.</Text>
+                        ) : (
+                            <>
+                                {/* Left Card -> Index 1 */}
+                                {goals[1] && (
+                                    <View className="absolute left-[5%] w-[65%] h-[380px] bg-black/40 rounded-[24px] border border-white/10 shadow-2xl z-10 overflow-hidden" style={{ transform: [{ rotate: '-6deg' }], opacity: 0.9 }}>
+                                        <Image source={{ uri: goals[1].image }} className="absolute inset-0 w-full h-full opacity-50" resizeMode="cover" />
+                                        <View className="absolute inset-0 bg-black/40" />
+                                        <View className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 border-t border-white/5">
+                                            <Text className="font-medium text-white text-lg">{goals[1].title}</Text>
+                                            <Text className="text-xs text-gray-400">{new Date(goals[1].createdAt).toLocaleDateString()}</Text>
                                         </View>
+                                    </View>
+                                )}
 
-                                        <View className="absolute bottom-0 left-0 right-0 p-5 bg-black/40 border-t border-white/10">
-                                            <View className="flex-row justify-between items-end">
-                                                <View>
-                                                    <Text className="text-2xl font-bold text-white leading-none mb-2">{item.title}</Text>
-                                                    <View className="flex-row items-center mt-1">
-                                                        <MaterialIcons name="place" size={16} color="rgba(255,255,255,0.7)" />
-                                                        <Text className="text-sm font-light text-gray-300 ml-1 tracking-wide">{item.location.city}, {item.location.country}</Text>
+                                {/* Right Card -> Index 2 */}
+                                {goals[2] && (
+                                    <View className="absolute right-[5%] w-[65%] h-[380px] bg-black/40 rounded-[24px] border border-white/10 shadow-2xl z-10 overflow-hidden" style={{ transform: [{ rotate: '6deg' }], opacity: 0.9 }}>
+                                        <Image source={{ uri: goals[2].image }} className="absolute inset-0 w-full h-full opacity-50" resizeMode="cover" />
+                                        <View className="absolute inset-0 bg-black/40" />
+                                        <View className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 border-t border-white/5">
+                                            <Text className="font-medium text-white text-lg">{goals[2].title}</Text>
+                                            <Text className="text-xs text-gray-400">{new Date(goals[2].createdAt).toLocaleDateString()}</Text>
+                                        </View>
+                                    </View>
+                                )}
+
+                                {/* Center Card -> Index 0 */}
+                                {goals[0] && (
+                                    <View className="relative w-[75%] max-w-[300px] h-[440px] bg-gray-900 rounded-[24px] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.7)] z-20 flex flex-col overflow-hidden">
+                                        <View className="h-full w-full relative">
+                                            <Image source={{ uri: goals[0].image }} className="absolute inset-0 w-full h-full" resizeMode="cover" />
+                                            <LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} className="absolute inset-0 pointer-events-none" />
+
+                                            <View className="absolute top-4 right-4 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 flex-row items-center">
+                                                {goals[0].completed ? (
+                                                    <MaterialIcons name="check-circle" size={14} color="#10b981" />
+                                                ) : (
+                                                    <MaterialIcons name="schedule" size={14} color="#60a5fa" />
+                                                )}
+                                            </View>
+
+                                            <View className="absolute bottom-0 left-0 right-0 p-5 bg-black/40 border-t border-white/10">
+                                                <View className="flex-row justify-between items-end">
+                                                    <View>
+                                                        <Text className="text-2xl font-bold text-white leading-none mb-2">{goals[0].title}</Text>
+                                                        <View className="flex-row items-center mt-1">
+                                                            <MaterialIcons name="place" size={16} color="rgba(255,255,255,0.7)" />
+                                                            <Text className="text-sm font-light text-gray-300 ml-1 tracking-wide">{goals[0].location.city}, {goals[0].location.country}</Text>
+                                                        </View>
                                                     </View>
+                                                    <TouchableOpacity
+                                                        className="w-10 h-10 rounded-full bg-white/10 border border-white/20 items-center justify-center"
+                                                        onPress={() => Haptics.selectionAsync()}
+                                                    >
+                                                        <MaterialIcons name="arrow-forward" size={18} color="white" />
+                                                    </TouchableOpacity>
                                                 </View>
-                                                <TouchableOpacity
-                                                    className="w-10 h-10 rounded-full bg-white/10 border border-white/20 items-center justify-center"
-                                                    onPress={() => Haptics.selectionAsync()}
-                                                >
-                                                    <MaterialIcons name="arrow-forward" size={18} color="white" />
-                                                </TouchableOpacity>
                                             </View>
                                         </View>
                                     </View>
-                                </View>
-                            )}
-                        />
-                    )}
+                                )}
+                            </>
+                        )}
+                    </View>
                 </View>
 
             </View>

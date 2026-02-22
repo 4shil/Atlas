@@ -3,7 +3,8 @@ import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Path, Defs, Pattern, Rect, Circle } from 'react-native-svg';
+import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import { StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 
@@ -17,59 +18,39 @@ export default function DarkAdventureMap() {
             {/* Top Map Area 60% */}
             <View className="relative h-[60%] w-full bg-[#050505] z-10 overflow-hidden">
 
-                {/* SVG Map Lines and Dots Pattern */}
-                <View className="absolute inset-0 z-0 bg-[#0f0f13]">
-
-                    <Svg width="100%" height="100%" className="absolute inset-0 opacity-20">
-                        <Path d="M-10 100 Q 150 150 200 50 T 400 100" fill="none" stroke="#333" strokeWidth="8" />
-                        <Path d="M-10 300 Q 100 250 200 350 T 400 300" fill="none" stroke="#333" strokeWidth="6" />
-                        <Path d="M150 0 L 150 800" fill="none" stroke="#2a2a2a" strokeWidth="12" />
-                        <Path d="M280 0 L 250 800" fill="none" stroke="#2a2a2a" strokeWidth="10" />
-                    </Svg>
-
-                    <Svg width="100%" height="100%" className="absolute inset-0 opacity-20">
-                        <Defs>
-                            <Pattern id="dots" width="40" height="40" patternUnits="userSpaceOnUse">
-                                <Circle cx="2" cy="2" r="1.5" fill="#555" />
-                            </Pattern>
-                        </Defs>
-                        <Rect width="100%" height="100%" fill="url(#dots)" />
-                    </Svg>
-
-                </View>
+                {/* Real interactive MapView */}
+                <MapView
+                    provider={PROVIDER_DEFAULT}
+                    style={StyleSheet.absoluteFillObject}
+                    initialRegion={{
+                        latitude: 20,
+                        longitude: 0,
+                        latitudeDelta: 100,
+                        longitudeDelta: 100,
+                    }}
+                    userInterfaceStyle="dark"
+                >
+                    {goals.map(goal => (
+                        <Marker
+                            key={goal.id}
+                            coordinate={{
+                                latitude: goal.location.latitude,
+                                longitude: goal.location.longitude,
+                            }}
+                        >
+                            <View className={`w-10 h-10 rounded-full shadow-2xl items-center justify-center border border-white/20 ${goal.completed ? 'bg-green-900/60' : 'bg-[#111]'}`}>
+                                <MaterialIcons
+                                    name={goal.category === 'Foodie' ? 'restaurant' : goal.category === 'Stays' ? 'hotel' : goal.category === 'Travel' ? 'flight' : 'hiking'}
+                                    size={18}
+                                    color={goal.completed ? '#4ade80' : 'white'}
+                                />
+                            </View>
+                        </Marker>
+                    ))}
+                </MapView>
 
                 <LinearGradient colors={['rgba(0,0,0,0.8)', 'transparent', 'rgba(0,0,0,0.9)']} className="absolute inset-0 pointer-events-none z-10" />
                 <View className="absolute inset-0 bg-blue-900/10 pointer-events-none z-10" />
-
-                <View className="absolute top-1/3 left-1/2 -ml-8 -mt-8 z-20 items-center text-center">
-                    <View className="bg-black/80 px-4 py-1.5 rounded-full shadow-lg mb-3 border border-white/10">
-                        <Text className="text-[10px] uppercase tracking-widest font-bold text-white">Current</Text>
-                    </View>
-                    <View className="relative w-16 h-16 items-center justify-center">
-                        <View className="w-4 h-4 bg-blue-500 rounded-full border-[3px] border-black shadow-[0_0_15px_rgba(59,130,246,0.8)] z-10" />
-                    </View>
-                </View>
-
-                {goals.map((goal: Goal, index: number) => {
-                    // Quick pseudo-random positioning for mockup purposes 
-                    // until react-native-maps is fully integrated.
-                    const top = 20 + (index * 15) % 30;
-                    const left = 15 + (index * 25) % 70;
-
-                    let IconName = 'place';
-                    if (goal.category === 'Travel') IconName = 'flight';
-                    if (goal.category === 'Adventures') IconName = 'hiking';
-                    if (goal.category === 'Foodie') IconName = 'restaurant';
-                    if (goal.category === 'Stays') IconName = 'hotel';
-
-                    return (
-                        <View key={goal.id} className="absolute z-20" style={{ top: `${top}%`, left: `${left}%` }}>
-                            <View className={`w-10 h-10 rounded-full shadow-2xl items-center justify-center border border-white/20 ${goal.completed ? 'bg-green-900/60' : 'bg-[#111]'}`}>
-                                <MaterialIcons name={IconName as any} size={18} color={goal.completed ? '#4ade80' : 'white'} />
-                            </View>
-                        </View>
-                    );
-                })}
 
                 {/* Top Floating Buttons */}
                 <View className="absolute top-0 left-0 right-0 pt-16 px-6 flex-row justify-between items-start z-30 pointer-events-box-none">
