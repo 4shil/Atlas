@@ -28,6 +28,7 @@ function RootLayoutNav() {
                 <Stack.Screen name="index" />
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="add-goal" options={{ presentation: 'modal' }} />
+                <Stack.Screen name="goal-detail" options={{ presentation: 'card' }} />
             </Stack>
         </>
     );
