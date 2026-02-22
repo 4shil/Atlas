@@ -4,8 +4,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
+import { useGoalStore, Goal } from '../../store/useGoalStore';
+import { useRouter } from 'expo-router';
 
 export default function DashboardDark() {
+    const { getCompletedGoals, getPendingGoals } = useGoalStore();
+    const router = useRouter();
+
+    const completedGoals = getCompletedGoals();
+    const pendingGoals = getPendingGoals().sort((a: Goal, b: Goal) => new Date(a.timelineDate).getTime() - new Date(b.timelineDate).getTime());
+
     return (
         <SafeAreaView className="flex-1 bg-gray-900" edges={['top', 'bottom']}>
             <StatusBar style="light" />
@@ -45,7 +53,10 @@ export default function DashboardDark() {
                     <TouchableOpacity
                         className="bg-gray-800 px-4 py-2 rounded-full flex-row items-center shadow-lg border border-gray-600"
                         activeOpacity={0.7}
-                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                            router.push('/add-goal');
+                        }}
                         accessibilityRole="button"
                         accessibilityLabel="Add new adventure"
                     >
@@ -65,7 +76,7 @@ export default function DashboardDark() {
                             <Text className="text-gray-400 font-medium text-xs mt-1 mb-6">Great job!</Text>
                             <View className="flex-row items-baseline">
                                 <View className="w-1 h-8 bg-white rounded-full mr-2" />
-                                <Text className="text-3xl font-semibold text-white tracking-tight">12</Text>
+                                <Text className="text-3xl font-semibold text-white tracking-tight">{completedGoals.length}</Text>
                             </View>
                             <View className="absolute top-4 right-4 opacity-20">
                                 <MaterialIcons name="check-circle-outline" size={36} color="white" style={{ transform: [{ rotate: '12deg' }] }} />
@@ -78,7 +89,7 @@ export default function DashboardDark() {
                             <Text className="text-gray-400 font-medium text-xs mt-1 mb-6">Keep going</Text>
                             <View className="flex-row items-baseline">
                                 <View className="w-1 h-8 bg-gray-600 rounded-full mr-2" />
-                                <Text className="text-3xl font-semibold text-white tracking-tight">24</Text>
+                                <Text className="text-3xl font-semibold text-white tracking-tight">{pendingGoals.length}</Text>
                             </View>
                             <View className="absolute top-4 right-4 opacity-20">
                                 <MaterialIcons name="hourglass-empty" size={36} color="white" style={{ transform: [{ rotate: '-12deg' }] }} />
@@ -91,45 +102,38 @@ export default function DashboardDark() {
                 <View className="px-6 mt-8 mb-10 flex-col space-y-4">
                     <Text className="text-sm font-semibold text-gray-300 mb-3">Upcoming Adventures</Text>
                     <View className="flex-col pb-4">
-
-                        <TouchableOpacity
-                            className="bg-black/40 p-4 rounded-2xl flex-row items-center justify-between border border-gray-800 mb-3"
-                            activeOpacity={0.7}
-                            onPress={() => Haptics.selectionAsync()}
-                            accessibilityRole="button"
-                            accessibilityLabel="View Trip to Japan details"
-                        >
-                            <View className="flex-row items-center">
-                                <View className="w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 items-center justify-center mr-3">
-                                    <MaterialIcons name="flight-takeoff" size={20} color="white" />
-                                </View>
-                                <View className="flex-col">
-                                    <Text className="text-sm font-semibold text-white">Trip to Japan</Text>
-                                    <Text className="text-xs text-gray-500">March 2024</Text>
-                                </View>
-                            </View>
-                            <MaterialIcons name="chevron-right" size={24} color="#4b5563" />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            className="bg-black/40 p-4 rounded-2xl flex-row items-center justify-between border border-gray-800"
-                            activeOpacity={0.7}
-                            onPress={() => Haptics.selectionAsync()}
-                            accessibilityRole="button"
-                            accessibilityLabel="View Scuba Diving details"
-                        >
-                            <View className="flex-row items-center">
-                                <View className="w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 items-center justify-center mr-3">
-                                    <MaterialIcons name="scuba-diving" size={20} color="white" />
-                                </View>
-                                <View className="flex-col">
-                                    <Text className="text-sm font-semibold text-white">Scuba Diving</Text>
-                                    <Text className="text-xs text-gray-500">Summer 2024</Text>
-                                </View>
-                            </View>
-                            <MaterialIcons name="chevron-right" size={24} color="#4b5563" />
-                        </TouchableOpacity>
-
+                        {pendingGoals.length === 0 ? (
+                            <Text className="text-gray-500 text-sm">No upcoming adventures planned.</Text>
+                        ) : (
+                            pendingGoals.slice(0, 3).map((goal: Goal) => (
+                                <TouchableOpacity
+                                    key={goal.id}
+                                    className="bg-black/40 p-4 rounded-2xl flex-row items-center justify-between border border-gray-800 mb-3"
+                                    activeOpacity={0.7}
+                                    onPress={() => {
+                                        Haptics.selectionAsync();
+                                        // TODO navigate to goal detail
+                                    }}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={`View ${goal.title} details`}
+                                >
+                                    <View className="flex-row items-center">
+                                        <View className="w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 items-center justify-center mr-3 overflow-hidden">
+                                            {goal.category === 'Travel' && <MaterialIcons name="flight-takeoff" size={20} color="white" />}
+                                            {goal.category === 'Adventures' && <MaterialIcons name="hiking" size={20} color="white" />}
+                                            {goal.category !== 'Travel' && goal.category !== 'Adventures' && <MaterialIcons name="place" size={20} color="white" />}
+                                        </View>
+                                        <View className="flex-col">
+                                            <Text className="text-sm font-semibold text-white">{goal.title}</Text>
+                                            <Text className="text-xs text-gray-500">
+                                                {new Date(goal.timelineDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                    <MaterialIcons name="chevron-right" size={24} color="#4b5563" />
+                                </TouchableOpacity>
+                            ))
+                        )}
                     </View>
                 </View>
             </ScrollView>

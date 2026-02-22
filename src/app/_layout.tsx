@@ -25,15 +25,7 @@ function RootLayoutNav() {
                     animation: isReducedMotion ? 'fade' : 'fade_from_bottom',
                 }}
             >
-                <Stack.Screen name="index" />
-                <Stack.Screen name="dashboard" />
-                <Stack.Screen name="gallery" />
-                <Stack.Screen name="map" />
-                <Stack.Screen name="inspiration" />
-                <Stack.Screen name="dark-dashboard" />
-                <Stack.Screen name="dark-gallery" />
-                <Stack.Screen name="dark-map" />
-                <Stack.Screen name="dark-inspiration" />
+                <Stack.Screen name="(tabs)" />
             </Stack>
         </>
     );
