@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bucket List Dashboard Pure Dark</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "pure-black": "#000000",
+                        "dark-slate": "#334155", // slate-700
+                        "subtle-indigo": "#312e81", // indigo-900
+                        "glass-dark": "rgba(0, 0, 0, 0.7)",
+                        "glass-border": "rgba(255, 255, 255, 0.15)",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1.5rem",
+                    },
+                    backdropBlur: {
+                        'xs': '2px',
+                    }
+                },
+            },
+        };
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-900 flex justify-center items-center min-h-screen p-4 font-display selection:bg-indigo-500 selection:text-white">
+<div class="relative w-full max-w-[390px] h-[844px] bg-pure-black rounded-[3rem] shadow-2xl overflow-hidden border-8 border-gray-900 flex flex-col text-white">
+<div class="absolute inset-0 z-0 bg-pure-black">
+<div class="absolute -top-20 -left-20 w-[400px] h-[400px] bg-indigo-950/40 rounded-full blur-[100px] opacity-40 animate-blob"></div>
+<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-slate-900/30 rounded-full blur-[120px] opacity-30"></div>
+<div class="absolute -bottom-20 -right-20 w-[350px] h-[350px] bg-indigo-900/20 rounded-full blur-[80px] opacity-30"></div>
+</div>
+<div class="relative z-10 flex flex-col h-full">
+<div class="px-6 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-white">
+<span>13:13</span>
+<div class="absolute left-1/2 transform -translate-x-1/2 top-2 w-[120px] h-[35px] bg-black rounded-full z-50"></div>
+<div class="flex items-center space-x-1">
+<span class="material-icons-round text-sm">signal_cellular_alt</span>
+<span class="material-icons-round text-sm">wifi</span>
+<span class="material-icons-round text-sm">battery_full</span>
+</div>
+</div>
+<div class="px-6 mt-4 flex justify-between items-center">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-gray-700 shadow-sm relative">
+<img alt="Profile user portrait" class="w-full h-full object-cover grayscale opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc3ZG704nmOa3EVc3srBQLDvJcDMR-NXgwf-Ts1BbcmseRtAnWaJGwaMycgQ0k9raeLtVGwPOCY9dq-gVnws5lRW3wRPUv4pFlh0S3hc9TNP6PI32LumQ7RDuF_pj19JVCjIVbc9T5awgK6UCOIQQauC0AZ3vVZBiQbrGlbuyZ400jUvHCetPJkE2xno6fEkEZYg1eZt-WFbB8M-sUh4_IUW0vPoFe9_KNs0N5I4YeGfUU-uERXktolnf9jHnoCpEe6UHvEoRYf6Q"/>
+</div>
+<button class="w-10 h-10 rounded-full bg-glass-dark border border-gray-700 backdrop-blur-md flex items-center justify-center text-gray-300 shadow-sm hover:bg-white/10 transition-colors">
+<span class="material-icons-round transform rotate-45">notifications_none</span>
+</button>
+</div>
+<div class="px-6 mt-16 flex flex-col items-center text-center">
+<p class="text-sm font-medium text-gray-400 mb-1 tracking-wide">My Journeys</p>
+<h1 class="text-3xl font-bold text-white tracking-tight mb-6">Life Bucket List</h1>
+<button class="bg-black pl-3 pr-4 py-2 rounded-full flex items-center space-x-2 shadow-lg border border-white/80 hover:bg-gray-900 transition-all active:scale-95">
+<span class="material-icons-round text-white text-base">add_circle_outline</span>
+<span class="text-sm font-semibold text-white">Add Adventure</span>
+</button>
+</div>
+<div class="px-6 mt-10 flex-grow">
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-sm font-semibold text-gray-300">Overview</h2>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="relative bg-black/60 backdrop-blur-xl rounded-[2rem] p-5 shadow-inner border border-gray-700 overflow-hidden group hover:border-gray-500 transition-all">
+<div class="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-[4rem] pointer-events-none"></div>
+<div class="flex flex-col h-full justify-between relative z-10">
+<div>
+<h3 class="text-lg font-medium text-white leading-tight">Completed</h3>
+<p class="text-gray-400 font-medium text-xs mt-1">Great job!</p>
+</div>
+<div class="mt-6 flex items-baseline">
+<span class="w-1 h-8 bg-white rounded-full mr-2"></span>
+<span class="text-3xl font-semibold text-white tracking-tight">12</span>
+</div>
+</div>
+<div class="absolute top-4 right-4 text-white/20">
+<span class="material-icons-round text-4xl transform rotate-12">check_circle_outline</span>
+</div>
+</div>
+<div class="relative bg-black/60 backdrop-blur-xl rounded-[2rem] p-5 shadow-inner border border-gray-700 overflow-hidden group hover:border-gray-500 transition-all">
+<div class="flex flex-col h-full justify-between relative z-10">
+<div>
+<h3 class="text-lg font-medium text-white leading-tight">Pending</h3>
+<p class="text-gray-400 font-medium text-xs mt-1">Keep going</p>
+</div>
+<div class="mt-6 flex items-baseline">
+<span class="w-1 h-8 bg-gray-600 rounded-full mr-2"></span>
+<span class="text-3xl font-semibold text-white tracking-tight">24</span>
+</div>
+</div>
+<div class="absolute top-4 right-4 text-white/20">
+<span class="material-icons-round text-4xl transform -rotate-12">hourglass_empty</span>
+</div>
+</div>
+</div>
+<div class="mt-8 flex flex-col space-y-4">
+<h2 class="text-sm font-semibold text-gray-300">Upcoming Adventures</h2>
+<div class="flex flex-col space-y-3">
+<div class="bg-black/40 backdrop-blur-md p-4 rounded-2xl flex items-center justify-between border border-gray-800 hover:bg-white/5 transition-colors">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 text-white flex items-center justify-center">
+<span class="material-icons-round text-lg">flight_takeoff</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-white">Trip to Japan</span>
+<span class="text-xs text-gray-500">March 2024</span>
+</div>
+</div>
+<span class="material-icons-round text-gray-600">chevron_right</span>
+</div>
+<div class="bg-black/40 backdrop-blur-md p-4 rounded-2xl flex items-center justify-between border border-gray-800 hover:bg-white/5 transition-colors">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 text-white flex items-center justify-center">
+<span class="material-icons-round text-lg">scuba_diving</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-white">Scuba Diving</span>
+<span class="text-xs text-gray-500">Summer 2024</span>
+</div>
+</div>
+<span class="material-icons-round text-gray-600">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+<div class="px-6 pb-6 pt-2 mb-2">
+<div class="w-1/3 h-1 bg-gray-800 rounded-full mx-auto mt-6"></div>
+</div>
+</div>
+</div>
+
+</body></html>
