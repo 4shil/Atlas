@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 
 export default function DarkInspiration() {
     return (
@@ -17,18 +18,30 @@ export default function DarkInspiration() {
                 <View className="absolute bottom-[20%] left-[30%] w-[350px] h-[350px] bg-blue-900 rounded-full opacity-20" />
             </View>
 
-            <ScrollView className="flex-1 z-10 pt-4" showsVerticalScrollIndicator={false}>
+            <ScrollView className="flex-1 z-10 pt-4" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
 
                 {/* Header section (Menu, Likes, Settings) */}
                 <View className="px-6 flex-row justify-between items-center mb-6">
-                    <TouchableOpacity className="w-10 h-10 rounded-full bg-black/60 border border-white/10 active:bg-white/10 flex items-center justify-center">
+                    <TouchableOpacity
+                        className="w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center"
+                        activeOpacity={0.7}
+                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Open menu"
+                    >
                         <MaterialIcons name="menu" size={20} color="white" />
                     </TouchableOpacity>
                     <View className="bg-black/60 border border-white/10 px-4 py-1.5 rounded-full flex-row items-center space-x-2">
                         <MaterialIcons name="favorite" size={14} color="#f87171" />
                         <Text className="text-xs font-medium text-white/90 ml-1.5">2.390 Like</Text>
                     </View>
-                    <TouchableOpacity className="w-10 h-10 rounded-full bg-black/60 border border-white/10 active:bg-white/10 flex items-center justify-center">
+                    <TouchableOpacity
+                        className="w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center"
+                        activeOpacity={0.7}
+                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Settings"
+                    >
                         <MaterialIcons name="settings" size={20} color="white" />
                     </TouchableOpacity>
                 </View>
@@ -40,7 +53,13 @@ export default function DarkInspiration() {
                         Chase Your{"\n"}Dreams
                     </Text>
 
-                    <TouchableOpacity className="bg-[#0a0a0a] border border-white/10 shadow-lg px-6 py-3.5 rounded-full flex-row items-center active:scale-95 mb-12">
+                    <TouchableOpacity
+                        className="bg-[#0a0a0a] border border-white/10 shadow-lg px-6 py-3.5 rounded-full flex-row items-center mb-12"
+                        activeOpacity={0.7}
+                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Explore map"
+                    >
                         <MaterialIcons name="map" size={18} color="white" />
                         <Text className="text-sm font-semibold text-white ml-2">Explore Map</Text>
                     </TouchableOpacity>
@@ -80,7 +99,7 @@ export default function DarkInspiration() {
                         <Text className="text-xs text-gray-400">View all</Text>
                     </View>
 
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible pb-6 -mx-6 px-6 relative" snapToInterval={192} decelerationRate="fast">
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible pb-6 -mx-6 px-6 relative" snapToInterval={192} decelerationRate="fast" contentContainerStyle={{ paddingRight: 32 }}>
 
                         {/* Card 1: Visit Tokyo */}
                         <View className="w-48 h-64 rounded-[32px] p-5 relative overflow-hidden mr-4 bg-gray-900 border border-white/10">
