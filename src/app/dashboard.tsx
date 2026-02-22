@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
+import * as Haptics from 'expo-haptics';
 
 export default function DashboardLight() {
     return (
@@ -16,7 +17,7 @@ export default function DashboardLight() {
                 <View className="absolute -bottom-20 -right-20 w-[350px] h-[350px] bg-orange-50 rounded-full opacity-60" />
             </View>
 
-            <ScrollView className="flex-1 relative z-10" showsVerticalScrollIndicator={false}>
+            <ScrollView className="flex-1 relative z-10" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
                 {/* Header */}
                 <View className="px-6 mt-4 flex-row justify-between items-center">
                     <View className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
@@ -25,7 +26,13 @@ export default function DashboardLight() {
                             className="w-full h-full"
                         />
                     </View>
-                    <TouchableOpacity className="w-10 h-10 rounded-full bg-white/40 items-center justify-center shadow-sm">
+                    <TouchableOpacity
+                        className="w-10 h-10 rounded-full bg-white/40 items-center justify-center shadow-sm"
+                        activeOpacity={0.7}
+                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Notifications"
+                    >
                         <MaterialIcons name="notifications-none" size={24} color="#374151" />
                     </TouchableOpacity>
                 </View>
@@ -34,7 +41,13 @@ export default function DashboardLight() {
                 <View className="px-6 mt-16 items-center flex-col">
                     <Text className="text-sm font-medium text-gray-500 mb-1 tracking-wide">My Journeys</Text>
                     <Text className="text-3xl font-bold text-gray-800 tracking-tight mb-6">Life Bucket List</Text>
-                    <TouchableOpacity className="bg-white/80 px-4 py-2 rounded-full flex-row items-center shadow-sm border border-white/50 active:scale-95">
+                    <TouchableOpacity
+                        className="bg-white/80 px-4 py-2 rounded-full flex-row items-center shadow-sm border border-white/50"
+                        activeOpacity={0.7}
+                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Add new adventure"
+                    >
                         <MaterialIcons name="add-circle-outline" size={20} color="#1f2937" />
                         <Text className="text-sm font-semibold text-gray-800 ml-2">Add Adventure</Text>
                     </TouchableOpacity>
@@ -78,7 +91,13 @@ export default function DashboardLight() {
                     <Text className="text-sm font-semibold text-gray-700 mb-3">Upcoming Adventures</Text>
                     <View className="flex-col pb-4">
 
-                        <TouchableOpacity className="bg-white/60 p-4 rounded-2xl flex-row items-center justify-between border border-white/40 mb-3">
+                        <TouchableOpacity
+                            className="bg-white/60 p-4 rounded-2xl flex-row items-center justify-between border border-white/40 mb-3"
+                            activeOpacity={0.7}
+                            onPress={() => Haptics.selectionAsync()}
+                            accessibilityRole="button"
+                            accessibilityLabel="View Trip to Japan details"
+                        >
                             <View className="flex-row items-center">
                                 <View className="w-10 h-10 rounded-xl bg-orange-100 items-center justify-center mr-3">
                                     <MaterialIcons name="flight-takeoff" size={20} color="#f97316" />
@@ -91,7 +110,13 @@ export default function DashboardLight() {
                             <MaterialIcons name="chevron-right" size={24} color="#9ca3af" />
                         </TouchableOpacity>
 
-                        <TouchableOpacity className="bg-white/60 p-4 rounded-2xl flex-row items-center justify-between border border-white/40">
+                        <TouchableOpacity
+                            className="bg-white/60 p-4 rounded-2xl flex-row items-center justify-between border border-white/40"
+                            activeOpacity={0.7}
+                            onPress={() => Haptics.selectionAsync()}
+                            accessibilityRole="button"
+                            accessibilityLabel="View Scuba Diving details"
+                        >
                             <View className="flex-row items-center">
                                 <View className="w-10 h-10 rounded-xl bg-blue-100 items-center justify-center mr-3">
                                     <MaterialIcons name="scuba-diving" size={20} color="#3b82f6" />

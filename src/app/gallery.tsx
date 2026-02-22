@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 
 export default function TravelGalleryLight() {
     return (
@@ -26,7 +27,13 @@ export default function TravelGalleryLight() {
                             className="w-full h-full"
                         />
                     </View>
-                    <TouchableOpacity className="w-10 h-10 rounded-full bg-white/40 items-center justify-center shadow-sm">
+                    <TouchableOpacity
+                        className="w-10 h-10 rounded-full bg-white/40 items-center justify-center shadow-sm"
+                        activeOpacity={0.7}
+                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Notifications"
+                    >
                         <MaterialIcons name="notifications-none" size={24} color="#374151" />
                     </TouchableOpacity>
                 </View>
@@ -42,7 +49,7 @@ export default function TravelGalleryLight() {
                     <View className="w-full h-[480px] relative items-center justify-center">
 
                         {/* Left Card -> Paris Nights */}
-                        <View className="absolute left-[-20px] scale-90 w-[260px] h-[380px] bg-white/30 rounded-[24px] border border-white/20 shadow-lg z-10 overflow-hidden" style={{ transform: [{ scale: 0.9 }, { rotate: '-6deg' }], opacity: 0.6 }}>
+                        <View className="absolute left-[5%] w-[65%] h-[380px] bg-white/30 rounded-[24px] border border-white/20 shadow-lg z-10 overflow-hidden" style={{ transform: [{ rotate: '-6deg' }], opacity: 0.8 }}>
                             <Image source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAt3pWIbvV8Y9AGyrrFl4WY8qE7xnILeTfQ9cu-6hC0Qb9y1Rb2p5qo19cTS64uLvuNMhRI_LOwDLRl2sZm50Iw_l0R5fubyez_XA1XJfcm1TwMBYEh1MYtcv3xw4CqTkWcRZNu7GT0dtjAPuAX6AbzpuNrO5LRrS-w2Rwh5Ca3Gj2GQFSNAVmp7nN74PMQlI_HSAQVkvngoVjvbGSnRp6JDqCPZ-F93eQYJ8d98y580Yw4dL4erG3yGFnPFDlBdn3pXSNSYtaO2Lk' }} className="absolute inset-0 w-full h-full opacity-70" />
                             <LinearGradient colors={['transparent', 'rgba(0,0,0,0.6)']} className="absolute bottom-0 left-0 right-0 p-4">
                                 <Text className="font-bold text-lg text-white">Paris Nights</Text>
@@ -51,7 +58,7 @@ export default function TravelGalleryLight() {
                         </View>
 
                         {/* Right Card -> Safari */}
-                        <View className="absolute right-[-20px] scale-90 w-[260px] h-[380px] bg-white/30 rounded-[24px] border border-white/20 shadow-lg z-10 overflow-hidden" style={{ transform: [{ scale: 0.9 }, { rotate: '6deg' }], opacity: 0.6 }}>
+                        <View className="absolute right-[5%] w-[65%] h-[380px] bg-white/30 rounded-[24px] border border-white/20 shadow-lg z-10 overflow-hidden" style={{ transform: [{ rotate: '6deg' }], opacity: 0.8 }}>
                             <Image source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAN2lHRAjplzGwkhMUdbMXs4lAU3xrcbip_s1VT8BPq4Jn5BRlj_Y4v9OJ6S5LSZ9bkqzlOGEVXrhO-Y-mXRO6g1s47T15sqC6LFgWc7KnjnPzwWEBwa0Om2g7d7w1cux0vRuFH_8OWe8qhWR8o0PzlCxaaKpC5Jx_6afYXtxS02HxoAZ3dk-phmD7Qud-lJktyRIZGoVDVuJ249ZXr8l-pbXs0TRoOyP9yvm833GP5ZIbe2jIpkeQOT7nf4BsvPzB5duRe_PKrNew' }} className="absolute inset-0 w-full h-full opacity-70" />
                             <LinearGradient colors={['transparent', 'rgba(0,0,0,0.6)']} className="absolute bottom-0 left-0 right-0 p-4">
                                 <Text className="font-bold text-lg text-white">Safari</Text>
@@ -60,7 +67,7 @@ export default function TravelGalleryLight() {
                         </View>
 
                         {/* Center Card -> Mount Fuji */}
-                        <View className="relative w-[280px] h-[420px] bg-white/40 rounded-[24px] border border-white/60 shadow-2xl z-20 flex-col overflow-hidden">
+                        <View className="relative w-[75%] max-w-[300px] h-[420px] bg-white/40 rounded-[24px] border border-white/60 shadow-2xl z-20 flex-col overflow-hidden">
                             <View className="h-[75%] w-full relative">
                                 <Image source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD-doBLLmuOCfvnJ5Y6yiM1iIR2KpiDCLW5UlcSo8HWhAjyG0-p7EXgNUuA8HO0zn7PK7TG0UDMrZwDmx94MNq8HRRLpI-3zBK40HLECak9Kwoc8omY7v-AeTM3kHQ9TApBJ5lZJbjde1AADY1vEkGMsxW3MyH9XU3c7RB06OLNZVXDhCzma7XxkfST5Qfh0H5XK418TROZ6GBRrrTW0r55LVbD90IbTP4tCvcFK5TODBCPsyBp7r0Zgzgkg6gq4ooGWkOM3HsLEt4' }} className="absolute inset-0 w-full h-full" />
                                 <View className="absolute top-4 right-4 bg-white/20 px-2 py-1 flex-row items-center rounded-lg border border-white/30 truncate">
@@ -91,7 +98,13 @@ export default function TravelGalleryLight() {
 
             {/* Floating Action Button */}
             <View className="absolute bottom-10 left-0 right-0 z-30 flex-row justify-center" pointerEvents="box-none">
-                <TouchableOpacity className="shadow-lg shadow-teal-500/30 overflow-hidden rounded-full border border-white/20 active:scale-95">
+                <TouchableOpacity
+                    className="shadow-lg shadow-teal-500/30 overflow-hidden rounded-full border border-white/20 mb-2"
+                    activeOpacity={0.7}
+                    onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Add Photo"
+                >
                     <LinearGradient colors={['#14b8a6', '#10b981']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} className="px-6 py-3 flex-row items-center space-x-2">
                         <MaterialIcons name="add-a-photo" size={20} color="white" />
                         <Text className="text-sm font-bold tracking-wide text-white ml-2">Add Photo</Text>

@@ -1,85 +1,21 @@
-# Atlas UI/UX Audit
+# UI/UX Audit & Bug Report
 
-Date: 2026-02-20
-Scope: Current implementation in `src/app` and `src/components`
+After reviewing the current React Native (Expo) implementation across the 8 generated screens, I have identified several UI/UX bugs, missing native paradigms, and potential scaling issues.
 
-## Summary
-Atlas already has a strong visual direction (dark editorial style, glass overlays, cinematic cards), but the UI still has consistency and usability gaps that reduce polish.
+## 1. Accessibility (a11y) Omissions ♿️
+- **Missing Screen Reader Support**: None of the `TouchableOpacity` elements (buttons, navigation cards) have explicit `accessibilityRole="button"`, `accessibilityLabel`, or `accessibilityHint`. This makes the app practically unusable for standard iOS VoiceOver or Android TalkBack users.
+- **Contrast Ratios**: In dark mode views (e.g., `dark-inspiration.tsx`), some text utilities (like `text-gray-500` on black backgrounds) will likely fail WCAG AA contrast ratio standards.
 
-## High Priority Issues
+## 2. Layout & Responsiveness Constraints 📱
+- **Hardcoded Dimensions**: The UI frequently uses hardcoded web-based widths and heights (e.g., `w-[280px] h-[420px]` in the gallery cards, or `w-[260px] h-[380px]`). On narrower devices like an iPhone SE, this will cause horizontal clipping and layout breaks. Percentage-based widths (e.g., `w-[75%]`) or `WindowWidth` calculations are required for true mobile responsiveness.
+- **Bottom Safe Area Clipping**: While `SafeAreaView` from `react-native-safe-area-context` is applied at the root of the screens, the internal vertically-scrolling `ScrollView` components lack a `contentContainerStyle` padding. This means the last elements in a list might be obscured by the bottom "Home Indicator" bar on notched iPhones.
+- **Horizontal Scroll Padding**: Horizontal `ScrollView` components use `px-2 -mx-2` for padding. Native systems (especially Android) tend to clip overflowing children. Using `contentContainerStyle={{ paddingHorizontal: 16 }}` is the standard, bug-free native approach.
 
-1. **Hard-coded styling bypasses theme tokens**
-   - **Where:** `src/components/LocationPicker.tsx`, `src/app/(tabs)/map.tsx` (map style)
-   - **Problem:** Direct colors (`#000`, `rgba(...)`) and spacing values are used outside the design system.
-   - **Impact:** Theme inconsistency and harder maintenance.
-   - **Fix:** Move these values into semantic tokens or a map-specific token set.
+## 3. Visual Fidelity & Rendering Bugs 🎨
+- **Simulated Glassmorphism**: The original Stitch HTML utilized `backdrop-filter: blur()`. The current implementation approximates this using semi-transparent backgrounds (e.g., `bg-white/40` or `bg-black/40`). To achieve the true high-fidelity glassmorphism native to iOS, the project should leverage `<BlurView>` from `expo-blur`.
+- **Image Scaling Distortion**: `Image` components are missing the `resizeMode="cover"` property. If container dimensions stretch on larger devices, the images might warp.
+- **Placeholder API Data**: The adventure maps (`map.tsx` and `dark-map.tsx`) rely on a Google Maps static image containing `YOUR_API_KEY_HERE`. It will fail to load or show an API error graphic until a valid key is provided.
 
-2. **Inconsistent icon system**
-   - **Where:** Header actions and several buttons use plain text symbols (`✕`, `←`, `+`) while tabs use `Ionicons`.
-   - **Problem:** Mixed icon language and uneven visual weight.
-   - **Impact:** UI looks less cohesive and less modern.
-   - **Fix:** Standardize all action icons with one icon library and consistent sizes.
-
-3. **Locale formatting is hardcoded to en-US in multiple screens**
-   - **Where:** `timeline.tsx`, `archive.tsx`, `TimelineItem.tsx`, `goal/[id].tsx`
-   - **Problem:** Date formatting is fixed to `'en-US'` in places.
-   - **Impact:** Poor international UX and inconsistent formatting behavior.
-   - **Fix:** Use device locale by default and centralize date formatting helper.
-
-4. **FAB behavior is globally fixed and not context-aware**
-   - **Where:** `src/components/FloatingActionButton.tsx`
-   - **Problem:** Position logic assumes tab-bar context.
-   - **Impact:** Reuse outside tab screens can produce awkward placement.
-   - **Fix:** Add optional `bottomOffset` prop and default strategy; keep tab-aware behavior in tab screens.
-
-## Medium Priority Issues
-
-5. **Modal/picker visuals do not fully match app surfaces**
-   - **Where:** `LocationPicker.tsx`
-   - **Problem:** Bottom sheet typography, radius, spacing use custom values, not theme primitives.
-   - **Impact:** Experience feels like a separate mini-app.
-   - **Fix:** Refactor to theme typography/spacing/radius/elevation tokens.
-
-6. **Animation language is not fully unified**
-   - **Where:** Mixed usage across components (`FadeIn`, `SlideInUp`, instant transitions)
-   - **Problem:** Some interactions are smooth, others are abrupt.
-   - **Impact:** Reduced perceived quality.
-   - **Fix:** Define a small motion policy (enter, press, list stagger, modal) and apply consistently.
-
-7. **Some style objects are created on every render**
-   - **Where:** Components using `StyleSheet.create` directly in render without memoization.
-   - **Problem:** Avoidable recalculation overhead.
-   - **Impact:** Minor performance cost on low-end devices.
-   - **Fix:** Use `useMemo` for style blocks when they depend on dynamic theme values.
-
-8. **Header overlay may over-obscure hero content on media-heavy screens**
-   - **Where:** `HeaderOverlay.tsx` usage on full-bleed screens.
-   - **Problem:** Persistent blur container can compete with cinematic imagery.
-   - **Impact:** Reduced visual drama in gallery/detail hero sections.
-   - **Fix:** Allow per-screen intensity or transparent mode with adaptive scrim.
-
-## Low Priority Issues
-
-9. **Small copy inconsistencies across empty states**
-   - **Where:** `index.tsx`, `timeline.tsx`, `archive.tsx`, `map.tsx`
-   - **Problem:** Tone and action language vary by screen.
-   - **Impact:** Slightly fragmented product voice.
-   - **Fix:** Create a copy guide for empty states and CTAs.
-
-10. **Touch feedback is not uniform on all pressables**
-    - **Where:** Various `Pressable` components across app.
-    - **Problem:** Some controls animate on press, others do not.
-    - **Impact:** Interaction quality feels inconsistent.
-    - **Fix:** Introduce shared `PressableScale` wrapper for consistent feedback.
-
-## Recommended Next Sprint (Execution Order)
-
-1. Theme-token refactor for `LocationPicker` and reusable modal surfaces.
-2. Icon standardization pass (replace text glyphs with consistent icon set).
-3. Centralized date formatting + locale-aware utility.
-4. Motion system unification (shared wrappers for press/enter/list stagger).
-5. Context-aware FAB API (`bottomOffset`, `anchor`, `safeAreaAware`).
-
-## Notes
-- Recent pass improved tab bar and FAB placement and added more interaction animation.
-- The app is visually strong; most remaining issues are consistency and systemization work.
+## 4. Interaction Design (Micro-Interactions) 👆
+- **Uncontrolled Active Opacity**: While NativeWind's `active:scale-95` is cleverly utilized to replicate hover/press effects, React Native's `TouchableOpacity` has a default global `activeOpacity` (usually 0.2), which can make buttons look completely transparent on tap. Setting a controlled `activeOpacity={0.7}` feels much more premium.
+- **Missing Haptics**: A high-fidelity application derived from modern UI specs should include tactile physical feedback. Importing `expo-haptics` and mapping light vibrations to button presses and tab changes would drastically improve the UX.
