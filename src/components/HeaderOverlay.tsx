@@ -8,7 +8,7 @@ import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
-import { BlurOverlay } from './BlurOverlay';
+import { BlurView } from 'expo-blur';
 import { useTheme } from '../theme';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -42,6 +42,7 @@ function HeaderOverlayComponent({
             left: 0,
             right: 0,
             zIndex: zIndex.header,
+            overflow: 'hidden',
         },
         content: {
             flexDirection: 'row',
@@ -94,18 +95,11 @@ function HeaderOverlayComponent({
         </Animated.View>
     );
 
-    if (transparent) {
-        return (
-            <BlurOverlay style={styles.container} intensity={30}>
-                {content}
-            </BlurOverlay>
-        );
-    }
-
     return (
-        <BlurOverlay style={styles.container} intensity={80}>
+        <View style={styles.container}>
+            <BlurView intensity={transparent ? 30 : 80} style={StyleSheet.absoluteFill} />
             {content}
-        </BlurOverlay>
+        </View>
     );
 }
 
