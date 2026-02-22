@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import type { Goal } from '../../store/useGoalStore';
+import type { Goal } from '../store/useGoalStore';
 
 interface MapWrapperProps {
     goals: Goal[];

@@ -1,24 +1,14 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
-
-// Conditionally import MapView — it crashes on web
-let MapView: any = View;
-let Marker: any = View;
-if (Platform.OS !== 'web') {
-    const Maps = require('react-native-maps');
-    MapView = Maps.default;
-    Marker = Maps.Marker;
-}
+import MapWrapper from '../../components/MapWrapper';
 
 export default function DarkAdventureMap() {
     const { goals } = useGoalStore();
-    const goalsWithCoords = goals.filter(g => g.location.latitude !== 0 || g.location.longitude !== 0);
 
     return (
         <View className="flex-1 bg-black">
@@ -27,43 +17,7 @@ export default function DarkAdventureMap() {
             {/* Top Map Area 60% */}
             <View className="relative h-[60%] w-full bg-[#050505] z-10 overflow-hidden">
 
-                {Platform.OS !== 'web' ? (
-                    <MapView
-                        style={StyleSheet.absoluteFillObject}
-                        initialRegion={{
-                            latitude: goalsWithCoords.length > 0 ? goalsWithCoords[0].location.latitude : 20,
-                            longitude: goalsWithCoords.length > 0 ? goalsWithCoords[0].location.longitude : 0,
-                            latitudeDelta: 80,
-                            longitudeDelta: 80,
-                        }}
-                        userInterfaceStyle="dark"
-                    >
-                        {goalsWithCoords.map(goal => (
-                            <Marker
-                                key={goal.id}
-                                coordinate={{
-                                    latitude: goal.location.latitude,
-                                    longitude: goal.location.longitude,
-                                }}
-                                title={goal.title}
-                                description={`${goal.location.city}, ${goal.location.country}`}
-                            >
-                                <View className={`w-10 h-10 rounded-full shadow-2xl items-center justify-center border border-white/20 ${goal.completed ? 'bg-green-900/60' : 'bg-[#111]'}`}>
-                                    <MaterialIcons
-                                        name={goal.category === 'Foodie' ? 'restaurant' : goal.category === 'Stays' ? 'hotel' : goal.category === 'Travel' ? 'flight' : 'hiking'}
-                                        size={18}
-                                        color={goal.completed ? '#4ade80' : 'white'}
-                                    />
-                                </View>
-                            </Marker>
-                        ))}
-                    </MapView>
-                ) : (
-                    <View className="flex-1 bg-[#0f0f13] items-center justify-center">
-                        <MaterialIcons name="map" size={48} color="#333" />
-                        <Text className="text-gray-500 mt-4">Map view not available on web</Text>
-                    </View>
-                )}
+                <MapWrapper goals={goals} />
 
                 <LinearGradient colors={['rgba(0,0,0,0.8)', 'transparent', 'rgba(0,0,0,0.9)']} className="absolute inset-0 pointer-events-none z-10" />
                 <View className="absolute inset-0 bg-blue-900/10 pointer-events-none z-10" />
@@ -166,8 +120,8 @@ export default function DarkAdventureMap() {
                             )}
                         </ScrollView>
                     </View>
-                </ScrollView >
-            </View >
-        </View >
+                </ScrollView>
+            </View>
+        </View>
     );
 }

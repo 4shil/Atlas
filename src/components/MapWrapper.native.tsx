@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
-import type { Goal } from '../../store/useGoalStore';
+import type { Goal } from '../store/useGoalStore';
 
 interface MapWrapperProps {
     goals: Goal[];
