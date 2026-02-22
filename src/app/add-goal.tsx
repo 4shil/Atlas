@@ -8,7 +8,8 @@ import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Image } from 'expo-image';
-import { useGoalStore } from '../store/useGoalStore';
+import { useGoalStore, Location } from '../store/useGoalStore';
+import { LocationPicker } from '../components/LocationPicker';
 
 export default function AddGoal() {
     const router = useRouter();
@@ -17,7 +18,11 @@ export default function AddGoal() {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('Travel');
-    const [locationInput, setLocationInput] = useState('');
+
+    // Using complex state for location
+    const [locationData, setLocationData] = useState<Location>({ latitude: 0, longitude: 0, city: '', country: '' });
+    const [isLocationPickerVisible, setIsLocationPickerVisible] = useState(false);
+
     const [image, setImage] = useState<string | null>(null);
     const [date, setDate] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() + 1)));
     const [showDatePicker, setShowDatePicker] = useState(false);
@@ -43,11 +48,6 @@ export default function AddGoal() {
             return;
         }
 
-        // Mock coordinates handling
-        const locationParts = locationInput.split(',').map(s => s.trim());
-        const city = locationParts[0] || 'Unknown City';
-        const country = locationParts[1] || 'Unknown Country';
-
         addGoal({
             title,
             description,
@@ -55,11 +55,11 @@ export default function AddGoal() {
             image: image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuAt3pWIbvV8Y9AGyrrFl4WY8qE7xnILeTfQ9cu-6hC0Qb9y1Rb2p5qo19cTS64uLvuNMhRI_LOwDLRl2sZm50Iw_l0R5fubyez_XA1XJfcm1TwMBYEh1MYtcv3xw4CqTkWcRZNu7GT0dtjAPuAX6AbzpuNrO5LRrS-w2Rwh5Ca3Gj2GQFSNAVmp7nN74PMQlI_HSAQVkvngoVjvbGSnRp6JDqCPZ-F93eQYJ8d98y580Yw4dL4erG3yGFnPFDlBdn3pXSNSYtaO2Lk', // Mock generic placeholder image
             timelineDate: date.toISOString(), // Real date from picker
             notes: '',
-            location: {
+            location: locationData.latitude !== 0 ? locationData : {
                 latitude: 0,
                 longitude: 0,
-                city,
-                country
+                city: 'Unknown City',
+                country: 'Unknown Country'
             }
         });
 
@@ -144,16 +144,15 @@ export default function AddGoal() {
 
                 <View className="mb-8">
                     <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">Location (City, Country)</Text>
-                    <View className="flex-row items-center bg-white/5 rounded-2xl border border-white/10 px-4">
+                    <TouchableOpacity
+                        className="flex-row items-center bg-white/5 rounded-2xl border border-white/10 px-4 py-4"
+                        onPress={() => setIsLocationPickerVisible(true)}
+                    >
                         <MaterialIcons name="place" size={20} color="#9ca3af" />
-                        <TextInput
-                            className="flex-1 text-white text-base p-4"
-                            placeholder="e.g. Hokkaido, Japan"
-                            placeholderTextColor="#4b5563"
-                            value={locationInput}
-                            onChangeText={setLocationInput}
-                        />
-                    </View>
+                        <Text className={`flex-1 text-base ml-2 ${locationData.city ? 'text-white' : 'text-gray-500'}`}>
+                            {locationData.city ? `${locationData.city}, ${locationData.country}` : 'Tap to select on map'}
+                        </Text>
+                    </TouchableOpacity>
                 </View>
 
                 <View className="mb-8">
@@ -197,6 +196,13 @@ export default function AddGoal() {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
+
+            <LocationPicker
+                visible={isLocationPickerVisible}
+                onClose={() => setIsLocationPickerVisible(false)}
+                onSelect={(loc) => setLocationData({ ...loc })}
+                initialLocation={locationData.latitude !== 0 ? locationData : undefined}
+            />
         </SafeAreaView>
     );
 }
