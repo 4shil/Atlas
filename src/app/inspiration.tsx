@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 
 export default function InspirationLight() {
     return (
@@ -20,18 +21,30 @@ export default function InspirationLight() {
                 />
             </View>
 
-            <ScrollView className="flex-1 z-10 pt-4" showsVerticalScrollIndicator={false}>
+            <ScrollView className="flex-1 z-10 pt-4" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
 
                 {/* Header section (Menu, Likes, Settings) */}
                 <View className="px-6 flex-row justify-between items-center mb-6">
-                    <TouchableOpacity className="p-2 rounded-full bg-white/40 border border-white/40 active:scale-95 flex items-center justify-center">
+                    <TouchableOpacity
+                        className="p-2 rounded-full bg-white/40 border border-white/40 flex items-center justify-center"
+                        activeOpacity={0.7}
+                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Open menu"
+                    >
                         <MaterialIcons name="menu" size={24} color="#1f2937" />
                     </TouchableOpacity>
                     <View className="bg-white/40 border border-white/40 px-4 py-1.5 rounded-full flex-row items-center space-x-2">
                         <MaterialIcons name="favorite" size={14} color="#1f2937" />
                         <Text className="text-xs font-semibold text-gray-800 ml-1">2.390 Like</Text>
                     </View>
-                    <TouchableOpacity className="p-2 rounded-full bg-white/40 border border-white/40 active:scale-95 flex items-center justify-center">
+                    <TouchableOpacity
+                        className="p-2 rounded-full bg-white/40 border border-white/40 flex items-center justify-center"
+                        activeOpacity={0.7}
+                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Settings"
+                    >
                         <MaterialIcons name="settings" size={24} color="#1f2937" />
                     </TouchableOpacity>
                 </View>
@@ -43,7 +56,13 @@ export default function InspirationLight() {
                         Chase Your Dreams
                     </Text>
 
-                    <TouchableOpacity className="bg-white shadow-lg px-5 py-3 rounded-full flex-row items-center border border-gray-100 active:scale-95 mb-8">
+                    <TouchableOpacity
+                        className="bg-white shadow-lg px-5 py-3 rounded-full flex-row items-center border border-gray-100 mb-8"
+                        activeOpacity={0.7}
+                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Explore map"
+                    >
                         <MaterialIcons name="map" size={18} color="#111827" />
                         <Text className="text-sm font-semibold text-gray-900 ml-2">Explore Map</Text>
                     </TouchableOpacity>
@@ -74,7 +93,7 @@ export default function InspirationLight() {
                 <View className="px-6 pb-20">
                     <Text className="text-base font-semibold text-gray-800 mb-4">Trending Goals</Text>
 
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible pb-6 -mx-6 px-6 relative" snapToInterval={192} decelerationRate="fast">
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible pb-6 -mx-6 px-6 relative" snapToInterval={192} decelerationRate="fast" contentContainerStyle={{ paddingRight: 32 }}>
 
                         {/* Card 1: Visit Tokyo */}
                         <View className="w-44 h-56 rounded-[24px] p-5 relative overflow-hidden mr-4">

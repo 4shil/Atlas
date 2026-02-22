@@ -204,7 +204,6 @@ export default function DarkAdventureMap() {
                     </View>
                 </View>
             </View>
-
         </ScrollView>
     </View>
                 </ScrollView >
