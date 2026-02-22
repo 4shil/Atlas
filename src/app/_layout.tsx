@@ -25,7 +25,14 @@ function RootLayoutNav() {
                     animation: isReducedMotion ? 'fade' : 'fade_from_bottom',
                 }}
             >
+                <Stack.Screen name="index" />
                 <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="add-goal" options={{ presentation: 'modal' }} />
+                {/* Hide stale standalone screens from routing */}
+                <Stack.Screen name="dashboard" options={{ href: null }} />
+                <Stack.Screen name="gallery" options={{ href: null }} />
+                <Stack.Screen name="map" options={{ href: null }} />
+                <Stack.Screen name="inspiration" options={{ href: null }} />
             </Stack>
         </>
     );
