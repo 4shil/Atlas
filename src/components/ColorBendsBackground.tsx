@@ -1,13 +1,15 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import {
-    Canvas,
-    Fill,
-    RuntimeShader,
-    Skia,
-    vec
-} from '@shopify/react-native-skia';
+import { StyleSheet, View, Platform, Dimensions } from 'react-native';
 import { useSharedValue, useDerivedValue, withRepeat, withTiming, Easing } from 'react-native-reanimated';
+
+let SkiaModule: any = null;
+if (Platform.OS !== 'web') {
+    try {
+        SkiaModule = require('@shopify/react-native-skia');
+    } catch (e) {
+        console.warn("Skia not available", e);
+    }
+}
 
 const shaderSource = `
 uniform float2 resolution;
@@ -80,7 +82,8 @@ vec4 main(vec2 xy) {
 }
 `;
 
-const skiaShader = Skia.RuntimeEffect.Make(shaderSource);
+// Only compile shader if Skia is available natively
+const skiaShader = SkiaModule?.Skia?.RuntimeEffect?.Make(shaderSource);
 
 interface ColorBendsBackgroundProps {
     width: number;
@@ -102,15 +105,23 @@ export function ColorBendsBackground({ width, height }: ColorBendsBackgroundProp
     }, [time]);
 
     const uniforms = useDerivedValue(() => {
+        if (!SkiaModule?.vec) return null;
         return {
-            resolution: vec(width, height),
+            resolution: SkiaModule.vec(width, height),
             time: time.value,
         };
     });
 
-    if (!skiaShader) {
-        return <View className="flex-1 bg-black" />; // Fallback if Skia init fails
+    // Fallback for Web or unlinked native module
+    if (Platform.OS === 'web' || !skiaShader || !SkiaModule || !SkiaModule.Canvas) {
+        return (
+            <View className="flex-1 bg-[#0a0a1a] items-center justify-center">
+                {/* Temporary static fallback until WASM is configured for Web */}
+            </View>
+        );
     }
+
+    const { Canvas, Fill, RuntimeShader } = SkiaModule;
 
     return (
         <View style={StyleSheet.absoluteFill} className="bg-black">
