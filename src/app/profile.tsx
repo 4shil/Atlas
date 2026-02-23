@@ -90,7 +90,12 @@ export default function Profile() {
                         <MaterialIcons name="arrow-back" size={20} color="white" />
                     </TouchableOpacity>
                     <Text className="text-white font-semibold text-base">Profile</Text>
-                    <View className="w-10" />
+                    <TouchableOpacity
+                        className="w-10 h-10 rounded-full bg-black/40 items-center justify-center border border-white/10"
+                        onPress={() => router.push('/settings' as any)}
+                    >
+                        <MaterialIcons name="settings" size={20} color="white" />
+                    </TouchableOpacity>
                 </View>
             </View>
 
