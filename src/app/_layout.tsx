@@ -29,6 +29,9 @@ function RootLayoutNav() {
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="add-goal" options={{ presentation: 'modal' }} />
                 <Stack.Screen name="goal-detail" options={{ presentation: 'card' }} />
+                <Stack.Screen name="profile" options={{ presentation: 'card' }} />
+                <Stack.Screen name="inspiration" options={{ presentation: 'modal' }} />
+                <Stack.Screen name="onboarding" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
             </Stack>
         </>
     );

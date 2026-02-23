@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -7,17 +7,45 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 import { useRouter } from 'expo-router';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { useProfileStore } from '../../store/useProfileStore';
 
 export default function DarkTravelGallery() {
     const { goals, toggleComplete } = useGoalStore();
+    const { profile } = useProfileStore();
     const router = useRouter();
     const [activeIndex, setActiveIndex] = React.useState(0);
 
-    const handleNext = () => {
+    const translateX = useSharedValue(0);
+
+    const goNext = useCallback(() => {
         if (goals.length > 0) {
-            setActiveIndex((prev) => (prev + 1) % goals.length);
+            setActiveIndex(prev => (prev + 1) % goals.length);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
-    };
+    }, [goals.length]);
+
+    const goPrev = useCallback(() => {
+        if (goals.length > 0) {
+            setActiveIndex(prev => (prev - 1 + goals.length) % goals.length);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
+    }, [goals.length]);
+
+    const handleNext = goNext;
+
+    const swipeGesture = Gesture.Pan()
+        .onUpdate(e => { translateX.value = e.translationX; })
+        .onEnd(e => {
+            if (e.translationX < -60) { runOnJS(goNext)(); }
+            else if (e.translationX > 60) { runOnJS(goPrev)(); }
+            translateX.value = withSpring(0, { damping: 20 });
+        });
+
+    const cardAnimStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: translateX.value * 0.15 }],
+    }));
 
     const handleToggleComplete = (id: string, currentStatus: boolean | undefined) => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -37,12 +65,18 @@ export default function DarkTravelGallery() {
             <View className="flex-1 z-10">
                 {/* Header */}
                 <View className="px-6 mt-4 flex-row justify-between items-center">
-                    <View className="w-10 h-10 rounded-full overflow-hidden border border-white/20 shadow-lg relative">
-                        <Image
-                            source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDc3ZG704nmOa3EVc3srBQLDvJcDMR-NXgwf-Ts1BbcmseRtAnWaJGwaMycgQ0k9raeLtVGwPOCY9dq-gVnws5lRW3wRPUv4pFlh0S3hc9TNP6PI32LumQ7RDuF_pj19JVCjIVbc9T5awgK6UCOIQQauC0AZ3vVZBiQbrGlbuyZ400jUvHCetPJkE2xno6fEkEZYg1eZt-WFbB8M-sUh4_IUW0vPoFe9_KNs0N5I4YeGfUU-uERXktolnf9jHnoCpEe6UHvEoRYf6Q' }}
-                            className="w-full h-full opacity-90"
-                        />
-                    </View>
+                    <TouchableOpacity
+                        className="w-10 h-10 rounded-full overflow-hidden border border-white/20 shadow-lg"
+                        onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/profile'); }}
+                    >
+                        {profile.avatarUri ? (
+                            <Image source={{ uri: profile.avatarUri }} className="w-full h-full opacity-90" resizeMode="cover" />
+                        ) : (
+                            <View className="w-full h-full bg-indigo-950 items-center justify-center">
+                                <Text className="text-white font-bold text-sm">{profile.name.charAt(0).toUpperCase()}</Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
                     <TouchableOpacity
                         className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-lg"
                         activeOpacity={0.7}
@@ -69,72 +103,101 @@ export default function DarkTravelGallery() {
                             <>
                                 {/* Left Card -> Index 1 */}
                                 {goals.length > 1 && (
-                                    <View className="absolute left-[5%] w-[65%] h-[380px] bg-black/40 rounded-[24px] border border-white/10 shadow-2xl z-10 overflow-hidden" style={{ transform: [{ rotate: '-6deg' }], opacity: 0.9 }}>
+                                    <TouchableOpacity activeOpacity={0.8} className="absolute left-[5%] w-[65%] h-[380px] bg-black/40 rounded-[24px] border border-white/10 shadow-2xl z-10 overflow-hidden" style={{ transform: [{ rotate: '-6deg' }], opacity: 0.9 }} onPress={() => setActiveIndex((activeIndex + 1) % goals.length)}>
                                         <Image source={{ uri: goals[(activeIndex + 1) % goals.length].image }} className="absolute inset-0 w-full h-full opacity-50" resizeMode="cover" />
                                         <View className="absolute inset-0 bg-black/40" />
                                         <View className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 border-t border-white/5">
                                             <Text className="font-medium text-white text-lg" numberOfLines={1}>{goals[(activeIndex + 1) % goals.length].title}</Text>
                                             <Text className="text-xs text-gray-400">{new Date(goals[(activeIndex + 1) % goals.length].createdAt).toLocaleDateString()}</Text>
                                         </View>
-                                    </View>
+                                    </TouchableOpacity>
                                 )}
 
                                 {/* Right Card -> Index 2 */}
                                 {goals.length > 2 && (
-                                    <View className="absolute right-[5%] w-[65%] h-[380px] bg-black/40 rounded-[24px] border border-white/10 shadow-2xl z-10 overflow-hidden" style={{ transform: [{ rotate: '6deg' }], opacity: 0.9 }}>
+                                    <TouchableOpacity activeOpacity={0.8} className="absolute right-[5%] w-[65%] h-[380px] bg-black/40 rounded-[24px] border border-white/10 shadow-2xl z-10 overflow-hidden" style={{ transform: [{ rotate: '6deg' }], opacity: 0.9 }} onPress={() => setActiveIndex((activeIndex + 2) % goals.length)}>
                                         <Image source={{ uri: goals[(activeIndex + 2) % goals.length].image }} className="absolute inset-0 w-full h-full opacity-50" resizeMode="cover" />
                                         <View className="absolute inset-0 bg-black/40" />
                                         <View className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 border-t border-white/5">
                                             <Text className="font-medium text-white text-lg" numberOfLines={1}>{goals[(activeIndex + 2) % goals.length].title}</Text>
                                             <Text className="text-xs text-gray-400">{new Date(goals[(activeIndex + 2) % goals.length].createdAt).toLocaleDateString()}</Text>
                                         </View>
-                                    </View>
+                                    </TouchableOpacity>
                                 )}
 
                                 {/* Center Card -> Index 0 */}
                                 {goals.length > 0 && (
-                                    <View className="relative w-[75%] max-w-[300px] h-[440px] bg-gray-900 rounded-[24px] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.7)] z-20 flex flex-col overflow-hidden">
-                                        <View className="h-full w-full relative">
-                                            <Image source={{ uri: goals[activeIndex].image }} className="absolute inset-0 w-full h-full" resizeMode="cover" />
-                                            <LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} className="absolute inset-0 pointer-events-none" />
-
+                                    <GestureDetector gesture={swipeGesture}>
+                                        <Animated.View style={[{ zIndex: 20 }, cardAnimStyle]}>
                                             <TouchableOpacity
-                                                className="absolute top-4 right-4 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 flex-row items-center"
-                                                onPress={() => handleToggleComplete(goals[activeIndex].id, goals[activeIndex].completed)}
+                                                activeOpacity={0.95}
+                                                className="relative w-[75%] max-w-[300px] h-[440px] bg-gray-900 rounded-[24px] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.7)] flex flex-col overflow-hidden"
+                                                onPress={() => {
+                                                    Haptics.selectionAsync();
+                                                    router.push({ pathname: '/goal-detail', params: { id: goals[activeIndex].id } });
+                                                }}
                                             >
-                                                {goals[activeIndex].completed ? (
-                                                    <MaterialIcons name="check-circle" size={14} color="#10b981" />
-                                                ) : (
-                                                    <MaterialIcons name="schedule" size={14} color="#60a5fa" />
-                                                )}
-                                            </TouchableOpacity>
+                                                <View className="h-full w-full relative">
+                                                    <Image source={{ uri: goals[activeIndex].image }} className="absolute inset-0 w-full h-full" resizeMode="cover" />
+                                                    <LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} className="absolute inset-0 pointer-events-none" />
 
-                                            <View className="absolute bottom-0 left-0 right-0 p-5 bg-black/40 border-t border-white/10">
-                                                <View className="flex-row justify-between items-end">
-                                                    <View className="flex-1 mr-4">
-                                                        <Text className="text-2xl font-bold text-white leading-none mb-2" numberOfLines={1}>{goals[activeIndex].title}</Text>
-                                                        <View className="flex-row items-center mt-1">
-                                                            <MaterialIcons name="place" size={16} color="rgba(255,255,255,0.7)" />
-                                                            <Text className="text-sm font-light text-gray-300 ml-1 tracking-wide" numberOfLines={1}>{goals[activeIndex].location.city}, {goals[activeIndex].location.country}</Text>
+                                                    <TouchableOpacity
+                                                        className="absolute top-4 right-4 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 flex-row items-center"
+                                                        onPress={(e) => { e.stopPropagation?.(); handleToggleComplete(goals[activeIndex].id, goals[activeIndex].completed); }}
+                                                    >
+                                                        {goals[activeIndex].completed ? (
+                                                            <MaterialIcons name="check-circle" size={14} color="#10b981" />
+                                                        ) : (
+                                                            <MaterialIcons name="schedule" size={14} color="#60a5fa" />
+                                                        )}
+                                                    </TouchableOpacity>
+
+                                                    <View className="absolute bottom-0 left-0 right-0 p-5 bg-black/40 border-t border-white/10">
+                                                        <View className="flex-row justify-between items-end">
+                                                            <View className="flex-1 mr-4">
+                                                                <Text className="text-2xl font-bold text-white leading-none mb-2" numberOfLines={1}>{goals[activeIndex].title}</Text>
+                                                                <View className="flex-row items-center mt-1">
+                                                                    <MaterialIcons name="place" size={16} color="rgba(255,255,255,0.7)" />
+                                                                    <Text className="text-sm font-light text-gray-300 ml-1 tracking-wide" numberOfLines={1}>
+                                                                        {goals[activeIndex].location.city || 'No location'}
+                                                                        {goals[activeIndex].location.country ? `, ${goals[activeIndex].location.country}` : ''}
+                                                                    </Text>
+                                                                </View>
+                                                            </View>
+                                                            <TouchableOpacity
+                                                                className="w-10 h-10 rounded-full bg-white/10 border border-white/20 items-center justify-center"
+                                                                onPress={(e) => { e.stopPropagation?.(); handleNext(); }}
+                                                            >
+                                                                <MaterialIcons name="arrow-forward" size={18} color="white" />
+                                                            </TouchableOpacity>
                                                         </View>
                                                     </View>
-                                                    <TouchableOpacity
-                                                        className="w-10 h-10 rounded-full bg-white/10 border border-white/20 items-center justify-center"
-                                                        onPress={() => {
-                                                            Haptics.selectionAsync();
-                                                            handleNext();
-                                                        }}
-                                                    >
-                                                        <MaterialIcons name="arrow-forward" size={18} color="white" />
-                                                    </TouchableOpacity>
                                                 </View>
-                                            </View>
-                                        </View>
-                                    </View>
+                                            </TouchableOpacity>
+                                        </Animated.View>
+                                    </GestureDetector>
                                 )}
                             </>
                         )}
                     </View>
+
+                    {/* Dot Indicators */}
+                    {goals.length > 1 && (
+                        <View className="flex-row gap-2 items-center justify-center mt-4">
+                            {goals.map((_, i) => (
+                                <TouchableOpacity key={i} onPress={() => setActiveIndex(i)}>
+                                    <View
+                                        style={{
+                                            width: i === activeIndex ? 20 : 6,
+                                            height: 6,
+                                            borderRadius: 3,
+                                            backgroundColor: i === activeIndex ? '#3b82f6' : 'rgba(255,255,255,0.2)',
+                                        }}
+                                    />
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    )}
                 </View>
 
             </View>

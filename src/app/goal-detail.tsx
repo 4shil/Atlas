@@ -10,11 +10,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useGoalStore } from '../store/useGoalStore';
+import Animated, { useSharedValue, useAnimatedStyle, withSequence, withSpring, withDelay, withTiming, FadeIn, FadeOut } from 'react-native-reanimated';
 
 export default function GoalDetail() {
     const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
     const { goals, toggleComplete, deleteGoal } = useGoalStore();
+    const [showCelebration, setShowCelebration] = useState(false);
+    const celebScale = useSharedValue(0);
+    const celebOpacity = useSharedValue(0);
 
     const goal = goals.find(g => g.id === id);
 
@@ -54,8 +58,22 @@ export default function GoalDetail() {
     };
 
     const handleToggleComplete = () => {
+        const wasCompleted = goal.completed;
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         toggleComplete(goal.id);
+        // Celebration only when completing (not uncompleting)
+        if (!wasCompleted) {
+            setShowCelebration(true);
+            celebScale.value = withSequence(
+                withSpring(1.2, { damping: 8 }),
+                withDelay(400, withTiming(0, { duration: 300 }))
+            );
+            celebOpacity.value = withSequence(
+                withTiming(1, { duration: 200 }),
+                withDelay(1200, withTiming(0, { duration: 300 }))
+            );
+            setTimeout(() => setShowCelebration(false), 1800);
+        }
     };
 
     const handleShare = async () => {
@@ -181,6 +199,27 @@ export default function GoalDetail() {
                     </View>
                 </View>
 
+                {/* Time Progress Bar */}
+                {!goal.completed && (() => {
+                    const created = new Date(goal.createdAt).getTime();
+                    const target = targetDate.getTime();
+                    const elapsed = Date.now() - created;
+                    const total = target - created;
+                    const pct = total <= 0 ? 100 : Math.max(0, Math.min(100, Math.round((elapsed / total) * 100)));
+                    const barColor = pct >= 90 ? '#ef4444' : pct >= 60 ? '#f59e0b' : '#3b82f6';
+                    return (
+                        <View className="px-6 pt-4 pb-2">
+                            <View className="flex-row justify-between items-center mb-2">
+                                <Text className="text-gray-500 text-xs uppercase tracking-widest">Time Elapsed</Text>
+                                <Text className="text-xs font-semibold" style={{ color: barColor }}>{pct}%</Text>
+                            </View>
+                            <View className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                                <View className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: barColor }} />
+                            </View>
+                        </View>
+                    );
+                })()}
+
                 {/* Description */}
                 {goal.description ? (
                     <View className="px-6 pt-5 pb-4">
@@ -238,6 +277,23 @@ export default function GoalDetail() {
                     </Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Completion Celebration Overlay */}
+            {showCelebration && (
+                <Animated.View
+                    entering={FadeIn.duration(150)}
+                    exiting={FadeOut.duration(300)}
+                    style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100 }]}
+                    pointerEvents="none"
+                >
+                    <Animated.View style={[{ width: 140, height: 140, borderRadius: 70, backgroundColor: 'rgba(22,101,52,0.4)', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#4ade80' }, { transform: [{ scale: celebScale }] }]}>
+                        <MaterialIcons name="check" size={64} color="#4ade80" />
+                    </Animated.View>
+                    <Animated.Text style={{ color: '#4ade80', fontSize: 20, fontWeight: '700', marginTop: 20 }}>
+                        Goal Achieved! 🎉
+                    </Animated.Text>
+                </Animated.View>
+            )}
         </View>
     );
 }

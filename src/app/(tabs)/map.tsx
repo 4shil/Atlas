@@ -6,9 +6,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 import MapWrapper from '../../components/MapWrapper';
+import { useRouter } from 'expo-router';
 
 export default function DarkAdventureMap() {
     const { goals } = useGoalStore();
+    const router = useRouter();
 
     return (
         <View className="flex-1 bg-black">
@@ -109,7 +111,7 @@ export default function DarkAdventureMap() {
                                                 </View>
                                                 <TouchableOpacity
                                                     className="w-10 h-10 rounded-full bg-blue-600 items-center justify-center shadow-lg shadow-blue-900/40"
-                                                    onPress={() => Haptics.selectionAsync()}
+                                                    onPress={() => { Haptics.selectionAsync(); router.push({ pathname: '/goal-detail', params: { id: goal.id } }); }}
                                                 >
                                                     <MaterialIcons name="arrow-forward" size={20} color="white" />
                                                 </TouchableOpacity>

@@ -10,6 +10,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Image } from 'expo-image';
 import { useGoalStore, Location } from '../store/useGoalStore';
 import { LocationPicker } from '../components/LocationPicker';
+import { scheduleGoalReminders } from '../utils/notificationUtils';
 
 export default function AddGoal() {
     const router = useRouter();
@@ -72,6 +73,12 @@ export default function AddGoal() {
             updateGoal(existingGoal.id, goalData);
         } else {
             addGoal(goalData);
+            // Schedule reminders asynchronously — doesn't block navigation
+            scheduleGoalReminders({
+                goalId: Date.now().toString(),
+                goalTitle: goalData.title,
+                targetDate: date,
+            }).catch(() => { });
         }
 
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
