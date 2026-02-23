@@ -11,6 +11,8 @@ import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useGoalStore } from '../store/useGoalStore';
 import Animated, { useSharedValue, useAnimatedStyle, withSequence, withSpring, withDelay, withTiming, FadeIn, FadeOut } from 'react-native-reanimated';
+import { getCategoryIcon } from '../utils/Icons';
+import { getDaysUntil } from '../utils/dateUtils';
 
 export default function GoalDetail() {
     const router = useRouter();
@@ -35,7 +37,7 @@ export default function GoalDetail() {
 
     const targetDate = new Date(goal.timelineDate);
     const now = new Date();
-    const daysLeft = Math.ceil((targetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const daysLeft = getDaysUntil(goal.timelineDate);
     const isOverdue = daysLeft < 0 && !goal.completed;
 
     const handleDelete = () => {
@@ -84,17 +86,6 @@ export default function GoalDetail() {
             });
         } catch (e) {
             // Share dismissed
-        }
-    };
-
-    const categoryIcon = (cat: string) => {
-        switch (cat) {
-            case 'Travel': return 'flight';
-            case 'Adventures': return 'hiking';
-            case 'Foodie': return 'restaurant';
-            case 'Stays': return 'hotel';
-            case 'Milestone': return 'star';
-            default: return 'place';
         }
     };
 
@@ -150,7 +141,7 @@ export default function GoalDetail() {
                 <View className="absolute bottom-0 left-0 right-0 px-6 pb-6">
                     <View className="flex-row items-center mb-2">
                         <View className="bg-white/10 border border-white/20 px-3 py-1 rounded-full flex-row items-center mr-2">
-                            <MaterialIcons name={categoryIcon(goal.category) as any} size={12} color="white" />
+                            <MaterialIcons name={getCategoryIcon(goal.category) as any} size={12} color="white" />
                             <Text className="text-white text-xs ml-1 font-medium">{goal.category}</Text>
                         </View>
                         {goal.completed && (

@@ -9,11 +9,10 @@ import { useGoalStore, Goal } from '../../store/useGoalStore';
 import { useRouter } from 'expo-router';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { useProfileStore } from '../../store/useProfileStore';
+import { ProfileHeader } from '../../components/ProfileHeader';
 
 export default function DarkTravelGallery() {
     const { goals, toggleComplete } = useGoalStore();
-    const { profile } = useProfileStore();
     const router = useRouter();
     const [activeIndex, setActiveIndex] = React.useState(0);
 
@@ -64,29 +63,19 @@ export default function DarkTravelGallery() {
 
             <View className="flex-1 z-10">
                 {/* Header */}
-                <View className="px-6 mt-4 flex-row justify-between items-center">
-                    <TouchableOpacity
-                        className="w-10 h-10 rounded-full overflow-hidden border border-white/20 shadow-lg"
-                        onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/profile'); }}
-                    >
-                        {profile.avatarUri ? (
-                            <Image source={{ uri: profile.avatarUri }} className="w-full h-full opacity-90" resizeMode="cover" />
-                        ) : (
-                            <View className="w-full h-full bg-indigo-950 items-center justify-center">
-                                <Text className="text-white font-bold text-sm">{profile.name.charAt(0).toUpperCase()}</Text>
-                            </View>
-                        )}
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-lg"
-                        activeOpacity={0.7}
-                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
-                        accessibilityRole="button"
-                        accessibilityLabel="Notifications"
-                    >
-                        <MaterialIcons name="notifications-none" size={24} color="white" />
-                    </TouchableOpacity>
-                </View>
+                <ProfileHeader
+                    rightActions={
+                        <TouchableOpacity
+                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-lg"
+                            activeOpacity={0.7}
+                            onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                            accessibilityRole="button"
+                            accessibilityLabel="Notifications"
+                        >
+                            <MaterialIcons name="notifications-none" size={24} color="white" />
+                        </TouchableOpacity>
+                    }
+                />
 
                 {/* Title Area */}
                 <View className="px-6 mt-8 flex-col items-center flex-col">
