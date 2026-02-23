@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
-import {
-    View, Text, ScrollView, TouchableOpacity,
-    TextInput, Alert, Image
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useProfileStore } from '../store/useProfileStore';
 import { useGoalStore } from '../store/useGoalStore';
+import { ScreenWrapper } from '../components/ScreenWrapper';
+import { getCategoryIcon } from '../utils/Icons';
 
 export default function Profile() {
     const router = useRouter();
@@ -71,21 +68,8 @@ export default function Profile() {
         setEditingBio(false);
     };
 
-    const categoryIcon = (cat: string) => {
-        switch (cat) {
-            case 'Travel': return 'flight';
-            case 'Adventures': return 'hiking';
-            case 'Foodie': return 'restaurant';
-            case 'Stays': return 'hotel';
-            case 'Milestone': return 'star';
-            default: return 'place';
-        }
-    };
-
     return (
-        <View className="flex-1 bg-black">
-            <StatusBar style="light" />
-
+        <ScreenWrapper bgClass="bg-black" blobs={false}>
             {/* Hero Banner */}
             <View className="h-56 relative">
                 <LinearGradient
@@ -98,18 +82,16 @@ export default function Profile() {
                 <View className="absolute top-4 right-8 w-40 h-40 rounded-full bg-blue-800/20 border border-blue-700/20" />
                 <View className="absolute -top-6 right-24 w-24 h-24 rounded-full bg-indigo-700/20" />
 
-                <SafeAreaView edges={['top']} className="absolute top-0 left-0 right-0 z-10">
-                    <View className="flex-row justify-between items-center px-5 pt-2">
-                        <TouchableOpacity
-                            className="w-10 h-10 rounded-full bg-black/40 items-center justify-center border border-white/10"
-                            onPress={() => router.back()}
-                        >
-                            <MaterialIcons name="arrow-back" size={20} color="white" />
-                        </TouchableOpacity>
-                        <Text className="text-white font-semibold text-base">Profile</Text>
-                        <View className="w-10" />
-                    </View>
-                </SafeAreaView>
+                <View className="absolute top-0 left-0 right-0 z-10 pt-10 px-5 flex-row justify-between items-center">
+                    <TouchableOpacity
+                        className="w-10 h-10 rounded-full bg-black/40 items-center justify-center border border-white/10"
+                        onPress={() => router.back()}
+                    >
+                        <MaterialIcons name="arrow-back" size={20} color="white" />
+                    </TouchableOpacity>
+                    <Text className="text-white font-semibold text-base">Profile</Text>
+                    <View className="w-10" />
+                </View>
             </View>
 
             <ScrollView
@@ -211,7 +193,7 @@ export default function Profile() {
                         {topCategories.map(([cat, count]) => (
                             <View key={cat} className="flex-row items-center mb-3">
                                 <View className="w-8 h-8 rounded-full bg-blue-950 border border-blue-800 items-center justify-center mr-3">
-                                    <MaterialIcons name={categoryIcon(cat) as any} size={16} color="#60a5fa" />
+                                    <MaterialIcons name={getCategoryIcon(cat) as any} size={16} color="#60a5fa" />
                                 </View>
                                 <Text className="text-gray-300 text-sm flex-1">{cat}</Text>
                                 <View className="flex-row items-center">
@@ -240,6 +222,6 @@ export default function Profile() {
                     </View>
                 )}
             </ScrollView>
-        </View>
+        </ScreenWrapper>
     );
 }

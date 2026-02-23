@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 import { useRouter } from 'expo-router';
-
-const CATEGORIES = ['All', 'Travel', 'Adventures', 'Foodie', 'Stays', 'Milestone'];
+import { CATEGORIES } from '../../utils/constants';
+import { ScreenWrapper } from '../../components/ScreenWrapper';
+import { SectionHeader } from '../../components/SectionHeader';
 
 export default function DarkInspirationArchive() {
     const { getCompletedGoals } = useGoalStore();
@@ -21,16 +20,7 @@ export default function DarkInspirationArchive() {
         : allCompleted.filter(g => g.category === activeCategory);
 
     return (
-        <SafeAreaView className="flex-1 bg-black relative" edges={['top', 'bottom']}>
-            <StatusBar style="light" />
-
-            {/* Background Blobs */}
-            <View className="absolute inset-0 z-0 overflow-hidden" pointerEvents="none">
-                <View className="absolute top-[10%] left-[10%] w-[300px] h-[300px] bg-indigo-900 rounded-full opacity-30" />
-                <View className="absolute top-[10%] right-[10%] w-[250px] h-[250px] bg-red-900 rounded-full opacity-20" />
-                <View className="absolute bottom-[20%] left-[30%] w-[350px] h-[350px] bg-blue-900 rounded-full opacity-20" />
-            </View>
-
+        <ScreenWrapper bgClass="bg-black">
             <ScrollView className="flex-1 z-10 pt-4" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
 
                 {/* Header */}
@@ -53,16 +43,15 @@ export default function DarkInspirationArchive() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Hero Section */}
-                <View className="px-6 items-center mt-8 mb-8">
-                    <Text className="text-gray-400 text-sm mb-2 font-medium uppercase tracking-wider">Memories</Text>
-                    <Text className="text-4xl font-bold text-white mb-3 tracking-tight leading-tight text-center">
-                        Relive The{"\n"}Moments
-                    </Text>
-                    <Text className="text-gray-500 text-sm">
-                        {allCompleted.length} {allCompleted.length === 1 ? 'goal' : 'goals'} completed
-                    </Text>
-                </View>
+                <SectionHeader
+                    overline="Memories"
+                    title={"Relive The\nMoments"}
+                    description={
+                        <Text className="text-gray-500 text-sm text-center">
+                            {allCompleted.length} {allCompleted.length === 1 ? 'goal' : 'goals'} completed
+                        </Text>
+                    }
+                />
 
                 {/* Category Filter Chips */}
                 <View className="mb-6">
@@ -171,6 +160,6 @@ export default function DarkInspirationArchive() {
                     )}
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 }

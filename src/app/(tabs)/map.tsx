@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,6 +7,7 @@ import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 import MapWrapper from '../../components/MapWrapper';
 import { useRouter } from 'expo-router';
+import { ScreenWrapper } from '../../components/ScreenWrapper';
 
 export default function DarkAdventureMap() {
     const { goals } = useGoalStore();
