@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 
 interface ProgressRingProps {
     completed: number;
@@ -15,16 +16,16 @@ export function ProgressRing({ completed, total }: ProgressRingProps) {
     return (
         <View className="items-center justify-center">
             <View style={{ width: 72, height: 72 }}>
-                <svg width="72" height="72" viewBox="0 0 72 72">
-                    <circle cx="36" cy="36" r={radius} fill="none" stroke="#1f2937" strokeWidth="5" />
-                    <circle
+                <Svg width="72" height="72" viewBox="0 0 72 72">
+                    <Circle cx="36" cy="36" r={radius} fill="none" stroke="#1f2937" strokeWidth="5" />
+                    <Circle
                         cx="36" cy="36" r={radius}
                         fill="none" stroke="#3b82f6" strokeWidth="5"
                         strokeDasharray={`${strokeDash} ${circumference}`}
                         strokeLinecap="round"
                         transform="rotate(-90 36 36)"
                     />
-                </svg>
+                </Svg>
                 <View className="absolute inset-0 items-center justify-center">
                     <Text className="text-white font-bold text-sm">{pct}%</Text>
                 </View>
