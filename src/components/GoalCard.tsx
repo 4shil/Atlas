@@ -9,7 +9,7 @@ interface GoalCardProps {
     goal: Goal;
     onPress: () => void;
     onToggleComplete: () => void;
-    onNext?: () => void; // Optional next button logic for center card
+    onNext?: () => void; 
     animatedStyle?: any;
     isInteractive?: boolean;
 }
