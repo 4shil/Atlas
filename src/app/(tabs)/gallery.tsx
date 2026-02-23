@@ -1,15 +1,15 @@
 import React, { useCallback } from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { StatusBar } from 'expo-status-bar';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 import { useRouter } from 'expo-router';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ProfileHeader } from '../../components/ProfileHeader';
+import { ScreenWrapper } from '../../components/ScreenWrapper';
+import { SectionHeader } from '../../components/SectionHeader';
+import { GoalCard } from '../../components/GoalCard';
 
 export default function DarkTravelGallery() {
     const { goals, toggleComplete } = useGoalStore();
@@ -52,9 +52,7 @@ export default function DarkTravelGallery() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-black relative" edges={['top', 'bottom']}>
-            <StatusBar style="light" />
-
+        <ScreenWrapper bgClass="bg-black" blobs={false}>
             {/* Background Blobs */}
             <View className="absolute inset-0 z-0 overflow-hidden" pointerEvents="none">
                 <View className="absolute top-[-10%] left-[-20%] w-[400px] h-[400px] bg-purple-900 rounded-full opacity-40" />
@@ -77,11 +75,10 @@ export default function DarkTravelGallery() {
                     }
                 />
 
-                {/* Title Area */}
-                <View className="px-6 mt-8 flex-col items-center flex-col">
-                    <Text className="text-xs font-medium text-gray-400 mb-2 tracking-[0.2em] uppercase">Private Collection</Text>
-                    <Text className="text-3xl font-light text-white tracking-tight">Travel Gallery</Text>
-                </View>
+                <SectionHeader
+                    overline="Private Collection"
+                    title="Travel Gallery"
+                />
 
                 {/* Gallery Stack */}
                 <View className="flex-1 items-center justify-center relative w-full mb-12">
@@ -92,78 +89,44 @@ export default function DarkTravelGallery() {
                             <>
                                 {/* Left Card -> Index 1 */}
                                 {goals.length > 1 && (
-                                    <TouchableOpacity activeOpacity={0.8} className="absolute left-[5%] w-[65%] h-[380px] bg-black/40 rounded-[24px] border border-white/10 shadow-2xl z-10 overflow-hidden" style={{ transform: [{ rotate: '-6deg' }], opacity: 0.9 }} onPress={() => setActiveIndex((activeIndex + 1) % goals.length)}>
-                                        <Image source={{ uri: goals[(activeIndex + 1) % goals.length].image }} className="absolute inset-0 w-full h-full opacity-50" resizeMode="cover" />
-                                        <View className="absolute inset-0 bg-black/40" />
-                                        <View className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 border-t border-white/5">
-                                            <Text className="font-medium text-white text-lg" numberOfLines={1}>{goals[(activeIndex + 1) % goals.length].title}</Text>
-                                            <Text className="text-xs text-gray-400">{new Date(goals[(activeIndex + 1) % goals.length].createdAt).toLocaleDateString()}</Text>
-                                        </View>
-                                    </TouchableOpacity>
+                                    <View className="absolute left-[5%] w-[65%] h-[380px] z-10" style={{ transform: [{ rotate: '-6deg' }], opacity: 0.9 }}>
+                                        <GoalCard
+                                            goal={goals[(activeIndex + 1) % goals.length]}
+                                            onPress={() => setActiveIndex((activeIndex + 1) % goals.length)}
+                                            onToggleComplete={() => { }}
+                                            isInteractive={false}
+                                        />
+                                    </View>
                                 )}
 
                                 {/* Right Card -> Index 2 */}
                                 {goals.length > 2 && (
-                                    <TouchableOpacity activeOpacity={0.8} className="absolute right-[5%] w-[65%] h-[380px] bg-black/40 rounded-[24px] border border-white/10 shadow-2xl z-10 overflow-hidden" style={{ transform: [{ rotate: '6deg' }], opacity: 0.9 }} onPress={() => setActiveIndex((activeIndex + 2) % goals.length)}>
-                                        <Image source={{ uri: goals[(activeIndex + 2) % goals.length].image }} className="absolute inset-0 w-full h-full opacity-50" resizeMode="cover" />
-                                        <View className="absolute inset-0 bg-black/40" />
-                                        <View className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 border-t border-white/5">
-                                            <Text className="font-medium text-white text-lg" numberOfLines={1}>{goals[(activeIndex + 2) % goals.length].title}</Text>
-                                            <Text className="text-xs text-gray-400">{new Date(goals[(activeIndex + 2) % goals.length].createdAt).toLocaleDateString()}</Text>
-                                        </View>
-                                    </TouchableOpacity>
+                                    <View className="absolute right-[5%] w-[65%] h-[380px] z-10" style={{ transform: [{ rotate: '6deg' }], opacity: 0.9 }}>
+                                        <GoalCard
+                                            goal={goals[(activeIndex + 2) % goals.length]}
+                                            onPress={() => setActiveIndex((activeIndex + 2) % goals.length)}
+                                            onToggleComplete={() => { }}
+                                            isInteractive={false}
+                                        />
+                                    </View>
                                 )}
 
                                 {/* Center Card -> Index 0 */}
                                 {goals.length > 0 && (
                                     <GestureDetector gesture={swipeGesture}>
-                                        <Animated.View style={[{ zIndex: 20 }, cardAnimStyle]}>
-                                            <TouchableOpacity
-                                                activeOpacity={0.95}
-                                                className="relative w-[75%] max-w-[300px] h-[440px] bg-gray-900 rounded-[24px] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.7)] flex flex-col overflow-hidden"
+                                        <View className="w-[75%] max-w-[300px]">
+                                            <GoalCard
+                                                goal={goals[activeIndex]}
                                                 onPress={() => {
                                                     Haptics.selectionAsync();
                                                     router.push({ pathname: '/goal-detail', params: { id: goals[activeIndex].id } });
                                                 }}
-                                            >
-                                                <View className="h-full w-full relative">
-                                                    <Image source={{ uri: goals[activeIndex].image }} className="absolute inset-0 w-full h-full" resizeMode="cover" />
-                                                    <LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} className="absolute inset-0 pointer-events-none" />
-
-                                                    <TouchableOpacity
-                                                        className="absolute top-4 right-4 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 flex-row items-center"
-                                                        onPress={(e) => { e.stopPropagation?.(); handleToggleComplete(goals[activeIndex].id, goals[activeIndex].completed); }}
-                                                    >
-                                                        {goals[activeIndex].completed ? (
-                                                            <MaterialIcons name="check-circle" size={14} color="#10b981" />
-                                                        ) : (
-                                                            <MaterialIcons name="schedule" size={14} color="#60a5fa" />
-                                                        )}
-                                                    </TouchableOpacity>
-
-                                                    <View className="absolute bottom-0 left-0 right-0 p-5 bg-black/40 border-t border-white/10">
-                                                        <View className="flex-row justify-between items-end">
-                                                            <View className="flex-1 mr-4">
-                                                                <Text className="text-2xl font-bold text-white leading-none mb-2" numberOfLines={1}>{goals[activeIndex].title}</Text>
-                                                                <View className="flex-row items-center mt-1">
-                                                                    <MaterialIcons name="place" size={16} color="rgba(255,255,255,0.7)" />
-                                                                    <Text className="text-sm font-light text-gray-300 ml-1 tracking-wide" numberOfLines={1}>
-                                                                        {goals[activeIndex].location.city || 'No location'}
-                                                                        {goals[activeIndex].location.country ? `, ${goals[activeIndex].location.country}` : ''}
-                                                                    </Text>
-                                                                </View>
-                                                            </View>
-                                                            <TouchableOpacity
-                                                                className="w-10 h-10 rounded-full bg-white/10 border border-white/20 items-center justify-center"
-                                                                onPress={(e) => { e.stopPropagation?.(); handleNext(); }}
-                                                            >
-                                                                <MaterialIcons name="arrow-forward" size={18} color="white" />
-                                                            </TouchableOpacity>
-                                                        </View>
-                                                    </View>
-                                                </View>
-                                            </TouchableOpacity>
-                                        </Animated.View>
+                                                onToggleComplete={() => handleToggleComplete(goals[activeIndex].id, goals[activeIndex].completed)}
+                                                onNext={handleNext}
+                                                animatedStyle={cardAnimStyle}
+                                                isInteractive={true}
+                                            />
+                                        </View>
                                     </GestureDetector>
                                 )}
                             </>
@@ -208,6 +171,6 @@ export default function DarkTravelGallery() {
                 </TouchableOpacity>
             </View>
 
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 }
