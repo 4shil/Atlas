@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Animated, Switch } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Animated, Switch, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { ScreenWrapper } from '../components/ScreenWrapper';
+import { useSettingsStore } from '../store/useSettingsStore';
+import { useGoalStore } from '../store/useGoalStore';
+import { useProfileStore } from '../store/useProfileStore';
 
 interface AccordionItemProps {
     title: string;
@@ -49,9 +52,41 @@ function AccordionItem({ title, icon, children, defaultExpanded = false }: Accor
 
 export default function SettingsScreen() {
     const router = useRouter();
-    const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-    const [darkMode, setDarkMode] = useState(true);
-    const [locationServices, setLocationServices] = useState(true);
+
+    // Global Settings State
+    const {
+        darkMode, setDarkMode,
+        unitSystem, setUnitSystem,
+        pushNotifications, setPushNotifications,
+        dailyReminders, setDailyReminders,
+        locationServices, setLocationServices,
+        resetSettings
+    } = useSettingsStore();
+
+    // Reset Handlers
+    const clearGoals = useGoalStore(state => state.clearGoals);
+    const resetProfile = useProfileStore(state => state.resetProfile);
+
+    const handleClearData = () => {
+        Alert.alert(
+            "Clear App Data",
+            "Are you sure you want to permanently delete all goals, profile settings, and app data? This cannot be undone.",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Delete All",
+                    style: "destructive",
+                    onPress: () => {
+                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                        clearGoals();
+                        resetProfile();
+                        resetSettings();
+                        router.replace('/');
+                    }
+                }
+            ]
+        );
+    };
 
     return (
         <ScreenWrapper bgClass="bg-black">
@@ -84,11 +119,17 @@ export default function SettingsScreen() {
                     <View className="flex-row items-center justify-between">
                         <Text className="text-gray-300 text-base">Unit System</Text>
                         <View className="flex-row bg-black/40 rounded-lg p-1 border border-white/10">
-                            <TouchableOpacity className="px-3 py-1 bg-blue-600 rounded-md">
-                                <Text className="text-white text-xs font-bold">Metric</Text>
+                            <TouchableOpacity
+                                className={`px-3 py-1 rounded-md ${unitSystem === 'metric' ? 'bg-blue-600' : ''}`}
+                                onPress={() => setUnitSystem('metric')}
+                            >
+                                <Text className={`text-xs font-bold ${unitSystem === 'metric' ? 'text-white' : 'text-gray-400'}`}>Metric</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity className="px-3 py-1 rounded-md">
-                                <Text className="text-gray-400 text-xs font-bold">Imperial</Text>
+                            <TouchableOpacity
+                                className={`px-3 py-1 rounded-md ${unitSystem === 'imperial' ? 'bg-blue-600' : ''}`}
+                                onPress={() => setUnitSystem('imperial')}
+                            >
+                                <Text className={`text-xs font-bold ${unitSystem === 'imperial' ? 'text-white' : 'text-gray-400'}`}>Imperial</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -98,8 +139,8 @@ export default function SettingsScreen() {
                     <View className="flex-row items-center justify-between mb-4 mt-2">
                         <Text className="text-gray-300 text-base">Push Notifications</Text>
                         <Switch
-                            value={notificationsEnabled}
-                            onValueChange={setNotificationsEnabled}
+                            value={pushNotifications}
+                            onValueChange={setPushNotifications}
                             trackColor={{ false: '#374151', true: '#3b82f6' }}
                             thumbColor="#ffffff"
                         />
@@ -107,8 +148,8 @@ export default function SettingsScreen() {
                     <View className="flex-row items-center justify-between">
                         <Text className="text-gray-300 text-base">Daily Reminders</Text>
                         <Switch
-                            value={false}
-                            onValueChange={() => { }}
+                            value={dailyReminders}
+                            onValueChange={setDailyReminders}
                             trackColor={{ false: '#374151', true: '#3b82f6' }}
                             thumbColor="#ffffff"
                         />
@@ -125,10 +166,10 @@ export default function SettingsScreen() {
                             thumbColor="#ffffff"
                         />
                     </View>
-                    <TouchableOpacity className="py-2 border-b border-white/5 mb-2">
+                    <TouchableOpacity className="py-2 border-b border-white/5 mb-2" onPress={handleClearData}>
                         <Text className="text-blue-400 text-base">Clear App Data</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity className="py-2">
+                    <TouchableOpacity className="py-2" onPress={handleClearData}>
                         <Text className="text-red-400 text-base">Delete Account</Text>
                     </TouchableOpacity>
                 </AccordionItem>
