@@ -35,6 +35,7 @@ interface GoalState {
     // Selectors as simple state reads (can also just filter at the component level)
     getCompletedGoals: () => Goal[];
     getPendingGoals: () => Goal[];
+    clearGoals: () => void;
 }
 
 // Initial state is an empty array so users start blank
@@ -89,7 +90,9 @@ export const useGoalStore = create<GoalState>()(
 
             getPendingGoals: () => {
                 return get().goals.filter(g => !g.completed);
-            }
+            },
+
+            clearGoals: () => set({ goals: [] }),
         }),
         {
             name: 'atlas-goal-storage',

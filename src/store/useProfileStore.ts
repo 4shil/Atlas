@@ -9,21 +9,23 @@ export interface UserProfile {
     hasOnboarded: boolean;
 }
 
-interface ProfileState {
-    profile: UserProfile;
-    updateProfile: (updates: Partial<UserProfile>) => void;
-    setHasOnboarded: () => void;
+profile: UserProfile;
+updateProfile: (updates: Partial<UserProfile>) => void;
+setHasOnboarded: () => void;
+resetProfile: () => void;
 }
+
+const INITIAL_PROFILE: UserProfile = {
+    name: 'Traveller',
+    bio: 'Living for the next adventure ✈️',
+    avatarUri: null,
+    hasOnboarded: false,
+};
 
 export const useProfileStore = create<ProfileState>()(
     persist(
         (set) => ({
-            profile: {
-                name: 'Traveller',
-                bio: 'Living for the next adventure ✈️',
-                avatarUri: null,
-                hasOnboarded: false,
-            },
+            profile: INITIAL_PROFILE,
             updateProfile: (updates) =>
                 set((state) => ({
                     profile: { ...state.profile, ...updates },
@@ -32,6 +34,7 @@ export const useProfileStore = create<ProfileState>()(
                 set((state) => ({
                     profile: { ...state.profile, hasOnboarded: true },
                 })),
+            resetProfile: () => set({ profile: INITIAL_PROFILE }),
         }),
         {
             name: 'atlas-profile-storage',
