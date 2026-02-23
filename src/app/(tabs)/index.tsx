@@ -8,36 +8,13 @@ import { useGoalStore, Goal } from '../../store/useGoalStore';
 import { useRouter } from 'expo-router';
 import { useProfileStore } from '../../store/useProfileStore';
 import SwipeableGoalRow from '../../components/SwipeableGoalRow';
+import { ProgressRing } from '../../components/ProgressRing';
+import { ProfileHeader } from '../../components/ProfileHeader';
+import { getCategoryIcon } from '../../utils/Icons';
+import { getDaysUntil } from '../../utils/dateUtils';
 
 type SortMode = 'date' | 'category' | 'name';
 
-function ProgressRing({ completed, total }: { completed: number; total: number }) {
-    const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
-    const radius = 28;
-    const circumference = 2 * Math.PI * radius;
-    const strokeDash = (pct / 100) * circumference;
-
-    return (
-        <View className="items-center justify-center">
-            <View style={{ width: 72, height: 72 }}>
-                <svg width="72" height="72" viewBox="0 0 72 72">
-                    <circle cx="36" cy="36" r={radius} fill="none" stroke="#1f2937" strokeWidth="5" />
-                    <circle
-                        cx="36" cy="36" r={radius}
-                        fill="none" stroke="#3b82f6" strokeWidth="5"
-                        strokeDasharray={`${strokeDash} ${circumference}`}
-                        strokeLinecap="round"
-                        transform="rotate(-90 36 36)"
-                    />
-                </svg>
-                <View className="absolute inset-0 items-center justify-center">
-                    <Text className="text-white font-bold text-sm">{pct}%</Text>
-                </View>
-            </View>
-            <Text className="text-gray-500 text-xs mt-1">Complete</Text>
-        </View>
-    );
-}
 
 const SORT_LABELS: Record<SortMode, string> = {
     date: 'By Date',
@@ -78,21 +55,7 @@ export default function DashboardDark() {
         );
     }, [sortedPending, searchQuery]);
 
-    const categoryIcon = (cat: string) => {
-        switch (cat) {
-            case 'Travel': return 'flight-takeoff';
-            case 'Adventures': return 'hiking';
-            case 'Foodie': return 'restaurant';
-            case 'Stays': return 'hotel';
-            case 'Milestone': return 'star';
-            default: return 'place';
-        }
-    };
 
-    const daysUntil = (iso: string) => {
-        const diff = new Date(iso).getTime() - Date.now();
-        return Math.ceil(diff / (1000 * 60 * 60 * 24));
-    };
 
     return (
         <SafeAreaView className="flex-1 bg-gray-900" edges={['top', 'bottom']}>
@@ -112,34 +75,24 @@ export default function DashboardDark() {
                 keyboardShouldPersistTaps="handled"
             >
                 {/* Header */}
-                <View className="px-6 mt-4 flex-row justify-between items-center">
-                    <TouchableOpacity
-                        className="w-10 h-10 rounded-full overflow-hidden border border-gray-700"
-                        onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/profile'); }}
-                    >
-                        {profile.avatarUri ? (
-                            <Image source={{ uri: profile.avatarUri }} className="w-full h-full" resizeMode="cover" />
-                        ) : (
-                            <View className="w-full h-full bg-indigo-950 items-center justify-center">
-                                <Text className="text-white font-bold text-sm">{profile.name.charAt(0).toUpperCase()}</Text>
-                            </View>
-                        )}
-                    </TouchableOpacity>
-                    <View className="flex-row gap-2">
-                        <TouchableOpacity
-                            className="w-10 h-10 rounded-full bg-black/70 border border-gray-700 items-center justify-center"
-                            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/inspiration'); }}
-                        >
-                            <MaterialIcons name="lightbulb-outline" size={22} color="#fbbf24" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            className="w-10 h-10 rounded-full bg-black/70 border border-gray-700 items-center justify-center"
-                            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowSearch(v => !v); setSearchQuery(''); }}
-                        >
-                            <MaterialIcons name={showSearch ? 'close' : 'search'} size={22} color="#d1d5db" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                <ProfileHeader
+                    rightActions={
+                        <>
+                            <TouchableOpacity
+                                className="w-10 h-10 rounded-full bg-black/70 border border-gray-700 items-center justify-center"
+                                onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/inspiration'); }}
+                            >
+                                <MaterialIcons name="lightbulb-outline" size={22} color="#fbbf24" />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                className="w-10 h-10 rounded-full bg-black/70 border border-gray-700 items-center justify-center"
+                                onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowSearch(v => !v); setSearchQuery(''); }}
+                            >
+                                <MaterialIcons name={showSearch ? 'close' : 'search'} size={22} color="#d1d5db" />
+                            </TouchableOpacity>
+                        </>
+                    }
+                />
 
                 {/* Search Bar */}
                 {showSearch && (
@@ -207,15 +160,7 @@ export default function DashboardDark() {
                             </View>
 
                             {/* Progress Ring */}
-                            <View className="w-20 items-center">
-                                <View className="items-center justify-center w-20 h-20 rounded-full border-4 border-blue-600/30 bg-blue-950/30">
-                                    <Text className="text-white font-bold text-lg">
-                                        {goals.length === 0 ? '0' : Math.round((completedGoals.length / goals.length) * 100)}
-                                    </Text>
-                                    <Text className="text-blue-400 text-[9px] leading-none">%</Text>
-                                </View>
-                                <Text className="text-gray-600 text-[10px] mt-1">done</Text>
-                            </View>
+                            <ProgressRing completed={completedGoals.length} total={goals.length} />
 
                             {/* Pending */}
                             <View className="flex-1 bg-black/60 rounded-[2rem] p-5 border border-gray-700 overflow-hidden relative">
@@ -282,10 +227,10 @@ export default function DashboardDark() {
                         </View>
                     ) : (
                         filteredGoals.map((goal: Goal) => {
-                            const days = daysUntil(goal.timelineDate);
+                            const days = getDaysUntil(goal.timelineDate);
                             const isUrgent = days <= 30 && days > 0;
                             const isOverdue = days < 0;
-                            const catIcon = categoryIcon(goal.category);
+                            const catIcon = getCategoryIcon(goal.category);
                             return (
                                 <SwipeableGoalRow
                                     key={goal.id}
