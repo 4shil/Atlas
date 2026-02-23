@@ -10,6 +10,7 @@ import { typography, type Typography } from './tokens/typography';
 import { spacing, space, type Spacing, type Space } from './tokens/spacing';
 import { radius, elevation, zIndex, type Radius, type Elevation, type ZIndex } from './tokens/layout';
 import { duration, springs, easing, motionPresets } from './tokens/motion';
+import { useSettingsStore } from '../store/useSettingsStore';
 
 // ============================================
 // THEME CONTEXT TYPE
@@ -59,17 +60,25 @@ interface ThemeProviderProps {
 export function ThemeProvider({ children, defaultMode }: ThemeProviderProps) {
     const systemColorScheme = useColorScheme();
 
-    // Determine initial mode
-    const initialMode: ThemeMode = defaultMode ??
-        (systemColorScheme === 'light' ? 'light' : 'dark');
+    // Subscribe to settings store for global dark mode sync
+    const settingsDarkMode = useSettingsStore(state => state.darkMode);
+    const setSettingsDarkMode = useSettingsStore(state => state.setDarkMode);
 
-    const [mode, setMode] = useState<ThemeMode>(initialMode);
+    // Determine initial mode (prioritizes Settings Store > defaultProp > System)
+    const mode: ThemeMode = defaultMode ??
+        (settingsDarkMode ? 'dark' : 'light');
+
     const [isReducedMotion, setReducedMotion] = useState(false);
 
-    // Toggle between dark and light
+    // Toggle between dark and light by dispatching to the Zustand settings store directly
     const toggleMode = useCallback(() => {
-        setMode(current => current === 'dark' ? 'light' : 'dark');
-    }, []);
+        setSettingsDarkMode(!settingsDarkMode);
+    }, [settingsDarkMode, setSettingsDarkMode]);
+
+    // Shim to maintain backwards compatibility with any component hitting ThemeContext.setMode directly
+    const setMode = useCallback((newMode: ThemeMode) => {
+        setSettingsDarkMode(newMode === 'dark');
+    }, [setSettingsDarkMode]);
 
     // Memoized theme value
     const value = useMemo<ThemeContextType>(() => ({

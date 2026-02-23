@@ -9,10 +9,11 @@ export interface UserProfile {
     hasOnboarded: boolean;
 }
 
-profile: UserProfile;
-updateProfile: (updates: Partial<UserProfile>) => void;
-setHasOnboarded: () => void;
-resetProfile: () => void;
+interface ProfileState {
+    profile: UserProfile;
+    updateProfile: (updates: Partial<UserProfile>) => void;
+    setHasOnboarded: () => void;
+    resetProfile: () => void;
 }
 
 const INITIAL_PROFILE: UserProfile = {
