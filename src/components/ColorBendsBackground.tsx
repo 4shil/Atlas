@@ -121,14 +121,15 @@ export function ColorBendsBackground({ width, height }: ColorBendsBackgroundProp
         );
     }
 
-    const { Canvas, Fill, RuntimeShader } = SkiaModule;
+    const { Canvas, Fill, Group, Shader } = SkiaModule;
 
     return (
         <View style={StyleSheet.absoluteFill} className="bg-black">
             <Canvas style={StyleSheet.absoluteFill}>
-                <Fill>
-                    <RuntimeShader source={skiaShader} uniforms={uniforms} />
-                </Fill>
+                <Group>
+                    <Shader source={skiaShader} uniforms={uniforms} />
+                    <Fill />
+                </Group>
             </Canvas>
         </View>
     );
