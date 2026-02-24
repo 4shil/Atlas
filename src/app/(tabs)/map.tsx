@@ -12,6 +12,13 @@ import { ScreenWrapper } from '../../components/ScreenWrapper';
 export default function DarkAdventureMap() {
     const { goals } = useGoalStore();
     const router = useRouter();
+    const [showOnlyPending, setShowOnlyPending] = React.useState(true);
+    const [recenterTrigger, setRecenterTrigger] = React.useState(0);
+
+    const visibleGoals = React.useMemo(
+        () => (showOnlyPending ? goals.filter(g => !g.completed) : goals),
+        [goals, showOnlyPending]
+    );
 
     return (
         <View className="flex-1 bg-black">
@@ -30,7 +37,14 @@ export default function DarkAdventureMap() {
                     <TouchableOpacity
                         className="w-10 h-10 rounded-full bg-black/50 items-center justify-center shadow-lg border border-white/10"
                         activeOpacity={0.7}
-                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            if (router.canGoBack()) {
+                                router.back();
+                            } else {
+                                router.push('/(tabs)');
+                            }
+                        }}
                         accessibilityRole="button"
                         accessibilityLabel="Go back"
                     >
@@ -39,13 +53,18 @@ export default function DarkAdventureMap() {
                     <TouchableOpacity
                         className="w-10 h-10 rounded-full bg-black/50 items-center justify-center shadow-lg border border-white/10"
                         activeOpacity={0.7}
-                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        onPress={() => {
+                            Haptics.selectionAsync();
+                            setShowOnlyPending(prev => !prev);
+                        }}
                         accessibilityRole="button"
                         accessibilityLabel="Filter map"
                     >
-                        <MaterialIcons name="tune" size={20} color="white" />
+                        <MaterialIcons name={showOnlyPending ? 'tune' : 'filter-alt-off'} size={20} color="white" />
                     </TouchableOpacity>
                 </View>
+
+                <MapWrapper goals={visibleGoals} recenterTrigger={recenterTrigger} />
             </View>
 
             {/* Bottom Sheet 48% */}
@@ -71,7 +90,10 @@ export default function DarkAdventureMap() {
                             <TouchableOpacity
                                 className="w-12 h-12 rounded-full bg-[#1A1A1A] border border-white/5 items-center justify-center"
                                 activeOpacity={0.7}
-                                onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    setRecenterTrigger(prev => prev + 1);
+                                }}
                                 accessibilityRole="button"
                                 accessibilityLabel="Recenter map"
                             >
@@ -84,14 +106,24 @@ export default function DarkAdventureMap() {
                     <View>
                         <View className="flex-row justify-between items-end mb-5">
                             <Text className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Next Goals</Text>
-                            <Text className="text-xs text-blue-400 font-semibold">See all</Text>
+                            <TouchableOpacity
+                                activeOpacity={0.7}
+                                onPress={() => {
+                                    Haptics.selectionAsync();
+                                    router.push('/(tabs)/archive');
+                                }}
+                                accessibilityRole="button"
+                                accessibilityLabel="See all goals"
+                            >
+                                <Text className="text-xs text-blue-400 font-semibold">See all</Text>
+                            </TouchableOpacity>
                         </View>
 
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible pb-4" contentContainerStyle={{ paddingRight: 16 }}>
-                            {goals.filter(g => !g.completed).length === 0 ? (
+                            {visibleGoals.length === 0 ? (
                                 <Text className="text-gray-500">No remaining goals.</Text>
                             ) : (
-                                goals.filter(g => !g.completed).slice(0, 5).map((goal: Goal) => (
+                                visibleGoals.slice(0, 5).map((goal: Goal) => (
                                     <View key={goal.id} className="w-[260px] h-[170px] relative rounded-3xl overflow-hidden shadow-black/50 shadow-lg mr-4 border border-white/5 bg-gray-900">
                                         <Image source={{ uri: goal.image }} className="absolute inset-0 w-full h-full opacity-60" resizeMode="cover" />
                                         <LinearGradient colors={['transparent', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,1)']} className="absolute inset-0" />
