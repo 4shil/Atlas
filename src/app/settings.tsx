@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Animated, Switch, Alert, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Switch, Alert, Linking } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';

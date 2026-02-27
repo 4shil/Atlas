@@ -10,7 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useGoalStore } from '../store/useGoalStore';
-import Animated, { useSharedValue, useAnimatedStyle, withSequence, withSpring, withDelay, withTiming, FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated, { useSharedValue, withSequence, withSpring, withDelay, withTiming, FadeIn, FadeOut } from 'react-native-reanimated';
 import { getCategoryIcon } from '../utils/Icons';
 import { getDaysUntil } from '../utils/dateUtils';
 

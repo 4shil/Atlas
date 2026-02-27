@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -180,7 +180,7 @@ export default function AddGoal() {
                     >
                         <MaterialIcons name="place" size={20} color="#60a5fa" />
                         <Text className={`flex-1 text-base ml-2 ${locationData.city ? 'text-white' : 'text-gray-500'}`}>
-                            {locationData.city ? `${locationData.city}, ${locationData.country}` : 'Pick on map'}
+                            {locationData.city ? `${locationData.city}, ${locationData.country}` : Platform.OS === 'web' ? 'Enter location' : 'Pick on map'}
                         </Text>
                         {locationData.city ? (
                             <TouchableOpacity onPress={() => setLocationData({ latitude: 0, longitude: 0, city: '', country: '' })}>
