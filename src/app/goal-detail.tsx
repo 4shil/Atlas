@@ -108,26 +108,26 @@ export default function GoalDetail() {
                 <SafeAreaView edges={['top']} className="absolute top-0 left-0 right-0 z-10">
                     <View className="flex-row justify-between items-center px-5 pt-2">
                         <TouchableOpacity
-                            className="w-10 h-10 rounded-full bg-black/50 items-center justify-center border border-white/20"
+                            className="w-10 h-10 rounded-full bg-white/10 items-center justify-center border border-white/[0.08]"
                             onPress={() => router.back()}
                         >
                             <MaterialIcons name="arrow-back" size={20} color="white" />
                         </TouchableOpacity>
                         <View className="flex-row gap-3">
                             <TouchableOpacity
-                                className="w-10 h-10 rounded-full bg-black/50 items-center justify-center border border-white/20"
+                                className="w-10 h-10 rounded-full bg-white/10 items-center justify-center border border-white/[0.08]"
                                 onPress={handleShare}
                             >
                                 <MaterialIcons name="share" size={20} color="white" />
                             </TouchableOpacity>
                             <TouchableOpacity
-                                className="w-10 h-10 rounded-full bg-black/50 items-center justify-center border border-white/20"
+                                className="w-10 h-10 rounded-full bg-white/10 items-center justify-center border border-white/[0.08]"
                                 onPress={() => router.push({ pathname: '/add-goal', params: { editId: goal.id } })}
                             >
                                 <MaterialIcons name="edit" size={20} color="white" />
                             </TouchableOpacity>
                             <TouchableOpacity
-                                className="w-10 h-10 rounded-full bg-red-900/70 items-center justify-center border border-red-500/30"
+                                className="w-10 h-10 rounded-full bg-red-500/15 items-center justify-center border border-red-500/20"
                                 onPress={handleDelete}
                             >
                                 <MaterialIcons name="delete-outline" size={20} color="#f87171" />
@@ -161,28 +161,28 @@ export default function GoalDetail() {
 
             {/* Content */}
             <ScrollView
-                className="flex-1 bg-[#0a0a0a]"
+                className="flex-1"
                 contentContainerStyle={{ paddingBottom: 120 }}
                 showsVerticalScrollIndicator={false}
             >
                 {/* Location & Date Row */}
-                <View className="flex-row px-6 pt-6 pb-4 border-b border-white/5">
+                <View className="flex-row px-6 pt-6 pb-4 border-b border-white/[0.06]">
                     <View className="flex-1">
-                        <Text className="text-gray-500 text-xs uppercase tracking-widest mb-1">Location</Text>
+                        <Text className="text-white/40 text-xs uppercase tracking-widest mb-1">Location</Text>
                         <View className="flex-row items-center">
-                            <MaterialIcons name="place" size={16} color="#60a5fa" />
+                            <MaterialIcons name="place" size={16} color="rgba(255,255,255,0.6)" />
                             <Text className="text-white font-semibold ml-1">
                                 {goal.location.latitude === 0 ? 'No location set' : `${goal.location.city}, ${goal.location.country}`}
                             </Text>
                         </View>
                     </View>
                     <View className="flex-1 items-end">
-                        <Text className="text-gray-500 text-xs uppercase tracking-widest mb-1">Target</Text>
+                        <Text className="text-white/40 text-xs uppercase tracking-widest mb-1">Target</Text>
                         <Text className="text-white font-semibold">
                             {targetDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                         </Text>
                         {!goal.completed && (
-                            <Text className={`text-xs mt-0.5 ${isOverdue ? 'text-red-400' : 'text-gray-400'}`}>
+                            <Text className={`text-xs mt-0.5 ${isOverdue ? 'text-red-400' : 'text-white/40'}`}>
                                 {isOverdue ? `${Math.abs(daysLeft)}d overdue` : `${daysLeft}d left`}
                             </Text>
                         )}
@@ -200,10 +200,10 @@ export default function GoalDetail() {
                     return (
                         <View className="px-6 pt-4 pb-2">
                             <View className="flex-row justify-between items-center mb-2">
-                                <Text className="text-gray-500 text-xs uppercase tracking-widest">Time Elapsed</Text>
+                                <Text className="text-white/40 text-xs uppercase tracking-widest">Time Elapsed</Text>
                                 <Text className="text-xs font-semibold" style={{ color: barColor }}>{pct}%</Text>
                             </View>
-                            <View className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                            <View className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                                 <View className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: barColor }} />
                             </View>
                         </View>
@@ -213,19 +213,19 @@ export default function GoalDetail() {
                 {/* Description */}
                 {goal.description ? (
                     <View className="px-6 pt-5 pb-4">
-                        <Text className="text-gray-500 text-xs uppercase tracking-widest mb-2">About</Text>
-                        <Text className="text-gray-200 text-base leading-7">{goal.description}</Text>
+                        <Text className="text-white/40 text-xs uppercase tracking-widest mb-2">About</Text>
+                        <Text className="text-white/80 text-base leading-7">{goal.description}</Text>
                     </View>
                 ) : null}
 
                 {/* Notes */}
                 {goal.notes ? (
-                    <View className="mx-6 mt-2 bg-white/5 border border-white/10 rounded-2xl p-4">
+                    <View className="mx-6 mt-2 bg-white/[0.05] border border-white/[0.08] rounded-2xl p-4">
                         <View className="flex-row items-center mb-2">
                             <MaterialIcons name="sticky-note-2" size={16} color="#facc15" />
                             <Text className="text-yellow-400 text-xs uppercase tracking-widest ml-2">Notes</Text>
                         </View>
-                        <Text className="text-gray-300 text-sm leading-6">{goal.notes}</Text>
+                        <Text className="text-white/60 text-sm leading-6">{goal.notes}</Text>
                     </View>
                 ) : null}
 
@@ -235,7 +235,7 @@ export default function GoalDetail() {
                         <MaterialIcons name="check-circle" size={20} color="#4ade80" />
                         <View className="ml-3">
                             <Text className="text-green-400 text-sm font-semibold">Goal Achieved!</Text>
-                            <Text className="text-gray-400 text-xs mt-0.5">
+                            <Text className="text-white/40 text-xs mt-0.5">
                                 Completed {new Date(goal.completedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                             </Text>
                         </View>
@@ -244,25 +244,25 @@ export default function GoalDetail() {
 
                 {/* Created at */}
                 <View className="px-6 mt-6">
-                    <Text className="text-gray-600 text-xs">
+                    <Text className="text-white/20 text-xs">
                         Added {new Date(goal.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                     </Text>
                 </View>
             </ScrollView>
 
             {/* Bottom Action */}
-            <View className="absolute bottom-0 left-0 right-0 px-6 pb-10 pt-4 bg-black/90 border-t border-white/10">
+            <View className="absolute bottom-0 left-0 right-0 px-6 pb-10 pt-4 bg-black/70 border-t border-white/[0.06]">
                 <TouchableOpacity
-                    className={`w-full py-4 rounded-2xl flex-row items-center justify-center ${goal.completed ? 'bg-gray-800 border border-gray-600' : 'bg-blue-600'}`}
+                    className={`w-full py-4 rounded-2xl flex-row items-center justify-center ${goal.completed ? 'bg-white/10 border border-white/[0.08]' : 'bg-white/15 border border-white/10'}`}
                     onPress={handleToggleComplete}
                     activeOpacity={0.8}
                 >
                     <MaterialIcons
                         name={goal.completed ? 'replay' : 'check-circle-outline'}
                         size={22}
-                        color={goal.completed ? '#9ca3af' : 'white'}
+                        color={goal.completed ? 'rgba(255,255,255,0.5)' : 'white'}
                     />
-                    <Text className={`font-bold text-base ml-2 ${goal.completed ? 'text-gray-400' : 'text-white'}`}>
+                    <Text className={`font-bold text-base ml-2 ${goal.completed ? 'text-white/50' : 'text-white'}`}>
                         {goal.completed ? 'Mark as Pending' : 'Mark as Complete 🎉'}
                     </Text>
                 </TouchableOpacity>
