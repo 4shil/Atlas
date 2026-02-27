@@ -36,7 +36,6 @@ export default function GoalDetail() {
     }
 
     const targetDate = new Date(goal.timelineDate);
-    const now = new Date();
     const daysLeft = getDaysUntil(goal.timelineDate);
     const isOverdue = daysLeft < 0 && !goal.completed;
 
@@ -277,10 +276,10 @@ export default function GoalDetail() {
                     style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100 }]}
                     pointerEvents="none"
                 >
-                    <Animated.View style={[{ width: 140, height: 140, borderRadius: 70, backgroundColor: 'rgba(22,101,52,0.4)', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#4ade80' }, { transform: [{ scale: celebScale }] }]}>
+                    <Animated.View style={[{ width: 140, height: 140, borderRadius: 70, backgroundColor: 'rgba(22,101,52,0.4)', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#4ade80' }, { transform: [{ scale: celebScale }], opacity: celebOpacity }]}>
                         <MaterialIcons name="check" size={64} color="#4ade80" />
                     </Animated.View>
-                    <Animated.Text style={{ color: '#4ade80', fontSize: 20, fontWeight: '700', marginTop: 20 }}>
+                    <Animated.Text style={{ color: '#4ade80', fontSize: 20, fontWeight: '700', marginTop: 20, opacity: celebOpacity }}>
                         Goal Achieved! 🎉
                     </Animated.Text>
                 </Animated.View>
