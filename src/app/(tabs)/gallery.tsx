@@ -52,13 +52,7 @@ export default function DarkTravelGallery() {
     };
 
     return (
-        <ScreenWrapper bgClass="bg-black" blobs={false}>
-            {/* Background Blobs */}
-            <View className="absolute inset-0 z-0 overflow-hidden" pointerEvents="none">
-                <View className="absolute top-[-10%] left-[-20%] w-[400px] h-[400px] bg-purple-900 rounded-full opacity-40" />
-                <View className="absolute bottom-[-10%] right-[-20%] w-[400px] h-[400px] bg-blue-900 rounded-full opacity-40" />
-            </View>
-
+        <ScreenWrapper bgClass="bg-black">
             <View className="flex-1 z-10">
                 {/* Header */}
                 <ProfileHeader

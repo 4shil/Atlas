@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
@@ -21,9 +20,7 @@ export default function DarkAdventureMap() {
     );
 
     return (
-        <View className="flex-1 bg-black">
-            <StatusBar style="light" />
-
+        <ScreenWrapper bgClass="bg-black" edges={[]}>
             {/* Top Map Area 60% */}
             <View className="relative h-[60%] w-full bg-[#050505] z-10 overflow-hidden">
 
@@ -155,6 +152,6 @@ export default function DarkAdventureMap() {
                     </View>
                 </ScrollView>
             </View>
-        </View>
+        </ScreenWrapper>
     );
 }

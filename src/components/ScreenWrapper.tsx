@@ -1,5 +1,5 @@
 import { View, StyleSheet, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { BlurView } from 'expo-blur';
 import { ColorBendsBackground } from './ColorBendsBackground';
@@ -10,11 +10,12 @@ interface ScreenWrapperProps {
     children: React.ReactNode;
     blobs?: boolean;
     bgClass?: string;
+    edges?: Edge[];
 }
 
-export function ScreenWrapper({ children, blobs = true, bgClass = 'bg-black' }: ScreenWrapperProps) {
+export function ScreenWrapper({ children, blobs = true, bgClass = 'bg-black', edges = ['top', 'bottom'] }: ScreenWrapperProps) {
     return (
-        <SafeAreaView className={`flex-1 relative ${bgClass}`} edges={['top', 'bottom']}>
+        <SafeAreaView className={`flex-1 relative ${bgClass}`} edges={edges}>
             <StatusBar style="light" />
 
             {/* Background Render Layer */}

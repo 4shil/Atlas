@@ -5,7 +5,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -13,6 +12,7 @@ import { useGoalStore } from '../store/useGoalStore';
 import Animated, { useSharedValue, withSequence, withSpring, withDelay, withTiming, FadeIn, FadeOut } from 'react-native-reanimated';
 import { getCategoryIcon } from '../utils/Icons';
 import { getDaysUntil } from '../utils/dateUtils';
+import { ScreenWrapper } from '../components/ScreenWrapper';
 
 export default function GoalDetail() {
     const router = useRouter();
@@ -26,12 +26,14 @@ export default function GoalDetail() {
 
     if (!goal) {
         return (
-            <SafeAreaView className="flex-1 bg-black items-center justify-center">
-                <Text className="text-gray-400">Goal not found.</Text>
-                <TouchableOpacity onPress={() => router.back()} className="mt-4">
-                    <Text className="text-blue-400">← Go back</Text>
-                </TouchableOpacity>
-            </SafeAreaView>
+            <ScreenWrapper bgClass="bg-black">
+                <View className="flex-1 items-center justify-center">
+                    <Text className="text-gray-400">Goal not found.</Text>
+                    <TouchableOpacity onPress={() => router.back()} className="mt-4">
+                        <Text className="text-blue-400">← Go back</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScreenWrapper>
         );
     }
 
@@ -89,9 +91,7 @@ export default function GoalDetail() {
     };
 
     return (
-        <View className="flex-1 bg-black">
-            <StatusBar style="light" />
-
+        <ScreenWrapper bgClass="bg-black" edges={[]}>
             {/* Hero Image */}
             <View className="h-[45%] relative">
                 <Image
@@ -284,6 +284,6 @@ export default function GoalDetail() {
                     </Animated.Text>
                 </Animated.View>
             )}
-        </View>
+        </ScreenWrapper>
     );
 }

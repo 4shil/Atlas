@@ -5,11 +5,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useGoalStore } from '../store/useGoalStore';
+import { ScreenWrapper } from '../components/ScreenWrapper';
 
 // Curated bucket list destinations with categories
 const INSPIRATIONS = [
@@ -131,10 +131,8 @@ export default function Inspiration() {
     };
 
     return (
-        <View className="flex-1 bg-black">
-            <StatusBar style="light" />
-
-            <SafeAreaView edges={['top']} className="bg-black z-10">
+        <ScreenWrapper bgClass="bg-black" edges={[]}>
+            <SafeAreaView edges={['top']} className="z-10">
                 <View className="px-6 pt-3 pb-4">
                     <View className="flex-row items-center justify-between mb-4">
                         <TouchableOpacity
@@ -227,6 +225,6 @@ export default function Inspiration() {
                     );
                 })}
             </ScrollView>
-        </View>
+        </ScreenWrapper>
     );
 }

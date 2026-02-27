@@ -1,8 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 import { useRouter } from 'expo-router';
@@ -13,6 +11,7 @@ import { ProfileHeader } from '../../components/ProfileHeader';
 import { DashboardOverview } from '../../components/DashboardOverview';
 import { getCategoryIcon } from '../../utils/Icons';
 import { getDaysUntil } from '../../utils/dateUtils';
+import { ScreenWrapper } from '../../components/ScreenWrapper';
 
 type SortMode = 'date' | 'category' | 'name';
 
@@ -59,16 +58,7 @@ export default function DashboardDark() {
 
 
     return (
-        <SafeAreaView className="flex-1 bg-gray-900" edges={['top', 'bottom']}>
-            <StatusBar style="light" />
-
-            {/* Background Blobs */}
-            <View className="absolute inset-0 z-0 bg-[#000000] overflow-hidden" pointerEvents="none">
-                <View className="absolute -top-20 -left-20 w-[400px] h-[400px] bg-indigo-950 rounded-full opacity-40" />
-                <View className="absolute top-1/2 left-[10%] w-[500px] h-[500px] bg-slate-900 rounded-full opacity-30" />
-                <View className="absolute -bottom-20 -right-20 w-[350px] h-[350px] bg-indigo-900 rounded-full opacity-30" />
-            </View>
-
+        <ScreenWrapper bgClass="bg-black">
             <ScrollView
                 className="flex-1 relative z-10"
                 showsVerticalScrollIndicator={false}
@@ -220,6 +210,6 @@ export default function DashboardDark() {
                     )}
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 }

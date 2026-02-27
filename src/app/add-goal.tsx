@@ -83,7 +83,7 @@ export default function AddGoal() {
     };
 
     return (
-        <ScreenWrapper bgClass="bg-black" blobs={false}>
+        <ScreenWrapper bgClass="bg-black">
             {/* Header */}
             <View className="px-6 py-4 flex-row justify-between items-center border-b border-white/10">
                 <TouchableOpacity

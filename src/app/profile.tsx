@@ -69,7 +69,7 @@ export default function Profile() {
     };
 
     return (
-        <ScreenWrapper bgClass="bg-black" blobs={false}>
+        <ScreenWrapper bgClass="bg-black" edges={[]}>
             {/* Hero Banner */}
             <View className="h-56 relative">
                 <LinearGradient
