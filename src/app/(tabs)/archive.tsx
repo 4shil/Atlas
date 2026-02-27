@@ -26,7 +26,7 @@ export default function DarkInspirationArchive() {
                 {/* Header */}
                 <View className="px-6 flex-row justify-between items-center mb-6">
                     <TouchableOpacity
-                        className="w-10 h-10 rounded-full bg-black/60 border border-white/10 items-center justify-center"
+                        className="w-10 h-10 rounded-full bg-white/10 border border-white/[0.08] items-center justify-center"
                         onPress={() => {
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                             router.push('/profile');
@@ -34,12 +34,12 @@ export default function DarkInspirationArchive() {
                     >
                         <MaterialIcons name="menu" size={20} color="white" />
                     </TouchableOpacity>
-                    <View className="bg-black/60 border border-white/10 px-4 py-1.5 rounded-full flex-row items-center">
-                        <MaterialIcons name="inventory-2" size={14} color="#60a5fa" />
-                        <Text className="text-xs font-medium text-white/90 ml-1.5">Archive</Text>
+                    <View className="bg-white/10 border border-white/[0.08] px-4 py-1.5 rounded-full flex-row items-center">
+                        <MaterialIcons name="inventory-2" size={14} color="rgba(255,255,255,0.7)" />
+                        <Text className="text-xs font-medium text-white/80 ml-1.5">Archive</Text>
                     </View>
                     <TouchableOpacity
-                        className="w-10 h-10 rounded-full bg-black/60 border border-white/10 items-center justify-center"
+                        className="w-10 h-10 rounded-full bg-white/10 border border-white/[0.08] items-center justify-center"
                         onPress={() => {
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                             router.push('/settings');
@@ -67,7 +67,7 @@ export default function DarkInspirationArchive() {
                             return (
                                 <TouchableOpacity
                                     key={cat}
-                                    className={`px-5 py-2.5 rounded-full flex-row items-center mr-3 border ${active ? 'bg-blue-600 border-blue-500' : 'bg-black/60 border-white/10'}`}
+                                    className={`px-5 py-2.5 rounded-full flex-row items-center mr-3 border ${active ? 'bg-white/20 border-white/20' : 'bg-white/[0.06] border-white/[0.08]'}`}
                                     onPress={() => {
                                         Haptics.selectionAsync();
                                         setActiveCategory(cat);
@@ -78,7 +78,7 @@ export default function DarkInspirationArchive() {
                                     {cat === 'Foodie' && <MaterialIcons name="restaurant" size={14} color={active ? 'white' : '#9ca3af'} />}
                                     {cat === 'Stays' && <MaterialIcons name="hotel" size={14} color={active ? 'white' : '#9ca3af'} />}
                                     {cat === 'Milestone' && <MaterialIcons name="star" size={14} color={active ? 'white' : '#9ca3af'} />}
-                                    <Text className={`text-xs font-medium ml-1.5 ${active ? 'text-white' : 'text-gray-300'}`}>{cat}</Text>
+                                    <Text className={`text-xs font-medium ml-1.5 ${active ? 'text-white' : 'text-white/50'}`}>{cat}</Text>
                                     {active && cat !== 'All' && (
                                         <Text className="text-white/60 text-xs ml-1">
                                             ({allCompleted.filter(g => g.category === cat).length})
@@ -131,7 +131,7 @@ export default function DarkInspirationArchive() {
                                     <TouchableOpacity
                                         key={goal.id}
                                         activeOpacity={0.85}
-                                        className="w-48 h-64 rounded-[28px] p-5 relative overflow-hidden mr-4 bg-gray-900 border border-white/10"
+                                        className="w-48 h-64 rounded-[28px] p-5 relative overflow-hidden mr-4 border border-white/10"
                                         onPress={() => {
                                             Haptics.selectionAsync();
                                             router.push({ pathname: '/goal-detail', params: { id: goal.id } });

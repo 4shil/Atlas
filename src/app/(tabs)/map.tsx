@@ -30,7 +30,7 @@ export default function DarkAdventureMap() {
                 {/* Top Floating Buttons */}
                 <View className="absolute top-0 left-0 right-0 pt-16 px-6 flex-row justify-between items-start z-30 pointer-events-box-none">
                     <TouchableOpacity
-                        className="w-10 h-10 rounded-full bg-black/50 items-center justify-center shadow-lg border border-white/10"
+                        className="w-10 h-10 rounded-full bg-white/10 items-center justify-center border border-white/[0.08]"
                         activeOpacity={0.7}
                         onPress={() => {
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -46,7 +46,7 @@ export default function DarkAdventureMap() {
                         <MaterialIcons name="arrow-back" size={20} color="white" />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        className="w-10 h-10 rounded-full bg-black/50 items-center justify-center shadow-lg border border-white/10"
+                        className="w-10 h-10 rounded-full bg-white/10 items-center justify-center border border-white/[0.08]"
                         activeOpacity={0.7}
                         onPress={() => {
                             Haptics.selectionAsync();
@@ -63,7 +63,7 @@ export default function DarkAdventureMap() {
             </View>
 
             {/* Bottom Sheet 48% */}
-            <View className="relative flex-1 -mt-10 w-full z-20 rounded-t-[32px] bg-black/90 border-t border-white/10 overflow-hidden flex-col shadow-[0_-10px_60px_rgba(0,0,0,0.8)]">
+            <View className="relative flex-1 -mt-10 w-full z-20 rounded-t-[32px] bg-black/70 border-t border-white/[0.08] overflow-hidden flex-col">
                 <View className="w-full items-center pt-4 pb-2">
                     <View className="w-10 h-1 bg-white/20 rounded-full" />
                 </View>
@@ -83,7 +83,7 @@ export default function DarkAdventureMap() {
                                 </View>
                             </View>
                             <TouchableOpacity
-                                className="w-12 h-12 rounded-full bg-[#1A1A1A] border border-white/5 items-center justify-center"
+                                className="w-12 h-12 rounded-full bg-white/10 border border-white/[0.08] items-center justify-center"
                                 activeOpacity={0.7}
                                 onPress={() => {
                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -119,7 +119,7 @@ export default function DarkAdventureMap() {
                                 <Text className="text-gray-500">No goals to show for this filter.</Text>
                             ) : (
                                 visibleGoals.slice(0, 5).map((goal: Goal) => (
-                                    <View key={goal.id} className="w-[260px] h-[170px] relative rounded-3xl overflow-hidden shadow-black/50 shadow-lg mr-4 border border-white/5 bg-gray-900">
+                                    <View key={goal.id} className="w-[260px] h-[170px] relative rounded-3xl overflow-hidden mr-4 border border-white/10">
                                         <Image source={{ uri: goal.image }} className="absolute inset-0 w-full h-full opacity-60" resizeMode="cover" />
                                         <LinearGradient colors={['transparent', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,1)']} className="absolute inset-0" />
 

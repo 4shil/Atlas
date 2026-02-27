@@ -70,16 +70,16 @@ export default function DashboardDark() {
                     rightActions={
                         <>
                             <TouchableOpacity
-                                className="w-10 h-10 rounded-full bg-black/70 border border-gray-700 items-center justify-center"
+                                className="w-10 h-10 rounded-full bg-white/10 border border-white/[0.08] items-center justify-center"
                                 onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/inspiration'); }}
                             >
                                 <MaterialIcons name="lightbulb-outline" size={22} color="#fbbf24" />
                             </TouchableOpacity>
                             <TouchableOpacity
-                                className="w-10 h-10 rounded-full bg-black/70 border border-gray-700 items-center justify-center"
+                                className="w-10 h-10 rounded-full bg-white/10 border border-white/[0.08] items-center justify-center"
                                 onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowSearch(v => !v); setSearchQuery(''); }}
                             >
-                                <MaterialIcons name={showSearch ? 'close' : 'search'} size={22} color="#d1d5db" />
+                                <MaterialIcons name={showSearch ? 'close' : 'search'} size={22} color="rgba(255,255,255,0.8)" />
                             </TouchableOpacity>
                         </>
                     }
@@ -88,12 +88,12 @@ export default function DashboardDark() {
                 {/* Search Bar */}
                 {showSearch && (
                     <View className="px-6 mt-4">
-                        <View className="flex-row items-center bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
-                            <MaterialIcons name="search" size={20} color="#6b7280" />
+                        <View className="flex-row items-center bg-white/[0.06] border border-white/[0.08] rounded-2xl px-4 py-3">
+                            <MaterialIcons name="search" size={20} color="rgba(255,255,255,0.35)" />
                             <TextInput
                                 className="flex-1 text-white text-base ml-3"
                                 placeholder="Search goals, places, categories..."
-                                placeholderTextColor="#4b5563"
+                                placeholderTextColor="rgba(255,255,255,0.25)"
                                 value={searchQuery}
                                 onChangeText={setSearchQuery}
                                 autoFocus
@@ -101,7 +101,7 @@ export default function DashboardDark() {
                             />
                             {searchQuery.length > 0 && (
                                 <TouchableOpacity onPress={() => setSearchQuery('')}>
-                                    <MaterialIcons name="cancel" size={18} color="#6b7280" />
+                                    <MaterialIcons name="cancel" size={18} color="rgba(255,255,255,0.3)" />
                                 </TouchableOpacity>
                             )}
                         </View>
@@ -111,22 +111,22 @@ export default function DashboardDark() {
                 {/* Title Area */}
                 {!showSearch && (
                     <View className="px-6 mt-12 items-center">
-                        <Text className="text-sm font-medium text-gray-400 mb-1 tracking-wide">Hey, {profile.name} 👋</Text>
+                        <Text className="text-sm font-medium text-white/50 mb-1 tracking-wide">Hey, {profile.name} 👋</Text>
                         <Text className="text-3xl font-bold text-white tracking-tight mb-5">Life Bucket List</Text>
                         <View className="flex-row gap-3">
                             <TouchableOpacity
-                                className="bg-blue-600 px-6 py-3 rounded-full flex-row items-center shadow-lg shadow-blue-900/40"
+                                className="bg-white/15 px-6 py-3 rounded-full flex-row items-center border border-white/10"
                                 onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); router.push('/add-goal'); }}
                             >
                                 <MaterialIcons name="add" size={20} color="white" />
                                 <Text className="text-sm font-bold text-white ml-2">Add Adventure</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                className="bg-amber-600/20 border border-amber-500/30 px-4 py-3 rounded-full flex-row items-center"
+                                className="bg-white/[0.06] border border-white/[0.08] px-4 py-3 rounded-full flex-row items-center"
                                 onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/inspiration'); }}
                             >
                                 <MaterialIcons name="lightbulb-outline" size={18} color="#fbbf24" />
-                                <Text className="text-sm font-medium text-amber-400 ml-1.5">Inspire</Text>
+                                <Text className="text-sm font-medium text-amber-300 ml-1.5">Inspire</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -145,7 +145,7 @@ export default function DashboardDark() {
                 <View className="px-6 mt-8">
                     {/* Header row with sort */}
                     <View className="flex-row items-center justify-between mb-3">
-                        <Text className="text-sm font-semibold text-gray-300">
+                        <Text className="text-sm font-semibold text-white/50">
                             {showSearch && searchQuery
                                 ? `Results for "${searchQuery}"`
                                 : 'Upcoming Adventures'}
@@ -153,24 +153,24 @@ export default function DashboardDark() {
                         {!showSearch && (
                             <View className="relative">
                                 <TouchableOpacity
-                                    className="flex-row items-center bg-white/5 border border-white/10 px-3 py-1.5 rounded-full"
+                                    className="flex-row items-center bg-white/[0.06] border border-white/[0.08] px-3 py-1.5 rounded-full"
                                     onPress={() => setShowSortMenu(v => !v)}
                                 >
-                                    <MaterialIcons name="sort" size={14} color="#9ca3af" />
-                                    <Text className="text-gray-400 text-xs ml-1">{SORT_LABELS[sortMode]}</Text>
+                                    <MaterialIcons name="sort" size={14} color="rgba(255,255,255,0.4)" />
+                                    <Text className="text-white/40 text-xs ml-1">{SORT_LABELS[sortMode]}</Text>
                                 </TouchableOpacity>
                                 {showSortMenu && (
-                                    <View className="absolute right-0 top-9 bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden z-50 w-36 shadow-2xl">
+                                    <View className="absolute right-0 top-9 bg-black/80 border border-white/10 rounded-2xl overflow-hidden z-50 w-36 shadow-2xl">
                                         {(Object.keys(SORT_LABELS) as SortMode[]).map(mode => (
                                             <TouchableOpacity
                                                 key={mode}
-                                                className={`px-4 py-3 flex-row items-center ${sortMode === mode ? 'bg-blue-900/40' : ''}`}
+                                                className={`px-4 py-3 flex-row items-center ${sortMode === mode ? 'bg-white/10' : ''}`}
                                                 onPress={() => { Haptics.selectionAsync(); setSortMode(mode); setShowSortMenu(false); }}
                                             >
-                                                <Text className={`text-sm ${sortMode === mode ? 'text-blue-400 font-semibold' : 'text-gray-300'}`}>
+                                                <Text className={`text-sm ${sortMode === mode ? 'text-white font-semibold' : 'text-white/60'}`}>
                                                     {SORT_LABELS[mode]}
                                                 </Text>
-                                                {sortMode === mode && <MaterialIcons name="check" size={14} color="#60a5fa" style={{ marginLeft: 'auto' }} />}
+                                                {sortMode === mode && <MaterialIcons name="check" size={14} color="white" style={{ marginLeft: 'auto' }} />}
                                             </TouchableOpacity>
                                         ))}
                                     </View>

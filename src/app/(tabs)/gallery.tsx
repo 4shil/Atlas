@@ -58,7 +58,7 @@ export default function DarkTravelGallery() {
                 <ProfileHeader
                     rightActions={
                         <TouchableOpacity
-                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-lg"
+                            className="w-10 h-10 rounded-full bg-white/10 border border-white/[0.08] flex items-center justify-center"
                             activeOpacity={0.7}
                             onPress={() => {
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -67,7 +67,7 @@ export default function DarkTravelGallery() {
                             accessibilityRole="button"
                             accessibilityLabel="Notifications"
                         >
-                            <MaterialIcons name="notifications-none" size={24} color="white" />
+                            <MaterialIcons name="notifications-none" size={24} color="rgba(255,255,255,0.8)" />
                         </TouchableOpacity>
                     }
                 />
@@ -154,7 +154,7 @@ export default function DarkTravelGallery() {
             {/* Floating Action Button */}
             <View className="absolute bottom-24 left-0 right-0 z-30 flex-row justify-center" pointerEvents="box-none">
                 <TouchableOpacity
-                    className="bg-black/80 pl-5 pr-6 py-3.5 rounded-full flex-row items-center border border-white/20 shadow-lg shadow-white/10 mb-2"
+                    className="bg-white/10 pl-5 pr-6 py-3.5 rounded-full flex-row items-center border border-white/[0.12] mb-2"
                     activeOpacity={0.7}
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -163,7 +163,7 @@ export default function DarkTravelGallery() {
                     accessibilityRole="button"
                     accessibilityLabel="Add Photo"
                 >
-                    <MaterialIcons name="add" size={20} color="#e5e7eb" />
+                    <MaterialIcons name="add" size={20} color="white" />
                     <Text className="text-xs font-bold tracking-widest uppercase text-white ml-2">New Goal</Text>
                 </TouchableOpacity>
             </View>

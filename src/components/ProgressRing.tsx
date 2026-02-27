@@ -17,10 +17,10 @@ export function ProgressRing({ completed, total }: ProgressRingProps) {
         <View className="items-center justify-center">
             <View style={{ width: 72, height: 72 }}>
                 <Svg width="72" height="72" viewBox="0 0 72 72">
-                    <Circle cx="36" cy="36" r={radius} fill="none" stroke="#1f2937" strokeWidth="5" />
+                    <Circle cx="36" cy="36" r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
                     <Circle
                         cx="36" cy="36" r={radius}
-                        fill="none" stroke="#3b82f6" strokeWidth="5"
+                        fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="5"
                         strokeDasharray={`${strokeDash} ${circumference}`}
                         strokeLinecap="round"
                         transform="rotate(-90 36 36)"
@@ -30,7 +30,7 @@ export function ProgressRing({ completed, total }: ProgressRingProps) {
                     <Text className="text-white font-bold text-sm">{pct}%</Text>
                 </View>
             </View>
-            <Text className="text-gray-500 text-xs mt-1">Complete</Text>
+            <Text className="text-white/40 text-xs mt-1">Complete</Text>
         </View>
     );
 }
