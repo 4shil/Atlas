@@ -5,13 +5,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useProfileStore } from '../store/useProfileStore';
+import { ScreenWrapper } from '../components/ScreenWrapper';
 
 const { width } = Dimensions.get('window');
 
@@ -88,15 +88,13 @@ export default function Onboarding() {
     const slide = SLIDES[currentSlide];
 
     return (
-        <View className="flex-1 bg-[#0f172a]">
-            <StatusBar style="light" />
-
+        <ScreenWrapper bgClass="bg-[#0f172a]" edges={[]}>
             {/* Full-screen background gradient that updates per slide */}
             <LinearGradient
                 colors={slide.gradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0.5, y: 1 }}
-                className="absolute inset-0"
+                className="absolute inset-0 opacity-80"
             />
 
             {/* Decorative orbs */}
@@ -257,6 +255,6 @@ export default function Onboarding() {
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
-        </View>
+        </ScreenWrapper>
     );
 }
