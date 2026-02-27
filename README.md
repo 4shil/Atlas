@@ -1,150 +1,96 @@
-# 🗺️ Atlas
+# Atlas
 
-<div align="center">
+A goal tracking mobile app built with Expo and React Native. Set goals, attach them to real locations on a map, track progress, and archive completed ones.
 
-![Atlas Banner](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGJ6eHVkYm1ybjh1bDJ3aWJyejJucjFvaW50NmV3MG42Z3dwdHpuaCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIPsx2VAYAgEHC12/giphy.gif)
-
-**Set goals. Pin them on the map. Actually follow through.**
-
-[![Made with Expo](https://img.shields.io/badge/Made%20with-Expo-000020?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
-[![React Native](https://img.shields.io/badge/React%20Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactnative.dev)
-[![NativeWind](https://img.shields.io/badge/NativeWind-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://nativewind.dev)
-
-</div>
+![demo](https://media.giphy.com/media/3oKIPsx2VAYAgEHC12/giphy.gif)
 
 ---
 
-## What is Atlas?
+## What it does
 
-Atlas is a personal goal tracker that goes beyond simple to-do lists. You attach your goals to real places on a map — a city you want to visit, a gym you want to join, a coffee shop where you want to write that book. It makes your goals feel *real* because they're tied to the world around you.
-
-Think of it as your life roadmap — visual, location-aware, and actually satisfying to use.
+Atlas lets you set personal goals and pin them to places on a map — a city you want to visit, a gym you want to join, anywhere that makes the goal feel real. Goals live as rich cards with images, timelines, categories, and notes. Completed goals go to an archive, not the trash.
 
 ---
 
-## ✨ Features
+## Stack
 
-- 🗺️ **Map View** — Pin your goals to locations anywhere in the world
-- 🎯 **Goal Cards** — Rich cards with images, timelines, categories, and notes
-- 📸 **Gallery** — See all your goals visually like a mood board
-- 📦 **Archive** — Completed goals preserved, never deleted
-- 🔔 **Notifications** — Gentle reminders so you don't forget what you're chasing
-- 🎨 **Custom Theming** — Design tokens for colors, spacing, motion, and typography
-- 💾 **Offline First** — Everything persisted locally via AsyncStorage
-- 🌊 **Smooth Animations** — Powered by Reanimated + Skia
-
----
-
-## 🛠️ Tech Stack
-
-| Layer | Tech |
-|-------|------|
-| Framework | Expo (SDK 53) + Expo Router |
-| Language | TypeScript |
-| Styling | NativeWind (Tailwind for RN) |
-| State | Zustand + AsyncStorage persistence |
-| Animations | React Native Reanimated + Skia |
-| Maps | React Native Maps |
-| Navigation | Expo Router (file-based) |
+- Expo SDK 53 + Expo Router (file-based navigation)
+- React Native 0.79 + TypeScript
+- NativeWind (Tailwind for React Native)
+- Zustand + AsyncStorage (offline-first state)
+- React Native Reanimated + Skia (animations)
+- React Native Maps (location pinning)
+- Expo Notifications
 
 ---
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- Expo CLI (`npm install -g expo-cli`)
-- iOS Simulator / Android Emulator or the [Expo Go](https://expo.dev/client) app
-
-### Install
+## Getting started
 
 ```bash
 git clone https://github.com/4shil/Atlas.git
 cd Atlas
 npm install
+npm start
 ```
 
-### Run
+Scan the QR with [Expo Go](https://expo.dev/client) or run on a simulator:
 
 ```bash
-# Start the dev server
-npm start
-
-# Run on iOS
 npm run ios
-
-# Run on Android
 npm run android
-
-# Run in browser
-npm run web
 ```
 
 ---
 
-## 📁 Project Structure
+## Project structure
 
 ```
-Atlas/
-├── src/
-│   ├── app/                  # Expo Router screens
-│   │   ├── (tabs)/           # Bottom tab screens (Home, Map, Gallery, Archive)
-│   │   ├── onboarding.tsx    # First-launch onboarding flow
-│   │   ├── add-goal.tsx      # Goal creation screen
-│   │   ├── goal-detail.tsx   # Goal detail & edit view
-│   │   ├── inspiration.tsx   # Inspirational content feed
-│   │   ├── profile.tsx       # User profile screen
-│   │   └── settings.tsx      # App settings
-│   ├── components/           # Reusable UI components
-│   │   ├── GoalCard.tsx      # Main goal display card
-│   │   ├── ProgressRing.tsx  # Animated circular progress
-│   │   ├── SwipeableGoalRow  # Swipe-to-delete/complete row
-│   │   ├── LocationPicker    # Native + web map picker
-│   │   └── MapWrapper        # Platform-aware map wrapper
-│   ├── store/                # Zustand state stores
-│   │   ├── useGoalStore.ts   # All goal CRUD + selectors
-│   │   ├── useProfileStore.ts
-│   │   └── useSettingsStore.ts
-│   ├── theme/                # Design system tokens
-│   │   └── tokens/           # Colors, spacing, typography, motion
-│   └── utils/                # Helpers & utilities
-│       ├── dateUtils.ts
-│       ├── constants.ts
-│       └── notificationUtils # Platform-specific notifications
+src/
+  app/                  # Expo Router screens
+    (tabs)/             # Home, Map, Gallery, Archive tabs
+    onboarding.tsx
+    add-goal.tsx
+    goal-detail.tsx
+    inspiration.tsx
+    profile.tsx
+    settings.tsx
+  components/
+    GoalCard.tsx
+    ProgressRing.tsx
+    SwipeableGoalRow.tsx
+    LocationPicker.*     # Platform-split (native/web)
+    MapWrapper.*         # Platform-split (native/web)
+  store/
+    useGoalStore.ts      # Goal CRUD + selectors
+    useProfileStore.ts
+    useSettingsStore.ts
+  theme/
+    tokens/              # Colors, spacing, typography, motion
+  utils/
+    dateUtils.ts
+    notificationUtils.*  # Platform-split notifications
+    constants.ts
 ```
 
 ---
 
-## 🗺️ App Flow
+## App flow
 
 ```
 Launch
-  └── Has onboarded?
-        ├── Yes → Tabs (Home / Map / Gallery / Archive)
-        └── No  → Onboarding → Tabs
+  Has onboarded?
+    Yes -> (tabs)
+    No  -> Onboarding -> (tabs)
 ```
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-Got ideas? Open an issue or submit a PR — all contributions welcome.
-
-1. Fork the repo
-2. Create your branch (`git checkout -b feature/cool-thing`)
-3. Commit your changes (`git commit -m 'Add cool thing'`)
-4. Push and open a PR
+Fork, branch, PR. Keep commits clean.
 
 ---
 
-## 📜 License
+## License
 
-MIT — use it, build on it, make it yours.
-
----
-
-<div align="center">
-  Made with ☕ and too many late nights by <a href="https://github.com/4shil">4shil</a>
-</div>
+MIT
