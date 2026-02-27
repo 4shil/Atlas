@@ -27,8 +27,6 @@ export default function DarkAdventureMap() {
             {/* Top Map Area 60% */}
             <View className="relative h-[60%] w-full bg-[#050505] z-10 overflow-hidden">
 
-                <MapWrapper goals={goals} />
-
                 <LinearGradient colors={['rgba(0,0,0,0.8)', 'transparent', 'rgba(0,0,0,0.9)']} className="absolute inset-0 pointer-events-none z-10" />
                 <View className="absolute inset-0 bg-blue-900/10 pointer-events-none z-10" />
 
@@ -121,7 +119,7 @@ export default function DarkAdventureMap() {
 
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible pb-4" contentContainerStyle={{ paddingRight: 16 }}>
                             {visibleGoals.length === 0 ? (
-                                <Text className="text-gray-500">No remaining goals.</Text>
+                                <Text className="text-gray-500">No goals to show for this filter.</Text>
                             ) : (
                                 visibleGoals.slice(0, 5).map((goal: Goal) => (
                                     <View key={goal.id} className="w-[260px] h-[170px] relative rounded-3xl overflow-hidden shadow-black/50 shadow-lg mr-4 border border-white/5 bg-gray-900">

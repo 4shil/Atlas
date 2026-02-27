@@ -27,7 +27,7 @@ export interface Goal {
 
 interface GoalState {
     goals: Goal[];
-    addGoal: (goal: Omit<Goal, 'id' | 'createdAt' | 'completed' | 'completedAt'>) => void;
+    addGoal: (goal: Omit<Goal, 'id' | 'createdAt' | 'completed' | 'completedAt'>) => string;
     updateGoal: (id: string, updates: Partial<Goal>) => void;
     deleteGoal: (id: string) => void;
     toggleComplete: (id: string, notes?: string) => void;
@@ -46,18 +46,22 @@ export const useGoalStore = create<GoalState>()(
         (set, get) => ({
             goals: INITIAL_GOALS, // Start with empty defaults
 
-            addGoal: (goalData) => set((state) => ({
-                goals: [
-                    ...state.goals,
-                    {
-                        ...goalData,
-                        id: uuid.v4() as string,
-                        createdAt: new Date().toISOString(),
-                        completed: false,
-                        completedAt: null,
-                    }
-                ]
-            })),
+            addGoal: (goalData) => {
+                const id = uuid.v4() as string;
+                set((state) => ({
+                    goals: [
+                        ...state.goals,
+                        {
+                            ...goalData,
+                            id,
+                            createdAt: new Date().toISOString(),
+                            completed: false,
+                            completedAt: null,
+                        }
+                    ]
+                }));
+                return id;
+            },
 
             updateGoal: (id, updates) => set((state) => ({
                 goals: state.goals.map(goal =>

@@ -69,10 +69,10 @@ export default function AddGoal() {
         if (isEditMode && existingGoal) {
             updateGoal(existingGoal.id, goalData);
         } else {
-            addGoal(goalData);
+            const createdGoalId = addGoal(goalData);
             // Schedule reminders asynchronously — doesn't block navigation
             scheduleGoalReminders({
-                goalId: Date.now().toString(),
+                goalId: createdGoalId,
                 goalTitle: goalData.title,
                 targetDate: date,
             }).catch(() => { });

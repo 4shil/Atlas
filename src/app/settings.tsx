@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Animated, Switch, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Animated, Switch, Alert, Linking } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -88,6 +88,26 @@ export default function SettingsScreen() {
         );
     };
 
+    const handleDeleteAccount = () => {
+        Alert.alert(
+            "Delete Account",
+            "Account deletion is not available in this local-only build. Use Clear App Data to remove data stored on this device.",
+            [{ text: "OK" }]
+        );
+    };
+
+    const handleOpenTerms = () => {
+        Linking.openURL('https://atlas.example.com/terms').catch(() => {
+            Alert.alert('Unable to open link', 'Please try again later.');
+        });
+    };
+
+    const handleOpenPrivacy = () => {
+        Linking.openURL('https://atlas.example.com/privacy').catch(() => {
+            Alert.alert('Unable to open link', 'Please try again later.');
+        });
+    };
+
     return (
         <ScreenWrapper bgClass="bg-black">
             {/* Header */}
@@ -169,7 +189,7 @@ export default function SettingsScreen() {
                     <TouchableOpacity className="py-2 border-b border-white/5 mb-2" onPress={handleClearData}>
                         <Text className="text-blue-400 text-base">Clear App Data</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity className="py-2" onPress={handleClearData}>
+                    <TouchableOpacity className="py-2" onPress={handleDeleteAccount}>
                         <Text className="text-red-400 text-base">Delete Account</Text>
                     </TouchableOpacity>
                 </AccordionItem>
@@ -183,8 +203,12 @@ export default function SettingsScreen() {
                         <Text className="text-gray-400 text-sm mb-4">Version 1.0.0</Text>
 
                         <View className="w-full flex-row justify-between border-t border-white/10 pt-4 mt-2">
-                            <Text className="text-blue-400">Terms of Service</Text>
-                            <Text className="text-blue-400">Privacy Policy</Text>
+                            <TouchableOpacity onPress={handleOpenTerms}>
+                                <Text className="text-blue-400">Terms of Service</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleOpenPrivacy}>
+                                <Text className="text-blue-400">Privacy Policy</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </AccordionItem>

@@ -66,7 +66,10 @@ export default function DarkTravelGallery() {
                         <TouchableOpacity
                             className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-lg"
                             activeOpacity={0.7}
-                            onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                router.push('/settings');
+                            }}
                             accessibilityRole="button"
                             accessibilityLabel="Notifications"
                         >

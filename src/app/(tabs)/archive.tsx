@@ -27,7 +27,10 @@ export default function DarkInspirationArchive() {
                 <View className="px-6 flex-row justify-between items-center mb-6">
                     <TouchableOpacity
                         className="w-10 h-10 rounded-full bg-black/60 border border-white/10 items-center justify-center"
-                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            router.push('/profile');
+                        }}
                     >
                         <MaterialIcons name="menu" size={20} color="white" />
                     </TouchableOpacity>
@@ -37,7 +40,10 @@ export default function DarkInspirationArchive() {
                     </View>
                     <TouchableOpacity
                         className="w-10 h-10 rounded-full bg-black/60 border border-white/10 items-center justify-center"
-                        onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            router.push('/settings');
+                        }}
                     >
                         <MaterialIcons name="settings" size={20} color="white" />
                     </TouchableOpacity>

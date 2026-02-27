@@ -2,19 +2,56 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 import type { Goal } from '../store/useGoalStore';
 import { useRouter } from 'expo-router';
 
 interface MapWrapperProps {
     goals: Goal[];
+    recenterTrigger?: number;
 }
 
-export default function MapWrapper({ goals }: MapWrapperProps) {
+export default function MapWrapper({ goals, recenterTrigger = 0 }: MapWrapperProps) {
     const router = useRouter();
+    const mapRef = React.useRef<MapView | null>(null);
     const goalsWithCoords = goals.filter(g => g.location.latitude !== 0 || g.location.longitude !== 0);
+
+    React.useEffect(() => {
+        if (recenterTrigger === 0) return;
+
+        const recenter = async () => {
+            try {
+                const { status } = await Location.requestForegroundPermissionsAsync();
+
+                if (status === 'granted') {
+                    const position = await Location.getCurrentPositionAsync({});
+                    mapRef.current?.animateToRegion({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        latitudeDelta: 8,
+                        longitudeDelta: 8,
+                    }, 500);
+                    return;
+                }
+            } catch {
+            }
+
+            if (goalsWithCoords.length > 0) {
+                mapRef.current?.animateToRegion({
+                    latitude: goalsWithCoords[0].location.latitude,
+                    longitude: goalsWithCoords[0].location.longitude,
+                    latitudeDelta: 20,
+                    longitudeDelta: 20,
+                }, 500);
+            }
+        };
+
+        recenter();
+    }, [recenterTrigger, goalsWithCoords]);
 
     return (
         <MapView
+            ref={mapRef}
             style={StyleSheet.absoluteFillObject}
             initialRegion={{
                 latitude: goalsWithCoords.length > 0 ? goalsWithCoords[0].location.latitude : 20,
