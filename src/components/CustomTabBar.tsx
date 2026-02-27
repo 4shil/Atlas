@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, TouchableOpacity, Platform, StyleSheet, Dimensions } from 'react-native';
+import { View, TouchableOpacity, Platform, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -26,28 +26,24 @@ const TAB_LABELS: Record<string, string> = {
     archive: 'Archive',
 };
 
-const ICON_SIZE = 24;
-const SPRING_CONFIG = { damping: 18, stiffness: 200, mass: 0.8 };
+const ICON_SIZE = 22;
+const SPRING_CONFIG = { damping: 16, stiffness: 160, mass: 0.7 };
 
 export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const insets = useSafeAreaInsets();
-    const bottomPad = Math.max(insets.bottom, 12);
+    const bottomPad = Math.max(insets.bottom, 14);
 
     return (
-        <View
-            style={[styles.wrapper, { bottom: bottomPad }]}
-            pointerEvents="box-none"
-        >
+        <View style={[styles.wrapper, { bottom: bottomPad }]} pointerEvents="box-none">
             <View style={styles.container}>
-                {/* Glassmorphic blur layer */}
-                <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill}>
-                    <View style={styles.blurOverlay} />
+                {/* Apple-style frosted glass */}
+                <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill}>
+                    <View style={styles.blurTint} />
                 </BlurView>
 
-                {/* Subtle top border glow */}
-                <View style={styles.topBorder} />
+                {/* Inner highlight along top edge */}
+                <View style={styles.innerHighlight} />
 
-                {/* Tab items */}
                 <View style={styles.tabRow}>
                     {state.routes.map((route, index) => {
                         const isFocused = state.index === index;
@@ -72,10 +68,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                                     }
                                 }}
                                 onLongPress={() => {
-                                    navigation.emit({
-                                        type: 'tabLongPress',
-                                        target: route.key,
-                                    });
+                                    navigation.emit({ type: 'tabLongPress', target: route.key });
                                 }}
                             />
                         );
@@ -105,35 +98,20 @@ function TabItem({ iconName, label, isFocused, onPress, onLongPress }: TabItemPr
         backgroundColor: interpolateColor(
             progress.value,
             [0, 1],
-            ['transparent', 'rgba(99, 102, 241, 0.15)']
+            ['transparent', 'rgba(255, 255, 255, 0.1)']
         ),
-        borderColor: interpolateColor(
-            progress.value,
-            [0, 1],
-            ['transparent', 'rgba(99, 102, 241, 0.3)']
-        ),
-        transform: [{ scale: withSpring(isFocused ? 1 : 0.92, SPRING_CONFIG) }],
     }));
 
     const iconStyle = useAnimatedStyle(() => ({
-        opacity: withSpring(isFocused ? 1 : 0.45, SPRING_CONFIG),
-        transform: [
-            { translateY: withSpring(isFocused ? -1 : 0, SPRING_CONFIG) },
-        ],
+        opacity: withSpring(isFocused ? 1 : 0.4, SPRING_CONFIG),
+        transform: [{ translateY: withSpring(isFocused ? -2 : 0, SPRING_CONFIG) }],
     }));
 
     const labelStyle = useAnimatedStyle(() => ({
         opacity: withSpring(isFocused ? 1 : 0, SPRING_CONFIG),
         transform: [
-            { translateY: withSpring(isFocused ? 0 : 4, SPRING_CONFIG) },
-            { scale: withSpring(isFocused ? 1 : 0.8, SPRING_CONFIG) },
-        ],
-    }));
-
-    const dotStyle = useAnimatedStyle(() => ({
-        opacity: withSpring(isFocused ? 1 : 0, { damping: 14, stiffness: 180 }),
-        transform: [
-            { scaleX: withSpring(isFocused ? 1 : 0, SPRING_CONFIG) },
+            { translateY: withSpring(isFocused ? 0 : 6, SPRING_CONFIG) },
+            { scale: withSpring(isFocused ? 1 : 0.7, SPRING_CONFIG) },
         ],
     }));
 
@@ -152,20 +130,13 @@ function TabItem({ iconName, label, isFocused, onPress, onLongPress }: TabItemPr
                     <MaterialIcons
                         name={iconName}
                         size={ICON_SIZE}
-                        color={isFocused ? '#a5b4fc' : '#6b7280'}
+                        color={isFocused ? '#ffffff' : '#666'}
                     />
                 </Animated.View>
-
-                <Animated.Text
-                    style={[styles.label, labelStyle]}
-                    numberOfLines={1}
-                >
+                <Animated.Text style={[styles.label, labelStyle]} numberOfLines={1}>
                     {label}
                 </Animated.Text>
             </Animated.View>
-
-            {/* Active indicator dot */}
-            <Animated.View style={[styles.dot, dotStyle]} />
         </TouchableOpacity>
     );
 }
@@ -179,41 +150,37 @@ const styles = StyleSheet.create({
         zIndex: 100,
     },
     container: {
-        flexDirection: 'row',
-        borderRadius: 28,
+        borderRadius: 26,
         overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
-        // Shadow
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: 'rgba(255,255,255,0.12)',
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
-                shadowOffset: { width: 0, height: 8 },
-                shadowOpacity: 0.45,
-                shadowRadius: 16,
+                shadowOffset: { width: 0, height: 10 },
+                shadowOpacity: 0.5,
+                shadowRadius: 24,
             },
-            android: {
-                elevation: 12,
-            },
+            android: { elevation: 16 },
         }),
     },
-    blurOverlay: {
+    blurTint: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(10, 10, 20, 0.72)',
+        backgroundColor: 'rgba(15, 15, 20, 0.55)',
     },
-    topBorder: {
+    innerHighlight: {
         position: 'absolute',
         top: 0,
-        left: 20,
-        right: 20,
-        height: 0.5,
-        backgroundColor: 'rgba(165, 180, 252, 0.15)',
+        left: 16,
+        right: 16,
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: 'rgba(255, 255, 255, 0.18)',
     },
     tabRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 6,
-        paddingVertical: 6,
+        paddingHorizontal: 4,
+        paddingVertical: 4,
     },
     tabItem: {
         alignItems: 'center',
@@ -223,23 +190,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: 16,
+        paddingHorizontal: 18,
         paddingVertical: 10,
         borderRadius: 22,
-        borderWidth: 1,
-        gap: 6,
+        gap: 7,
     },
     label: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#a5b4fc',
-        letterSpacing: 0.3,
-    },
-    dot: {
-        width: 4,
-        height: 4,
-        borderRadius: 2,
-        backgroundColor: '#818cf8',
-        marginTop: 4,
+        color: '#fff',
+        letterSpacing: 0.2,
     },
 });
