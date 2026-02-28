@@ -295,7 +295,13 @@ export function NextDreamHero({ goal, totalGoals, completedCount, onPress, onAdd
 }
 
 // Shown when no goals exist yet
-export function HeroEmpty({ onAddGoal }: { onAddGoal: () => void }) {
+export function HeroEmpty({
+    onAddGoal,
+    hasCompleted = false,
+}: {
+    onAddGoal: () => void;
+    hasCompleted?: boolean;
+}) {
     const fadeIn = useRef(new Animated.Value(0)).current;
     const slideUp = useRef(new Animated.Value(30)).current;
 
@@ -356,7 +362,9 @@ export function HeroEmpty({ onAddGoal }: { onAddGoal: () => void }) {
                         marginBottom: 24,
                     }}
                 >
-                    Add your first bucket list goal and start building the life you imagined.
+                    {hasCompleted
+                        ? 'All dreams complete! Time to add the next chapter of your life.'
+                        : 'Add your first bucket list goal and start building the life you imagined.'}
                 </Text>
                 <TouchableOpacity
                     style={{
@@ -372,7 +380,7 @@ export function HeroEmpty({ onAddGoal }: { onAddGoal: () => void }) {
                     activeOpacity={0.85}
                 >
                     <Text style={{ color: 'white', fontWeight: '700', fontSize: 15 }}>
-                        Add Your First Dream
+                        {hasCompleted ? 'Add Next Dream' : 'Add Your First Dream'}
                     </Text>
                 </TouchableOpacity>
             </View>

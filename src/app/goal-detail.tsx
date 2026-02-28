@@ -14,6 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import { useGoalStore } from '../store/useGoalStore';
 import Animated, {
     useSharedValue,
@@ -34,6 +35,9 @@ export default function GoalDetail() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const { goals, toggleComplete, deleteGoal } = useGoalStore();
     const [showCelebration, setShowCelebration] = useState(false);
+    const [completionPhoto, setCompletionPhoto] = useState<string | null>(
+        goal?.completionPhoto ?? null
+    );
     const celebScale = useSharedValue(0);
     const celebOpacity = useSharedValue(0);
 
@@ -78,20 +82,48 @@ export default function GoalDetail() {
     const handleToggleComplete = () => {
         const wasCompleted = goal.completed;
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        toggleComplete(goal.id);
-        // Celebration only when completing (not uncompleting)
         if (!wasCompleted) {
-            setShowCelebration(true);
-            celebScale.value = withSequence(
-                withSpring(1.2, { damping: 8 }),
-                withDelay(400, withTiming(0, { duration: 300 }))
-            );
-            celebOpacity.value = withSequence(
-                withTiming(1, { duration: 200 }),
-                withDelay(1200, withTiming(0, { duration: 300 }))
-            );
-            setTimeout(() => setShowCelebration(false), 1800);
+            // Prompt to add a memory photo when completing
+            Alert.alert('🎉 Mark as Complete!', 'Add a photo memory of this achievement?', [
+                {
+                    text: 'Add Photo',
+                    onPress: async () => {
+                        const result = await ImagePicker.launchImageLibraryAsync({
+                            mediaTypes: ['images'],
+                            allowsEditing: true,
+                            aspect: [4, 3],
+                            quality: 0.7,
+                        });
+                        const photo = result.canceled ? null : result.assets[0].uri;
+                        if (photo) setCompletionPhoto(photo);
+                        toggleComplete(goal.id, photo ? `completionPhoto:${photo}` : undefined);
+                        triggerCelebration();
+                    },
+                },
+                {
+                    text: 'Skip',
+                    onPress: () => {
+                        toggleComplete(goal.id);
+                        triggerCelebration();
+                    },
+                },
+            ]);
+        } else {
+            toggleComplete(goal.id);
         }
+    };
+
+    const triggerCelebration = () => {
+        setShowCelebration(true);
+        celebScale.value = withSequence(
+            withSpring(1.2, { damping: 8 }),
+            withDelay(400, withTiming(0, { duration: 300 }))
+        );
+        celebOpacity.value = withSequence(
+            withTiming(1, { duration: 200 }),
+            withDelay(1200, withTiming(0, { duration: 300 }))
+        );
+        setTimeout(() => setShowCelebration(false), 1800);
     };
 
     const handleShare = async () => {

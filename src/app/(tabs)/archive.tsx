@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -185,6 +186,11 @@ export default function DarkInspirationArchive() {
                                               ? 'star'
                                               : 'hiking';
 
+                                const completionPhoto = goal.notes?.startsWith('completionPhoto:')
+                                    ? goal.notes.replace('completionPhoto:', '')
+                                    : null;
+                                const displayImage = completionPhoto || goal.image;
+
                                 return (
                                     <TouchableOpacity
                                         key={goal.id}
@@ -199,10 +205,36 @@ export default function DarkInspirationArchive() {
                                         }}
                                     >
                                         <Image
-                                            source={{ uri: goal.image }}
-                                            className="absolute inset-0 w-full h-full opacity-40"
-                                            resizeMode="cover"
+                                            source={displayImage}
+                                            style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                                opacity: completionPhoto ? 0.65 : 0.4,
+                                            }}
+                                            contentFit="cover"
                                         />
+                                        {completionPhoto && (
+                                            <View
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: 12,
+                                                    right: 12,
+                                                    backgroundColor: 'rgba(74,222,128,0.9)',
+                                                    borderRadius: 8,
+                                                    padding: 4,
+                                                    zIndex: 30,
+                                                }}
+                                            >
+                                                <MaterialIcons
+                                                    name="photo-camera"
+                                                    size={12}
+                                                    color="#000"
+                                                />
+                                            </View>
+                                        )}
                                         <LinearGradient
                                             colors={gradient as [string, string]}
                                             start={{ x: 1, y: 0 }}

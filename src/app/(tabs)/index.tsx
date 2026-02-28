@@ -1,13 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
     View,
     Text,
-    Image,
     ScrollView,
     TouchableOpacity,
     TextInput,
     RefreshControl,
+    Animated,
+    Dimensions,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
@@ -134,6 +136,154 @@ export default function DashboardDark() {
                     }
                 />
 
+                {/* Animated Travel Gallery Strip — all goals with images */}
+                {!showSearch && goals.length > 0 && (
+                    <View className="mt-4 mb-2">
+                        <View className="flex-row items-center justify-between px-6 mb-3">
+                            <Text className="text-xs font-semibold text-white/40 uppercase tracking-widest">
+                                Your Adventures
+                            </Text>
+                            <TouchableOpacity onPress={() => router.push('/(tabs)/gallery')}>
+                                <Text className="text-xs text-blue-400 font-semibold">See all</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ paddingHorizontal: 24, gap: 10 }}
+                        >
+                            {goals
+                                .filter(g => g.image)
+                                .map((goal, i) => (
+                                    <TouchableOpacity
+                                        key={goal.id}
+                                        activeOpacity={0.85}
+                                        onPress={() => {
+                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                            router.push({
+                                                pathname: '/goal-detail',
+                                                params: { id: goal.id },
+                                            });
+                                        }}
+                                        style={{
+                                            width: 100,
+                                            height: 130,
+                                            borderRadius: 18,
+                                            overflow: 'hidden',
+                                            borderWidth: 1,
+                                            borderColor: goal.completed
+                                                ? 'rgba(74,222,128,0.3)'
+                                                : 'rgba(255,255,255,0.08)',
+                                        }}
+                                    >
+                                        <Image
+                                            source={goal.image}
+                                            style={{ width: '100%', height: '100%' }}
+                                            contentFit="cover"
+                                            transition={300}
+                                        />
+                                        {/* Gradient overlay */}
+                                        <View
+                                            style={{
+                                                position: 'absolute',
+                                                bottom: 0,
+                                                left: 0,
+                                                right: 0,
+                                                height: 60,
+                                                background:
+                                                    'linear-gradient(transparent, rgba(0,0,0,0.8))',
+                                            }}
+                                        />
+                                        <View
+                                            style={{
+                                                position: 'absolute',
+                                                bottom: 0,
+                                                left: 0,
+                                                right: 0,
+                                                padding: 8,
+                                            }}
+                                        >
+                                            {goal.completed && (
+                                                <View
+                                                    style={{
+                                                        backgroundColor: 'rgba(74,222,128,0.9)',
+                                                        borderRadius: 99,
+                                                        paddingHorizontal: 6,
+                                                        paddingVertical: 2,
+                                                        alignSelf: 'flex-start',
+                                                        marginBottom: 3,
+                                                    }}
+                                                >
+                                                    <Text
+                                                        style={{
+                                                            color: '#000',
+                                                            fontSize: 8,
+                                                            fontWeight: '700',
+                                                        }}
+                                                    >
+                                                        ✓ DONE
+                                                    </Text>
+                                                </View>
+                                            )}
+                                            <Text
+                                                style={{
+                                                    color: 'white',
+                                                    fontSize: 10,
+                                                    fontWeight: '600',
+                                                }}
+                                                numberOfLines={2}
+                                            >
+                                                {goal.title}
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                ))}
+                            {/* Add new goal tile */}
+                            <TouchableOpacity
+                                activeOpacity={0.85}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                    router.push('/add-goal');
+                                }}
+                                style={{
+                                    width: 100,
+                                    height: 130,
+                                    borderRadius: 18,
+                                    borderWidth: 1.5,
+                                    borderColor: 'rgba(96,165,250,0.3)',
+                                    borderStyle: 'dashed',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: 'rgba(96,165,250,0.04)',
+                                }}
+                            >
+                                <View
+                                    style={{
+                                        width: 36,
+                                        height: 36,
+                                        borderRadius: 18,
+                                        backgroundColor: 'rgba(96,165,250,0.15)',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <MaterialIcons name="add" size={22} color="#60a5fa" />
+                                </View>
+                                <Text
+                                    style={{
+                                        color: 'rgba(96,165,250,0.7)',
+                                        fontSize: 10,
+                                        marginTop: 6,
+                                        fontWeight: '600',
+                                    }}
+                                >
+                                    Add Dream
+                                </Text>
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </View>
+                )}
+
                 {/* Search Bar */}
                 {showSearch && (
                     <View className="px-6 mt-4">
@@ -177,7 +327,10 @@ export default function DashboardDark() {
                             onAddGoal={() => router.push('/add-goal')}
                         />
                     ) : (
-                        <HeroEmpty onAddGoal={() => router.push('/add-goal')} />
+                        <HeroEmpty
+                            onAddGoal={() => router.push('/add-goal')}
+                            hasCompleted={completedGoals.length > 0}
+                        />
                     ))}
 
                 {/* Goal List */}
