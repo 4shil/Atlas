@@ -276,6 +276,25 @@ export default function GoalDetail() {
                     </View>
                 ) : null}
 
+                {/* Motivational context — design thinking: make user feel why this goal matters */}
+                {!goal.completed && (
+                    <View className="mx-6 mt-4 bg-blue-950/30 border border-blue-500/20 rounded-2xl p-4">
+                        <View className="flex-row items-center mb-2">
+                            <MaterialIcons name="lightbulb" size={16} color="#93c5fd" />
+                            <Text className="text-blue-300 text-xs uppercase tracking-widest ml-2 font-semibold">
+                                Keep Going
+                            </Text>
+                        </View>
+                        <Text className="text-white/60 text-sm leading-6">
+                            {daysLeft > 0
+                                ? `You have ${daysLeft} day${daysLeft !== 1 ? 's' : ''} to make "${goal.title}" happen. Every step forward counts.`
+                                : daysLeft === 0
+                                  ? `Today is the day you planned to achieve "${goal.title}". Make it happen.`
+                                  : `"${goal.title}" is past its target date — but it's not too late. The best time to start is now.`}
+                        </Text>
+                    </View>
+                )}
+
                 {/* Notes */}
                 {goal.notes ? (
                     <View className="mx-6 mt-2 dark:bg-white/[0.05] bg-black/[0.04] border dark:border-white/[0.08] border-black/[0.08] rounded-2xl p-4">

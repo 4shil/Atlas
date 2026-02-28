@@ -13,12 +13,10 @@ import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 import { useRouter } from 'expo-router';
 import { useProfileStore } from '../../store/useProfileStore';
-import SwipeableGoalRow from '../../components/SwipeableGoalRow';
-import { ProgressRing } from '../../components/ProgressRing';
 import { ProfileHeader } from '../../components/ProfileHeader';
-import { DashboardOverview } from '../../components/DashboardOverview';
-import { getCategoryIcon } from '../../utils/Icons';
-import { getDaysUntil } from '../../utils/dateUtils';
+import { NextDreamHero, HeroEmpty } from '../../components/NextDreamHero';
+import { GoalRow } from '../../components/GoalRow';
+import { EmptyState } from '../../components/EmptyState';
 import { ScreenWrapper } from '../../components/ScreenWrapper';
 
 type SortMode = 'date' | 'category' | 'name';
@@ -30,7 +28,8 @@ const SORT_LABELS: Record<SortMode, string> = {
 };
 
 export default function DashboardDark() {
-    const { getCompletedGoals, getPendingGoals, goals, toggleComplete } = useGoalStore();
+    const { getCompletedGoals, getPendingGoals, goals, toggleComplete, syncFromCloud } =
+        useGoalStore();
     const { profile } = useProfileStore();
     const router = useRouter();
     const [refreshing, setRefreshing] = React.useState(false);
@@ -147,52 +146,36 @@ export default function DashboardDark() {
                     </View>
                 )}
 
-                {/* Title Area */}
-                {!showSearch && (
-                    <View className="px-6 mt-12 items-center">
-                        <Text className="text-sm font-medium text-white/50 mb-1 tracking-wide">
-                            Hey, {profile.name} 👋
-                        </Text>
-                        <Text className="text-3xl font-bold text-white tracking-tight mb-5">
-                            Life Bucket List
-                        </Text>
-                        <View className="flex-row gap-3">
-                            <TouchableOpacity
-                                className="bg-white/15 px-6 py-3 rounded-full flex-row items-center border dark:border-white/10 border-black/10"
-                                onPress={() => {
-                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                                    router.push('/add-goal');
-                                }}
-                            >
-                                <MaterialIcons name="add" size={20} color="white" />
-                                <Text className="text-sm font-bold text-white ml-2">
-                                    Add Adventure
-                                </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                className="bg-white/[0.06] border dark:border-white/[0.08] border-black/[0.08] px-4 py-3 rounded-full flex-row items-center"
-                                onPress={() => {
-                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                    router.push('/inspiration');
-                                }}
-                            >
-                                <MaterialIcons name="lightbulb-outline" size={18} color="#fbbf24" />
-                                <Text className="text-sm font-medium text-amber-300 ml-1.5">
-                                    Inspire
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                )}
-
-                {/* Overview Cards + Progress Ring */}
-                {!showSearch && (
-                    <DashboardOverview
-                        completedGoals={completedGoals}
-                        allPending={allPending}
-                        totalGoals={goals.length}
-                    />
-                )}
+                {/* Next Dream Hero */}
+                {!showSearch &&
+                    (allPending.length > 0 ? (
+                        <NextDreamHero
+                            goal={
+                                allPending.sort(
+                                    (a, b) =>
+                                        new Date(a.timelineDate).getTime() -
+                                        new Date(b.timelineDate).getTime()
+                                )[0]
+                            }
+                            totalGoals={goals.length}
+                            completedCount={completedGoals.length}
+                            onPress={() =>
+                                router.push({
+                                    pathname: '/goal-detail',
+                                    params: {
+                                        id: allPending.sort(
+                                            (a, b) =>
+                                                new Date(a.timelineDate).getTime() -
+                                                new Date(b.timelineDate).getTime()
+                                        )[0].id,
+                                    },
+                                })
+                            }
+                            onAddGoal={() => router.push('/add-goal')}
+                        />
+                    ) : (
+                        <HeroEmpty onAddGoal={() => router.push('/add-goal')} />
+                    ))}
 
                 {/* Goal List */}
                 <View className="px-6 mt-8">
@@ -265,32 +248,21 @@ export default function DashboardDark() {
                             </Text>
                         </View>
                     ) : (
-                        filteredGoals.map((goal: Goal) => {
-                            const days = getDaysUntil(goal.timelineDate);
-                            const isUrgent = days <= 30 && days > 0;
-                            const isOverdue = days < 0;
-                            const catIcon = getCategoryIcon(goal.category);
-                            return (
-                                <SwipeableGoalRow
-                                    key={goal.id}
-                                    goal={goal}
-                                    categoryIcon={catIcon}
-                                    isOverdue={isOverdue}
-                                    isUrgent={isUrgent}
-                                    days={days}
-                                    onPress={() => {
-                                        Haptics.selectionAsync();
-                                        router.push({
-                                            pathname: '/goal-detail',
-                                            params: { id: goal.id },
-                                        });
-                                    }}
-                                    onComplete={() =>
-                                        toggleComplete(goal.id, 'Completed via Dashboard')
-                                    }
-                                />
-                            );
-                        })
+                        filteredGoals.map((goal: Goal) => (
+                            <GoalRow
+                                key={goal.id}
+                                goal={goal}
+                                onPress={() =>
+                                    router.push({
+                                        pathname: '/goal-detail',
+                                        params: { id: goal.id },
+                                    })
+                                }
+                                onComplete={() =>
+                                    toggleComplete(goal.id, 'Completed via Dashboard')
+                                }
+                            />
+                        ))
                     )}
                 </View>
             </ScrollView>
