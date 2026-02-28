@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useProfileStore } from '../store/useProfileStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useGoalStore } from '../store/useGoalStore';
+import { LoadingScreen } from '../components/LoadingScreen';
 
 export default function Index() {
     const hasOnboarded = useProfileStore(state => state.profile.hasOnboarded);
@@ -22,7 +23,7 @@ export default function Index() {
         }
     }, [session]);
 
-    if (!initialized) return null;
+    if (!initialized) return <LoadingScreen />;
     if (!session) return <Redirect href="/auth" />;
     if (!hasOnboarded) return <Redirect href="/onboarding" />;
     return <Redirect href="/(tabs)" />;

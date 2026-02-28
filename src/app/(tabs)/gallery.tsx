@@ -4,15 +4,21 @@ import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 import { useRouter } from 'expo-router';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withSpring,
+    runOnJS,
+} from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ProfileHeader } from '../../components/ProfileHeader';
 import { ScreenWrapper } from '../../components/ScreenWrapper';
 import { SectionHeader } from '../../components/SectionHeader';
 import { GoalCard } from '../../components/GoalCard';
+import { GoalListSkeleton } from '../../components/Skeleton';
 
 export default function DarkTravelGallery() {
-    const { goals, toggleComplete } = useGoalStore();
+    const { goals, toggleComplete, syncing } = useGoalStore();
     const router = useRouter();
     const [activeIndex, setActiveIndex] = React.useState(0);
 
@@ -35,10 +41,15 @@ export default function DarkTravelGallery() {
     const handleNext = goNext;
 
     const swipeGesture = Gesture.Pan()
-        .onUpdate(e => { translateX.value = e.translationX; })
+        .onUpdate(e => {
+            translateX.value = e.translationX;
+        })
         .onEnd(e => {
-            if (e.translationX < -60) { runOnJS(goNext)(); }
-            else if (e.translationX > 60) { runOnJS(goPrev)(); }
+            if (e.translationX < -60) {
+                runOnJS(goNext)();
+            } else if (e.translationX > 60) {
+                runOnJS(goPrev)();
+            }
             translateX.value = withSpring(0, { damping: 20 });
         });
 
@@ -67,15 +78,16 @@ export default function DarkTravelGallery() {
                             accessibilityRole="button"
                             accessibilityLabel="Notifications"
                         >
-                            <MaterialIcons name="notifications-none" size={24} color="rgba(255,255,255,0.8)" />
+                            <MaterialIcons
+                                name="notifications-none"
+                                size={24}
+                                color="rgba(255,255,255,0.8)"
+                            />
                         </TouchableOpacity>
                     }
                 />
 
-                <SectionHeader
-                    overline="Private Collection"
-                    title="Travel Gallery"
-                />
+                <SectionHeader overline="Private Collection" title="Travel Gallery" />
 
                 {/* Gallery Stack */}
                 <View className="flex-1 items-center justify-center relative w-full mb-12">
@@ -86,11 +98,16 @@ export default function DarkTravelGallery() {
                             <>
                                 {/* Left Card -> Index 1 */}
                                 {goals.length > 1 && (
-                                    <View className="absolute left-[5%] w-[65%] h-[380px] z-10" style={{ transform: [{ rotate: '-6deg' }], opacity: 0.9 }}>
+                                    <View
+                                        className="absolute left-[5%] w-[65%] h-[380px] z-10"
+                                        style={{ transform: [{ rotate: '-6deg' }], opacity: 0.9 }}
+                                    >
                                         <GoalCard
                                             goal={goals[(activeIndex + 1) % goals.length]}
-                                            onPress={() => setActiveIndex((activeIndex + 1) % goals.length)}
-                                            onToggleComplete={() => { }}
+                                            onPress={() =>
+                                                setActiveIndex((activeIndex + 1) % goals.length)
+                                            }
+                                            onToggleComplete={() => {}}
                                             isInteractive={false}
                                         />
                                     </View>
@@ -98,11 +115,16 @@ export default function DarkTravelGallery() {
 
                                 {/* Right Card -> Index 2 */}
                                 {goals.length > 2 && (
-                                    <View className="absolute right-[5%] w-[65%] h-[380px] z-10" style={{ transform: [{ rotate: '6deg' }], opacity: 0.9 }}>
+                                    <View
+                                        className="absolute right-[5%] w-[65%] h-[380px] z-10"
+                                        style={{ transform: [{ rotate: '6deg' }], opacity: 0.9 }}
+                                    >
                                         <GoalCard
                                             goal={goals[(activeIndex + 2) % goals.length]}
-                                            onPress={() => setActiveIndex((activeIndex + 2) % goals.length)}
-                                            onToggleComplete={() => { }}
+                                            onPress={() =>
+                                                setActiveIndex((activeIndex + 2) % goals.length)
+                                            }
+                                            onToggleComplete={() => {}}
                                             isInteractive={false}
                                         />
                                     </View>
@@ -116,9 +138,17 @@ export default function DarkTravelGallery() {
                                                 goal={goals[activeIndex]}
                                                 onPress={() => {
                                                     Haptics.selectionAsync();
-                                                    router.push({ pathname: '/goal-detail', params: { id: goals[activeIndex].id } });
+                                                    router.push({
+                                                        pathname: '/goal-detail',
+                                                        params: { id: goals[activeIndex].id },
+                                                    });
                                                 }}
-                                                onToggleComplete={() => handleToggleComplete(goals[activeIndex].id, goals[activeIndex].completed)}
+                                                onToggleComplete={() =>
+                                                    handleToggleComplete(
+                                                        goals[activeIndex].id,
+                                                        goals[activeIndex].completed
+                                                    )
+                                                }
                                                 onNext={handleNext}
                                                 animatedStyle={cardAnimStyle}
                                                 isInteractive={true}
@@ -140,7 +170,10 @@ export default function DarkTravelGallery() {
                                             width: i === activeIndex ? 20 : 6,
                                             height: 6,
                                             borderRadius: 3,
-                                            backgroundColor: i === activeIndex ? '#3b82f6' : 'rgba(255,255,255,0.2)',
+                                            backgroundColor:
+                                                i === activeIndex
+                                                    ? '#3b82f6'
+                                                    : 'rgba(255,255,255,0.2)',
                                         }}
                                     />
                                 </TouchableOpacity>
@@ -148,11 +181,13 @@ export default function DarkTravelGallery() {
                         </View>
                     )}
                 </View>
-
             </View>
 
             {/* Floating Action Button */}
-            <View className="absolute bottom-24 left-0 right-0 z-30 flex-row justify-center" pointerEvents="box-none">
+            <View
+                className="absolute bottom-24 left-0 right-0 z-30 flex-row justify-center"
+                pointerEvents="box-none"
+            >
                 <TouchableOpacity
                     className="bg-white/10 pl-5 pr-6 py-3.5 rounded-full flex-row items-center border border-white/[0.12] mb-2"
                     activeOpacity={0.7}
@@ -164,10 +199,11 @@ export default function DarkTravelGallery() {
                     accessibilityLabel="Add Photo"
                 >
                     <MaterialIcons name="add" size={20} color="white" />
-                    <Text className="text-xs font-bold tracking-widest uppercase text-white ml-2">New Goal</Text>
+                    <Text className="text-xs font-bold tracking-widest uppercase text-white ml-2">
+                        New Goal
+                    </Text>
                 </TouchableOpacity>
             </View>
-
         </ScreenWrapper>
     );
 }
