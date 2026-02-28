@@ -24,7 +24,7 @@ function AccordionItem({ title, icon, children, defaultExpanded = false }: Accor
     };
 
     return (
-        <View className="bg-white/[0.05] border border-white/[0.08] rounded-2xl mb-4 overflow-hidden">
+        <View className="dark:bg-white/[0.05] bg-black/[0.04] border dark:border-white/[0.08] border-black/[0.08] rounded-2xl mb-4 overflow-hidden">
             <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={toggle}
@@ -32,7 +32,9 @@ function AccordionItem({ title, icon, children, defaultExpanded = false }: Accor
             >
                 <View className="flex-row items-center">
                     <MaterialIcons name={icon} size={22} color="rgba(255,255,255,0.7)" />
-                    <Text className="text-white text-base font-semibold ml-3">{title}</Text>
+                    <Text className="dark:text-white text-gray-900 text-base font-semibold ml-3">
+                        {title}
+                    </Text>
                 </View>
                 <MaterialIcons
                     name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
@@ -128,11 +130,11 @@ export default function SettingsScreen() {
     };
 
     return (
-        <ScreenWrapper bgClass="bg-black">
+        <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50">
             {/* Header */}
             <View className="px-6 py-4 flex-row items-center border-b border-white/[0.06] mt-12 mb-4">
                 <TouchableOpacity
-                    className="w-10 h-10 rounded-full bg-white/10 border border-white/[0.08] items-center justify-center mr-4"
+                    className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 border dark:border-white/[0.08] border-black/[0.08] items-center justify-center mr-4"
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         router.back();
@@ -150,7 +152,9 @@ export default function SettingsScreen() {
             >
                 <AccordionItem title="Preferences" icon="tune" defaultExpanded={true}>
                     <View className="flex-row items-center justify-between mb-4 mt-2">
-                        <Text className="text-white/70 text-base">Dark Mode</Text>
+                        <Text className="dark:text-white/70 text-gray-700 text-base">
+                            Dark Mode
+                        </Text>
                         <Switch
                             value={darkMode}
                             onValueChange={setDarkMode}
@@ -162,14 +166,16 @@ export default function SettingsScreen() {
                         />
                     </View>
                     <View className="flex-row items-center justify-between">
-                        <Text className="text-white/70 text-base">Unit System</Text>
-                        <View className="flex-row bg-white/[0.06] rounded-lg p-1 border border-white/[0.08]">
+                        <Text className="dark:text-white/70 text-gray-700 text-base">
+                            Unit System
+                        </Text>
+                        <View className="flex-row bg-white/[0.06] rounded-lg p-1 border dark:border-white/[0.08] border-black/[0.08]">
                             <TouchableOpacity
                                 className={`px-3 py-1 rounded-md ${unitSystem === 'metric' ? 'bg-white/15' : ''}`}
                                 onPress={() => setUnitSystem('metric')}
                             >
                                 <Text
-                                    className={`text-xs font-bold ${unitSystem === 'metric' ? 'text-white' : 'text-white/40'}`}
+                                    className={`text-xs font-bold ${unitSystem === 'metric' ? 'text-white' : 'dark:text-white/40 text-gray-400'}`}
                                 >
                                     Metric
                                 </Text>
@@ -179,7 +185,7 @@ export default function SettingsScreen() {
                                 onPress={() => setUnitSystem('imperial')}
                             >
                                 <Text
-                                    className={`text-xs font-bold ${unitSystem === 'imperial' ? 'text-white' : 'text-white/40'}`}
+                                    className={`text-xs font-bold ${unitSystem === 'imperial' ? 'text-white' : 'dark:text-white/40 text-gray-400'}`}
                                 >
                                     Imperial
                                 </Text>
@@ -190,7 +196,9 @@ export default function SettingsScreen() {
 
                 <AccordionItem title="Notifications" icon="notifications-none">
                     <View className="flex-row items-center justify-between mb-4 mt-2">
-                        <Text className="text-white/70 text-base">Push Notifications</Text>
+                        <Text className="dark:text-white/70 text-gray-700 text-base">
+                            Push Notifications
+                        </Text>
                         <Switch
                             value={pushNotifications}
                             onValueChange={setPushNotifications}
@@ -202,7 +210,9 @@ export default function SettingsScreen() {
                         />
                     </View>
                     <View className="flex-row items-center justify-between">
-                        <Text className="text-white/70 text-base">Daily Reminders</Text>
+                        <Text className="dark:text-white/70 text-gray-700 text-base">
+                            Daily Reminders
+                        </Text>
                         <Switch
                             value={dailyReminders}
                             onValueChange={setDailyReminders}
@@ -217,7 +227,9 @@ export default function SettingsScreen() {
 
                 <AccordionItem title="Privacy & Security" icon="security">
                     <View className="flex-row items-center justify-between mb-4 mt-2">
-                        <Text className="text-white/70 text-base">Location Services</Text>
+                        <Text className="dark:text-white/70 text-gray-700 text-base">
+                            Location Services
+                        </Text>
                         <Switch
                             value={locationServices}
                             onValueChange={setLocationServices}
@@ -247,11 +259,15 @@ export default function SettingsScreen() {
 
                 <AccordionItem title="About Atlas" icon="info-outline">
                     <View className="items-center py-4">
-                        <View className="w-16 h-16 bg-white/15 rounded-2xl items-center justify-center mb-3 border border-white/10">
+                        <View className="w-16 h-16 bg-white/15 rounded-2xl items-center justify-center mb-3 border dark:border-white/10 border-black/10">
                             <MaterialIcons name="explore" size={32} color="white" />
                         </View>
-                        <Text className="text-white font-bold text-lg">Atlas Planner</Text>
-                        <Text className="text-white/40 text-sm mb-4">Version 1.0.0</Text>
+                        <Text className="text-white dark:text-white font-bold text-lg">
+                            Atlas Planner
+                        </Text>
+                        <Text className="dark:text-white/40 text-gray-400 text-sm mb-4">
+                            Version 1.0.0
+                        </Text>
 
                         <View className="w-full flex-row justify-between border-t border-white/[0.06] pt-4 mt-2">
                             <TouchableOpacity onPress={handleOpenTerms}>

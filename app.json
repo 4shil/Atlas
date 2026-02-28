@@ -1,32 +1,86 @@
 {
-  "expo": {
-    "name": "Atlas",
-    "slug": "atlas",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "scheme": "atlas",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "splash": {
-      "backgroundColor": "#000000"
-    },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.atlas.app"
-    },
-    "android": {
-      "package": "com.atlas.app"
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static"
-    },
-    "plugins": [
-      "expo-router",
-      "@react-native-community/datetimepicker"
-    ],
-    "experiments": {
-      "typedRoutes": true
+    "expo": {
+        "name": "Atlas",
+        "slug": "atlas",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "scheme": "atlas",
+        "userInterfaceStyle": "automatic",
+        "newArchEnabled": true,
+        "icon": "./assets/icon.png",
+        "splash": {
+            "image": "./assets/splash-icon.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#050508"
+        },
+        "ios": {
+            "supportsTablet": false,
+            "bundleIdentifier": "com.atlas.bucketlist",
+            "buildNumber": "1",
+            "infoPlist": {
+                "NSLocationWhenInUseUsageDescription": "Atlas uses your location to show you nearby goals on the map and display local weather.",
+                "NSLocationAlwaysAndWhenInUseUsageDescription": "Atlas uses your location to show you nearby goals on the map and display local weather.",
+                "NSCameraUsageDescription": "Atlas needs camera access to capture photos for your goals.",
+                "NSPhotoLibraryUsageDescription": "Atlas needs photo library access to add images to your goals.",
+                "NSPhotoLibraryAddUsageDescription": "Atlas needs permission to save photos to your library.",
+                "UIBackgroundModes": ["remote-notification"]
+            }
+        },
+        "android": {
+            "package": "com.atlas.bucketlist",
+            "versionCode": 1,
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "backgroundColor": "#050508"
+            },
+            "permissions": [
+                "ACCESS_FINE_LOCATION",
+                "ACCESS_COARSE_LOCATION",
+                "CAMERA",
+                "READ_EXTERNAL_STORAGE",
+                "WRITE_EXTERNAL_STORAGE",
+                "RECEIVE_BOOT_COMPLETED",
+                "VIBRATE",
+                "POST_NOTIFICATIONS"
+            ]
+        },
+        "web": {
+            "bundler": "metro",
+            "output": "static",
+            "favicon": "./assets/favicon.png"
+        },
+        "plugins": [
+            "expo-router",
+            "@react-native-community/datetimepicker",
+            [
+                "expo-location",
+                {
+                    "locationAlwaysAndWhenInUsePermission": "Atlas uses your location to show nearby goals and local weather."
+                }
+            ],
+            [
+                "expo-notifications",
+                {
+                    "icon": "./assets/icon.png",
+                    "color": "#050508",
+                    "sounds": []
+                }
+            ],
+            [
+                "expo-image-picker",
+                {
+                    "photosPermission": "Atlas needs access to your photos to add images to your goals.",
+                    "cameraPermission": "Atlas needs camera access to capture photos for your goals."
+                }
+            ]
+        ],
+        "experiments": {
+            "typedRoutes": true
+        },
+        "extra": {
+            "eas": {
+                "projectId": "atlas-bucketlist"
+            }
+        }
     }
-  }
 }

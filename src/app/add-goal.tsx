@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform, Alert, ActivityIndicator } from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    ScrollView,
+    Platform,
+    Alert,
+    ActivityIndicator,
+} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 import * as Haptics from 'expo-haptics';
@@ -32,7 +41,9 @@ export default function AddGoal() {
     const [isLocationPickerVisible, setIsLocationPickerVisible] = useState(false);
     const [image, setImage] = useState<string | null>(existingGoal?.image ?? null);
     const [date, setDate] = useState<Date>(
-        existingGoal ? new Date(existingGoal.timelineDate) : new Date(new Date().setMonth(new Date().getMonth() + 1))
+        existingGoal
+            ? new Date(existingGoal.timelineDate)
+            : new Date(new Date().setMonth(new Date().getMonth() + 1))
     );
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -83,11 +94,15 @@ export default function AddGoal() {
         today.setHours(0, 0, 0, 0);
         if (date < today) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-            Alert.alert('Invalid Date', 'Target date cannot be in the past. Please pick a future date.');
+            Alert.alert(
+                'Invalid Date',
+                'Target date cannot be in the past. Please pick a future date.'
+            );
             return;
         }
 
-        const placeholderImage = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80';
+        const placeholderImage =
+            'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80';
         const goalData = {
             title: title.trim(),
             description: description.trim(),
@@ -95,12 +110,15 @@ export default function AddGoal() {
             image: image || placeholderImage,
             timelineDate: date.toISOString(),
             notes: notes.trim(),
-            location: locationData.latitude !== 0 ? locationData : {
-                latitude: 0,
-                longitude: 0,
-                city: '',
-                country: '',
-            },
+            location:
+                locationData.latitude !== 0
+                    ? locationData
+                    : {
+                          latitude: 0,
+                          longitude: 0,
+                          city: '',
+                          country: '',
+                      },
         };
 
         if (isEditMode && existingGoal) {
@@ -126,7 +144,7 @@ export default function AddGoal() {
                 goalId: createdGoalId,
                 goalTitle: goalData.title,
                 targetDate: date,
-            }).catch(() => { });
+            }).catch(() => {});
         }
 
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -135,12 +153,15 @@ export default function AddGoal() {
     };
 
     return (
-        <ScreenWrapper bgClass="bg-black">
+        <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50">
             {/* Header */}
-            <View className="px-6 py-4 flex-row justify-between items-center border-b border-white/10">
+            <View className="px-6 py-4 flex-row justify-between items-center border-b dark:border-white/10 border-black/10">
                 <TouchableOpacity
-                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 items-center justify-center"
-                    onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
+                    className="w-10 h-10 rounded-full bg-white/5 border dark:border-white/10 border-black/10 items-center justify-center"
+                    onPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        router.back();
+                    }}
                 >
                     <MaterialIcons name="close" size={20} color="white" />
                 </TouchableOpacity>
@@ -152,10 +173,15 @@ export default function AddGoal() {
                     onPress={handleSave}
                     disabled={!title.trim() || saving}
                 >
-                    {saving
-                        ? <ActivityIndicator size="small" color="white" />
-                        : <Text className={`font-semibold ${title.trim() ? 'text-white' : 'text-gray-500'}`}>{isEditMode ? 'Update' : 'Save'}</Text>
-                    }
+                    {saving ? (
+                        <ActivityIndicator size="small" color="white" />
+                    ) : (
+                        <Text
+                            className={`font-semibold ${title.trim() ? 'text-white' : 'text-gray-500'}`}
+                        >
+                            {isEditMode ? 'Update' : 'Save'}
+                        </Text>
+                    )}
                 </TouchableOpacity>
             </View>
 
@@ -167,9 +193,11 @@ export default function AddGoal() {
             >
                 {/* Title */}
                 <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">Title *</Text>
+                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                        Title *
+                    </Text>
                     <TextInput
-                        className="text-white text-3xl font-bold border-b border-white/20 pb-2"
+                        className="dark:text-white text-gray-900 text-3xl font-bold border-b border-white/20 pb-2"
                         placeholder="e.g. Ski in Niseko"
                         placeholderTextColor="#4b5563"
                         value={title}
@@ -180,15 +208,28 @@ export default function AddGoal() {
 
                 {/* Category */}
                 <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-3">Category</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible">
-                        {CATEGORIES.filter(c => c !== 'All').map((cat) => (
+                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-3">
+                        Category
+                    </Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        className="overflow-visible"
+                    >
+                        {CATEGORIES.filter(c => c !== 'All').map(cat => (
                             <TouchableOpacity
                                 key={cat}
-                                className={`px-5 py-2.5 rounded-full mr-3 border ${category === cat ? 'bg-blue-600 border-blue-500' : 'bg-white/5 border-white/10'}`}
-                                onPress={() => { Haptics.selectionAsync(); setCategory(cat); }}
+                                className={`px-5 py-2.5 rounded-full mr-3 border ${category === cat ? 'bg-blue-600 border-blue-500' : 'bg-white/5 dark:border-white/10 border-black/10'}`}
+                                onPress={() => {
+                                    Haptics.selectionAsync();
+                                    setCategory(cat);
+                                }}
                             >
-                                <Text className={`text-xs font-medium ${category === cat ? 'text-white' : 'text-gray-300'}`}>{cat}</Text>
+                                <Text
+                                    className={`text-xs font-medium ${category === cat ? 'text-white' : 'text-gray-300'}`}
+                                >
+                                    {cat}
+                                </Text>
                             </TouchableOpacity>
                         ))}
                     </ScrollView>
@@ -196,9 +237,11 @@ export default function AddGoal() {
 
                 {/* Description */}
                 <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">Description</Text>
+                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                        Description
+                    </Text>
                     <TextInput
-                        className="text-white text-base bg-white/5 rounded-2xl p-4 border border-white/10"
+                        className="dark:text-white text-gray-900 text-base bg-white/5 rounded-2xl p-4 border dark:border-white/10 border-black/10"
                         placeholder="What do you want to experience?"
                         placeholderTextColor="#4b5563"
                         value={description}
@@ -211,9 +254,11 @@ export default function AddGoal() {
 
                 {/* Notes */}
                 <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">Notes</Text>
+                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                        Notes
+                    </Text>
                     <TextInput
-                        className="text-white text-base bg-white/5 rounded-2xl p-4 border border-white/10"
+                        className="dark:text-white text-gray-900 text-base bg-white/5 rounded-2xl p-4 border dark:border-white/10 border-black/10"
                         placeholder="Tips, packing list, memories..."
                         placeholderTextColor="#4b5563"
                         value={notes}
@@ -226,17 +271,34 @@ export default function AddGoal() {
 
                 {/* Location */}
                 <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">Location</Text>
+                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                        Location
+                    </Text>
                     <TouchableOpacity
-                        className="flex-row items-center bg-white/5 rounded-2xl border border-white/10 px-4 py-4"
+                        className="flex-row items-center bg-white/5 rounded-2xl border dark:border-white/10 border-black/10 px-4 py-4"
                         onPress={() => setIsLocationPickerVisible(true)}
                     >
                         <MaterialIcons name="place" size={20} color="#60a5fa" />
-                        <Text className={`flex-1 text-base ml-2 ${locationData.city ? 'text-white' : 'text-gray-500'}`}>
-                            {locationData.city ? `${locationData.city}, ${locationData.country}` : Platform.OS === 'web' ? 'Enter location' : 'Pick on map'}
+                        <Text
+                            className={`flex-1 text-base ml-2 ${locationData.city ? 'text-white' : 'text-gray-500'}`}
+                        >
+                            {locationData.city
+                                ? `${locationData.city}, ${locationData.country}`
+                                : Platform.OS === 'web'
+                                  ? 'Enter location'
+                                  : 'Pick on map'}
                         </Text>
                         {locationData.city ? (
-                            <TouchableOpacity onPress={() => setLocationData({ latitude: 0, longitude: 0, city: '', country: '' })}>
+                            <TouchableOpacity
+                                onPress={() =>
+                                    setLocationData({
+                                        latitude: 0,
+                                        longitude: 0,
+                                        city: '',
+                                        country: '',
+                                    })
+                                }
+                            >
                                 <MaterialIcons name="close" size={18} color="#6b7280" />
                             </TouchableOpacity>
                         ) : (
@@ -247,13 +309,15 @@ export default function AddGoal() {
 
                 {/* Target Date */}
                 <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">Target Date</Text>
+                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                        Target Date
+                    </Text>
                     <TouchableOpacity
-                        className="flex-row items-center bg-white/5 rounded-2xl border border-white/10 px-4 py-4"
+                        className="flex-row items-center bg-white/5 rounded-2xl border dark:border-white/10 border-black/10 px-4 py-4"
                         onPress={() => setShowDatePicker(true)}
                     >
                         <MaterialIcons name="event" size={20} color="#60a5fa" />
-                        <Text className="flex-1 text-white text-base ml-2">
+                        <Text className="flex-1 dark:text-white text-gray-900 text-base ml-2">
                             {date.toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
                         </Text>
                         <MaterialIcons name="chevron-right" size={20} color="#6b7280" />
@@ -274,23 +338,33 @@ export default function AddGoal() {
 
                 {/* Cover Image */}
                 <View className="mb-4">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">Cover Image</Text>
+                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                        Cover Image
+                    </Text>
                     <TouchableOpacity
-                        className="bg-white/5 rounded-2xl border border-white/10 h-48 justify-center items-center overflow-hidden"
+                        className="bg-white/5 rounded-2xl border dark:border-white/10 border-black/10 h-48 justify-center items-center overflow-hidden"
                         onPress={pickImage}
                     >
                         {image ? (
                             <>
-                                <Image source={image} className="w-full h-full" contentFit="cover" />
+                                <Image
+                                    source={image}
+                                    className="w-full h-full"
+                                    contentFit="cover"
+                                />
                                 <View className="absolute bottom-3 right-3 bg-black/60 rounded-full px-3 py-1 flex-row items-center">
                                     <MaterialIcons name="edit" size={14} color="white" />
-                                    <Text className="text-white text-xs ml-1">Change</Text>
+                                    <Text className="dark:text-white text-gray-900 text-xs ml-1">
+                                        Change
+                                    </Text>
                                 </View>
                             </>
                         ) : (
                             <View className="items-center">
                                 <MaterialIcons name="add-a-photo" size={32} color="#9ca3af" />
-                                <Text className="text-gray-400 mt-2 text-sm font-medium">Select a photo</Text>
+                                <Text className="text-gray-400 mt-2 text-sm font-medium">
+                                    Select a photo
+                                </Text>
                             </View>
                         )}
                     </TouchableOpacity>
@@ -300,7 +374,7 @@ export default function AddGoal() {
             <LocationPicker
                 visible={isLocationPickerVisible}
                 onClose={() => setIsLocationPickerVisible(false)}
-                onSelect={(loc) => setLocationData({ ...loc })}
+                onSelect={loc => setLocationData({ ...loc })}
                 initialLocation={locationData.latitude !== 0 ? locationData : undefined}
             />
         </ScreenWrapper>

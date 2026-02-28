@@ -75,7 +75,7 @@ export default function DashboardDark() {
     }, [sortedPending, searchQuery]);
 
     return (
-        <ScreenWrapper bgClass="bg-black">
+        <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50">
             <ScrollView
                 refreshControl={
                     <RefreshControl
@@ -94,7 +94,7 @@ export default function DashboardDark() {
                     rightActions={
                         <>
                             <TouchableOpacity
-                                className="w-10 h-10 rounded-full bg-white/10 border border-white/[0.08] items-center justify-center"
+                                className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 border dark:border-white/[0.08] border-black/[0.08] items-center justify-center"
                                 onPress={() => {
                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                     router.push('/inspiration');
@@ -103,7 +103,7 @@ export default function DashboardDark() {
                                 <MaterialIcons name="lightbulb-outline" size={22} color="#fbbf24" />
                             </TouchableOpacity>
                             <TouchableOpacity
-                                className="w-10 h-10 rounded-full bg-white/10 border border-white/[0.08] items-center justify-center"
+                                className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 border dark:border-white/[0.08] border-black/[0.08] items-center justify-center"
                                 onPress={() => {
                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                     setShowSearch(v => !v);
@@ -123,10 +123,10 @@ export default function DashboardDark() {
                 {/* Search Bar */}
                 {showSearch && (
                     <View className="px-6 mt-4">
-                        <View className="flex-row items-center bg-white/[0.06] border border-white/[0.08] rounded-2xl px-4 py-3">
+                        <View className="flex-row items-center bg-white/[0.06] border dark:border-white/[0.08] border-black/[0.08] rounded-2xl px-4 py-3">
                             <MaterialIcons name="search" size={20} color="rgba(255,255,255,0.35)" />
                             <TextInput
-                                className="flex-1 text-white text-base ml-3"
+                                className="flex-1 dark:text-white text-gray-900 text-base ml-3"
                                 placeholder="Search goals, places, categories..."
                                 placeholderTextColor="rgba(255,255,255,0.25)"
                                 value={searchQuery}
@@ -158,7 +158,7 @@ export default function DashboardDark() {
                         </Text>
                         <View className="flex-row gap-3">
                             <TouchableOpacity
-                                className="bg-white/15 px-6 py-3 rounded-full flex-row items-center border border-white/10"
+                                className="bg-white/15 px-6 py-3 rounded-full flex-row items-center border dark:border-white/10 border-black/10"
                                 onPress={() => {
                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                                     router.push('/add-goal');
@@ -170,7 +170,7 @@ export default function DashboardDark() {
                                 </Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                className="bg-white/[0.06] border border-white/[0.08] px-4 py-3 rounded-full flex-row items-center"
+                                className="bg-white/[0.06] border dark:border-white/[0.08] border-black/[0.08] px-4 py-3 rounded-full flex-row items-center"
                                 onPress={() => {
                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                     router.push('/inspiration');
@@ -206,7 +206,7 @@ export default function DashboardDark() {
                         {!showSearch && (
                             <View className="relative">
                                 <TouchableOpacity
-                                    className="flex-row items-center bg-white/[0.06] border border-white/[0.08] px-3 py-1.5 rounded-full"
+                                    className="flex-row items-center bg-white/[0.06] border dark:border-white/[0.08] border-black/[0.08] px-3 py-1.5 rounded-full"
                                     onPress={() => setShowSortMenu(v => !v)}
                                 >
                                     <MaterialIcons
@@ -214,16 +214,16 @@ export default function DashboardDark() {
                                         size={14}
                                         color="rgba(255,255,255,0.4)"
                                     />
-                                    <Text className="text-white/40 text-xs ml-1">
+                                    <Text className="dark:text-white/40 text-gray-400 text-xs ml-1">
                                         {SORT_LABELS[sortMode]}
                                     </Text>
                                 </TouchableOpacity>
                                 {showSortMenu && (
-                                    <View className="absolute right-0 top-9 bg-black/80 border border-white/10 rounded-2xl overflow-hidden z-50 w-36 shadow-2xl">
+                                    <View className="absolute right-0 top-9 bg-black/80 border dark:border-white/10 border-black/10 rounded-2xl overflow-hidden z-50 w-36 shadow-2xl">
                                         {(Object.keys(SORT_LABELS) as SortMode[]).map(mode => (
                                             <TouchableOpacity
                                                 key={mode}
-                                                className={`px-4 py-3 flex-row items-center ${sortMode === mode ? 'bg-white/10' : ''}`}
+                                                className={`px-4 py-3 flex-row items-center ${sortMode === mode ? 'dark:bg-white/10 bg-black/10' : ''}`}
                                                 onPress={() => {
                                                     Haptics.selectionAsync();
                                                     setSortMode(mode);
@@ -231,7 +231,7 @@ export default function DashboardDark() {
                                                 }}
                                             >
                                                 <Text
-                                                    className={`text-sm ${sortMode === mode ? 'text-white font-semibold' : 'text-white/60'}`}
+                                                    className={`text-sm ${sortMode === mode ? 'text-white font-semibold' : 'dark:text-white/60 text-gray-600'}`}
                                                 >
                                                     {SORT_LABELS[mode]}
                                                 </Text>

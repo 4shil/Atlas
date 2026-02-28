@@ -12,22 +12,22 @@ Atlas lets users create, organise, and track bucket list goals — each anchored
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Expo 53 (SDK 53), React Native 0.79 |
-| Navigation | Expo Router v5 (file-based) |
-| Styling | NativeWind v4 (Tailwind CSS for RN) |
-| State | Zustand + AsyncStorage persist |
-| Backend | Supabase (Auth, PostgreSQL, Storage) |
-| Maps | react-native-maps |
-| Graphics | @shopify/react-native-skia |
-| Animations | react-native-reanimated v3 |
-| Notifications | expo-notifications |
-| Location | expo-location |
-| Language | TypeScript (strict mode) |
-| Tests | Jest + jest-expo + @testing-library/react-native |
-| CI | GitHub Actions |
-| Builds | EAS Build |
+| Layer         | Technology                                       |
+| ------------- | ------------------------------------------------ |
+| Framework     | Expo 53 (SDK 53), React Native 0.79              |
+| Navigation    | Expo Router v5 (file-based)                      |
+| Styling       | NativeWind v4 (Tailwind CSS for RN)              |
+| State         | Zustand + AsyncStorage persist                   |
+| Backend       | Supabase (Auth, PostgreSQL, Storage)             |
+| Maps          | react-native-maps                                |
+| Graphics      | @shopify/react-native-skia                       |
+| Animations    | react-native-reanimated v3                       |
+| Notifications | expo-notifications                               |
+| Location      | expo-location                                    |
+| Language      | TypeScript (strict mode)                         |
+| Tests         | Jest + jest-expo + @testing-library/react-native |
+| CI            | GitHub Actions                                   |
+| Builds        | EAS Build                                        |
 
 ---
 
@@ -125,6 +125,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 > Schema is applied to the production Supabase project. Skip this step if already done.
 
 This creates:
+
 - `profiles` table (auto-populated on signup via trigger)
 - `goals` table with full location fields
 - Row Level Security policies (users only see their own data)
@@ -142,23 +143,29 @@ Press `i` for iOS simulator, `a` for Android emulator, or scan the QR code with 
 
 ## Features
 
-| Feature | Status |
-|---|---|
-| Email auth (sign up / sign in / forgot password) | Done |
-| Onboarding flow | Done |
-| Create goal with title, date, category, location, image | Done |
-| Interactive world map with goal pins | Done |
-| Gallery view with filter | Done |
-| Archive (completed goals) | Done |
-| Push notification reminders (7d + 1d before) | Done |
-| Live weather at current location | Done |
-| Dark / light mode | Done |
-| Goal detail + edit | Done |
-| Notifications screen (overdue / upcoming / scheduled) | Done |
-| Cloud sync via Supabase | Done |
-| Image upload to Supabase Storage | Done |
-| Offline-first sync | Done (AsyncStorage fallback) |
-| Social / share goals | Planned |
+| Feature                                                 | Status                       |
+| ------------------------------------------------------- | ---------------------------- |
+| Email auth (sign up / sign in / forgot password)        | Done                         |
+| Onboarding flow                                         | Done                         |
+| Create goal with title, date, category, location, image | Done                         |
+| Interactive world map with goal pins                    | Done                         |
+| Gallery view with filter                                | Done                         |
+| Archive (completed goals)                               | Done                         |
+| Push notification reminders (7d + 1d before)            | Done                         |
+| Live weather at current location                        | Done                         |
+| Dark / light mode                                       | Done                         |
+| Goal detail + edit                                      | Done                         |
+| Notifications screen (overdue / upcoming / scheduled)   | Done                         |
+| Cloud sync via Supabase                                 | Done                         |
+| Image upload to Supabase Storage                        | Done                         |
+| Offline-first sync                                      | Done (AsyncStorage fallback) |
+| Social / share goals                                    | Planned                      |
+| Light / dark mode (semantic)                            | Done                         |
+| Unit system (metric / imperial)                         | Done                         |
+| Empty states                                            | Done                         |
+| Pull-to-refresh                                         | Done                         |
+| Skeleton loading states                                 | Done                         |
+| Toast feedback                                          | Done                         |
 
 ---
 
@@ -208,32 +215,32 @@ All tables have RLS enabled. Every query is automatically scoped to the authenti
 
 ### profiles
 
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | FK to auth.users |
-| name | text | |
-| bio | text | |
-| avatar_url | text | Supabase Storage URL |
-| has_onboarded | boolean | |
-| created_at | timestamptz | |
-| updated_at | timestamptz | auto-updated via trigger |
+| Column        | Type        | Notes                    |
+| ------------- | ----------- | ------------------------ |
+| id            | uuid        | FK to auth.users         |
+| name          | text        |                          |
+| bio           | text        |                          |
+| avatar_url    | text        | Supabase Storage URL     |
+| has_onboarded | boolean     |                          |
+| created_at    | timestamptz |                          |
+| updated_at    | timestamptz | auto-updated via trigger |
 
 ### goals
 
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK |
-| user_id | uuid | FK to auth.users |
-| title | text | |
-| description | text | |
-| image_url | text | Supabase Storage URL |
-| category | text | Travel, Adventure, etc. |
-| timeline_date | timestamptz | target date |
-| completed | boolean | |
-| completed_at | timestamptz | set when toggled complete |
-| notes | text | |
-| location_* | various | lat, lng, city, country, place_id |
-| created_at / updated_at | timestamptz | |
+| Column                  | Type        | Notes                             |
+| ----------------------- | ----------- | --------------------------------- |
+| id                      | uuid        | PK                                |
+| user_id                 | uuid        | FK to auth.users                  |
+| title                   | text        |                                   |
+| description             | text        |                                   |
+| image_url               | text        | Supabase Storage URL              |
+| category                | text        | Travel, Adventure, etc.           |
+| timeline_date           | timestamptz | target date                       |
+| completed               | boolean     |                                   |
+| completed_at            | timestamptz | set when toggled complete         |
+| notes                   | text        |                                   |
+| location\_\*            | various     | lat, lng, city, country, place_id |
+| created_at / updated_at | timestamptz |                                   |
 
 ---
 
@@ -246,6 +253,7 @@ npm run test:coverage    # coverage report
 ```
 
 Tests live in `__tests__/`. Current coverage:
+
 - `useGoalStore` — full CRUD, toggle, selectors
 - `dateUtils` — getDaysUntil boundary cases
 

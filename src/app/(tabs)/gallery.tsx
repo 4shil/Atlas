@@ -16,6 +16,7 @@ import { ScreenWrapper } from '../../components/ScreenWrapper';
 import { SectionHeader } from '../../components/SectionHeader';
 import { GoalCard } from '../../components/GoalCard';
 import { GoalListSkeleton } from '../../components/Skeleton';
+import { EmptyState } from '../../components/EmptyState';
 
 export default function DarkTravelGallery() {
     const { goals, toggleComplete, syncing } = useGoalStore();
@@ -63,13 +64,13 @@ export default function DarkTravelGallery() {
     };
 
     return (
-        <ScreenWrapper bgClass="bg-black">
+        <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50">
             <View className="flex-1 z-10">
                 {/* Header */}
                 <ProfileHeader
                     rightActions={
                         <TouchableOpacity
-                            className="w-10 h-10 rounded-full bg-white/10 border border-white/[0.08] flex items-center justify-center"
+                            className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 border dark:border-white/[0.08] border-black/[0.08] flex items-center justify-center"
                             activeOpacity={0.7}
                             onPress={() => {
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -93,7 +94,13 @@ export default function DarkTravelGallery() {
                 <View className="flex-1 items-center justify-center relative w-full mb-12">
                     <View className="w-full h-[480px] relative items-center justify-center pt-8">
                         {goals.length === 0 ? (
-                            <Text className="text-gray-500">No memories to display yet.</Text>
+                            <EmptyState
+                                icon="add-circle-outline"
+                                title="No goals yet"
+                                subtitle="Add your first bucket list goal and start your adventure"
+                                actionLabel="Add Goal"
+                                onAction={() => router.push('/add-goal')}
+                            />
                         ) : (
                             <>
                                 {/* Left Card -> Index 1 */}
@@ -189,7 +196,7 @@ export default function DarkTravelGallery() {
                 pointerEvents="box-none"
             >
                 <TouchableOpacity
-                    className="bg-white/10 pl-5 pr-6 py-3.5 rounded-full flex-row items-center border border-white/[0.12] mb-2"
+                    className="dark:bg-white/10 bg-black/10 pl-5 pr-6 py-3.5 rounded-full flex-row items-center border border-white/[0.12] mb-2"
                     activeOpacity={0.7}
                     onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
