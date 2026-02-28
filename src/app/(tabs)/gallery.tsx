@@ -156,7 +156,7 @@ export default function DarkTravelGallery() {
                                                         goals[activeIndex].completed
                                                     )
                                                 }
-                                                onNext={handleNext}
+                                                onNext={goNext}
                                                 animatedStyle={cardAnimStyle}
                                                 isInteractive={true}
                                             />
