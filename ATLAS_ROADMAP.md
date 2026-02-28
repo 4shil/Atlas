@@ -240,9 +240,9 @@ Reasons: PostgreSQL, built-in auth, storage for images, real-time, generous free
 | 2 | PostHog analytics | ⬜ Todo (needs account) |
 | 3 | Supabase project setup | ✅ Done (client + types + .env.example) |
 | 3 | Auth screens | ✅ Done (sign in / sign up / forgot password) |
-| 3 | Goals → Supabase | ⬜ Todo |
-| 3 | Image → Supabase Storage | ⬜ Todo |
-| 3 | Offline sync | ⬜ Todo |
+| 3 | Goals → Supabase | ✅ Done |
+| 3 | Image → Supabase Storage | ✅ Done |
+| 3 | Offline sync | ✅ Done (AsyncStorage) |
 | 4 | Notifications screen | ⬜ Todo |
 | 4 | Light theme | ⬜ Todo |
 | 4 | Unit system UI | ⬜ Todo |
