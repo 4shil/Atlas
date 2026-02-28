@@ -37,40 +37,39 @@ export const useProfileStore = create<ProfileState>()(
             profile: INITIAL_PROFILE,
             syncing: false,
 
-            updateProfile: async (updates) => {
-                set(state => ({
-                    profile: { ...state.profile, ...updates },
-                }));
+            updateProfile: async updates => {
+                // 1. Local — instant
+                set(state => ({ profile: { ...state.profile, ...updates } }));
 
-                const session = await getSession();
-                if (!session) return;
-
-                const { error } = await supabase
-                    .from('profiles')
-                    .update({
-                        name: get().profile.name,
-                        bio: get().profile.bio,
-                        avatar_url: get().profile.avatarUri,
-                    })
-                    .eq('id', session.user.id);
-
-                if (error) console.error('[ProfileStore] update error:', error.message);
+                // 2. Cloud — background
+                getSession().then(session => {
+                    if (!session) return;
+                    const p = get().profile;
+                    supabase
+                        .from('profiles')
+                        .update({ name: p.name, bio: p.bio, avatar_url: p.avatarUri })
+                        .eq('id', session.user.id)
+                        .then(({ error }) => {
+                            if (error) console.error('[ProfileStore] update:', error.message);
+                        });
+                });
             },
 
             setHasOnboarded: async () => {
-                set(state => ({
-                    profile: { ...state.profile, hasOnboarded: true },
-                }));
+                // 1. Local — instant
+                set(state => ({ profile: { ...state.profile, hasOnboarded: true } }));
 
-                const session = await getSession();
-                if (!session) return;
-
-                const { error } = await supabase
-                    .from('profiles')
-                    .update({ has_onboarded: true })
-                    .eq('id', session.user.id);
-
-                if (error) console.error('[ProfileStore] setHasOnboarded error:', error.message);
+                // 2. Cloud — background
+                getSession().then(session => {
+                    if (!session) return;
+                    supabase
+                        .from('profiles')
+                        .update({ has_onboarded: true })
+                        .eq('id', session.user.id)
+                        .then(({ error }) => {
+                            if (error) console.error('[ProfileStore] onboard:', error.message);
+                        });
+                });
             },
 
             syncFromCloud: async () => {

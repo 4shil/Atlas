@@ -155,6 +155,7 @@ export const useGoalStore = create<GoalState>()(
             },
 
             toggleComplete: async (id, notes) => {
+                // 1. Local — instant
                 set(state => ({
                     goals: state.goals.map(g => {
                         if (g.id !== id) return g;
@@ -168,11 +169,12 @@ export const useGoalStore = create<GoalState>()(
                     }),
                 }));
 
-                const session = await getSession();
-                if (session) {
+                // 2. Cloud — background
+                getSession().then(session => {
+                    if (!session) return;
                     const updated = get().goals.find(g => g.id === id);
                     if (!updated) return;
-                    const { error } = await supabase
+                    supabase
                         .from('goals')
                         .update({
                             completed: updated.completed,
@@ -180,9 +182,11 @@ export const useGoalStore = create<GoalState>()(
                             notes: updated.notes,
                         })
                         .eq('id', id)
-                        .eq('user_id', session.user.id);
-                    if (error) console.error('[GoalStore] toggleComplete error:', error.message);
-                }
+                        .eq('user_id', session.user.id)
+                        .then(({ error }) => {
+                            if (error) console.error('[GoalStore] toggle:', error.message);
+                        });
+                });
             },
 
             // Sync: push local-only goals up, pull cloud goals down, merge
