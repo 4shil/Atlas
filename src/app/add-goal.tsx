@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform, Alert, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { supabase } from '../lib/supabase';
 import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -34,6 +35,7 @@ export default function AddGoal() {
         existingGoal ? new Date(existingGoal.timelineDate) : new Date(new Date().setMonth(new Date().getMonth() + 1))
     );
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [saving, setSaving] = useState(false);
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -44,7 +46,33 @@ export default function AddGoal() {
         });
         if (!result.canceled) setImage(result.assets[0].uri);
     };
-    const handleSave = () => {
+    const uploadImage = async (localUri: string, goalId: string): Promise<string> => {
+        try {
+            const session = await supabase.auth.getSession();
+            if (!session.data.session) return localUri;
+            const ext = localUri.split('.').pop()?.toLowerCase() ?? 'jpg';
+            const mime = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+            const path = `${session.data.session.user.id}/${goalId}.${ext}`;
+            const res = await fetch(localUri);
+            const blob = await res.blob();
+            const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as ArrayBuffer);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(blob);
+            });
+            const { error } = await supabase.storage
+                .from('goal-images')
+                .upload(path, arrayBuffer, { contentType: mime, upsert: true });
+            if (error) return localUri;
+            const { data } = supabase.storage.from('goal-images').getPublicUrl(path);
+            return data.publicUrl;
+        } catch {
+            return localUri;
+        }
+    };
+
+    const handleSave = async () => {
         if (!title.trim()) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             return;
@@ -76,9 +104,23 @@ export default function AddGoal() {
         };
 
         if (isEditMode && existingGoal) {
-            updateGoal(existingGoal.id, goalData);
+            setSaving(true);
+            let finalImage = goalData.image;
+            if (goalData.image && goalData.image.startsWith('file://')) {
+                finalImage = await uploadImage(goalData.image, existingGoal.id);
+            }
+            await updateGoal(existingGoal.id, { ...goalData, image: finalImage });
         } else {
-            const createdGoalId = addGoal(goalData);
+            setSaving(true);
+
+            // Upload image to Supabase Storage if it's a local file
+            const tempId = require('react-native-uuid').v4() as string;
+            let finalImage = goalData.image;
+            if (goalData.image && goalData.image.startsWith('file://')) {
+                finalImage = await uploadImage(goalData.image, tempId);
+            }
+
+            const createdGoalId = await addGoal({ ...goalData, image: finalImage });
             // Schedule reminders asynchronously — doesn't block navigation
             scheduleGoalReminders({
                 goalId: createdGoalId,
@@ -88,6 +130,7 @@ export default function AddGoal() {
         }
 
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        setSaving(false);
         router.back();
     };
 
@@ -105,13 +148,14 @@ export default function AddGoal() {
                     {isEditMode ? 'Edit Adventure' : 'New Adventure'}
                 </Text>
                 <TouchableOpacity
-                    className={`px-5 py-2 rounded-full ${title.trim() ? 'bg-blue-600' : 'bg-gray-800'}`}
+                    className={`px-5 py-2 rounded-full ${title.trim() && !saving ? 'bg-blue-600' : 'bg-gray-800'}`}
                     onPress={handleSave}
-                    disabled={!title.trim()}
+                    disabled={!title.trim() || saving}
                 >
-                    <Text className={`font-semibold ${title.trim() ? 'text-white' : 'text-gray-500'}`}>
-                        {isEditMode ? 'Update' : 'Save'}
-                    </Text>
+                    {saving
+                        ? <ActivityIndicator size="small" color="white" />
+                        : <Text className={`font-semibold ${title.trim() ? 'text-white' : 'text-gray-500'}`}>{isEditMode ? 'Update' : 'Save'}</Text>
+                    }
                 </TouchableOpacity>
             </View>
 

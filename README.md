@@ -122,6 +122,8 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 2. Paste the contents of `supabase/schema.sql`
 3. Click Run
 
+> Schema is applied to the production Supabase project. Skip this step if already done.
+
 This creates:
 - `profiles` table (auto-populated on signup via trigger)
 - `goals` table with full location fields
@@ -153,9 +155,9 @@ Press `i` for iOS simulator, `a` for Android emulator, or scan the QR code with 
 | Dark / light mode | Done |
 | Goal detail + edit | Done |
 | Notifications screen (overdue / upcoming / scheduled) | Done |
-| Cloud sync via Supabase | In progress |
-| Image upload to Supabase Storage | In progress |
-| Offline-first sync | Planned |
+| Cloud sync via Supabase | Done |
+| Image upload to Supabase Storage | Done |
+| Offline-first sync | Done (AsyncStorage fallback) |
 | Social / share goals | Planned |
 
 ---

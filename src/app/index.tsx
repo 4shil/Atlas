@@ -1,25 +1,26 @@
 import { Redirect } from 'expo-router';
+import { useEffect } from 'react';
 import { useProfileStore } from '../store/useProfileStore';
 import { useAuthStore } from '../store/useAuthStore';
-import { useEffect } from 'react';
+import { useGoalStore } from '../store/useGoalStore';
 
 export default function Index() {
-    const hasOnboarded = useProfileStore((state) => state.profile.hasOnboarded);
+    const hasOnboarded = useProfileStore(state => state.profile.hasOnboarded);
     const { session, initialized, initialize } = useAuthStore();
+    const { syncFromCloud } = useGoalStore();
 
     useEffect(() => {
         const unsubscribe = initialize();
         return unsubscribe;
     }, []);
 
-    if (!initialized) return null; // splash still showing
+    // Sync goals from cloud whenever session becomes available
+    useEffect(() => {
+        if (session) syncFromCloud();
+    }, [session]);
 
-    // Not logged in → auth screen
+    if (!initialized) return null;
     if (!session) return <Redirect href="/auth" />;
-
-    // Logged in but not onboarded → onboarding
     if (!hasOnboarded) return <Redirect href="/onboarding" />;
-
-    // All good → app
     return <Redirect href="/(tabs)" />;
 }
