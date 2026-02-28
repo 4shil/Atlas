@@ -7,7 +7,10 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "eslint src eslint.config.js"
+    "lint": "eslint src eslint.config.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.4",
@@ -27,6 +30,7 @@
     "expo-notifications": "~0.31.5",
     "expo-router": "~5.0.0",
     "expo-status-bar": "~2.2.0",
+    "jest-expo": "~53.0.14",
     "nativewind": "^4.2.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -52,5 +56,15 @@
     "tailwindcss": "^3.4.19",
     "typescript": "~5.8.0"
   },
-  "private": true
+  "private": true,
+  "jest": {
+    "preset": "jest-expo",
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|zustand|react-native-reanimated|@shopify)"
+    ],
+    "setupFilesAfterFramework": [
+      "@testing-library/jest-native/extend-expect"
+    ],
+    "testPathPattern": "__tests__"
+  }
 }

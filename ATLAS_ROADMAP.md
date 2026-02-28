@@ -226,18 +226,18 @@ Reasons: PostgreSQL, built-in auth, storage for images, real-time, generous free
 | 1 | Gallery notification btn fix | ✅ Done → /notifications screen created |
 | 1 | Dep duplication fix | ⬜ Todo |
 | 1 | Skia pin to stable | ⬜ Todo |
-| 1 | Map real user location | ⬜ Todo |
-| 1 | Map live weather | ⬜ Todo |
-| 1 | Past date validation | ⬜ Todo |
-| 1 | Image compression | ⬜ Todo |
-| 1 | Unit system in UI | ⬜ Todo |
-| 1 | Prettier + strict TS | ⬜ Todo |
-| 2 | Jest + RTL setup | ⬜ Todo |
-| 2 | Store unit tests | ⬜ Todo |
-| 2 | Sentry integration | ⬜ Todo |
-| 2 | EAS setup | ⬜ Todo |
-| 2 | GitHub Actions CI | ⬜ Todo |
-| 2 | PostHog analytics | ⬜ Todo |
+| 1 | Map real user location | ✅ Done |
+| 1 | Map live weather | ✅ Done (wttr.in) |
+| 1 | Past date validation | ✅ Done |
+| 1 | Image compression | ✅ Done (quality 0.6) |
+| 1 | Unit system in UI | ⬜ Todo (Phase 4) |
+| 1 | Prettier + strict TS | ✅ Done |
+| 2 | Jest + RTL setup | ✅ Done |
+| 2 | Store unit tests | ✅ Done (useGoalStore + dateUtils) |
+| 2 | Sentry integration | ⬜ Todo (needs EAS account) |
+| 2 | EAS setup | ✅ Done (eas.json) |
+| 2 | GitHub Actions CI | ✅ Done |
+| 2 | PostHog analytics | ⬜ Todo (needs account) |
 | 3 | Supabase project setup | ⬜ Todo |
 | 3 | Auth screens | ⬜ Todo |
 | 3 | Goals → Supabase | ⬜ Todo |
