@@ -7,16 +7,19 @@ import { useGoalStore } from '../store/useGoalStore';
 export default function Index() {
     const hasOnboarded = useProfileStore(state => state.profile.hasOnboarded);
     const { session, initialized, initialize } = useAuthStore();
-    const { syncFromCloud } = useGoalStore();
+    const { syncFromCloud: syncGoals } = useGoalStore();
+    const { syncFromCloud: syncProfile } = useProfileStore();
 
     useEffect(() => {
         const unsubscribe = initialize();
         return unsubscribe;
     }, []);
 
-    // Sync goals from cloud whenever session becomes available
     useEffect(() => {
-        if (session) syncFromCloud();
+        if (session) {
+            syncProfile();
+            syncGoals();
+        }
     }, [session]);
 
     if (!initialized) return null;
