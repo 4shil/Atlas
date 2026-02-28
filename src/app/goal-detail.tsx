@@ -27,6 +27,7 @@ import Animated, {
 import { getCategoryIcon } from '../utils/Icons';
 import { getDaysUntil } from '../utils/dateUtils';
 import { ScreenWrapper } from '../components/ScreenWrapper';
+import { Confetti } from '../components/Confetti';
 
 export default function GoalDetail() {
     const router = useRouter();
@@ -362,6 +363,9 @@ export default function GoalDetail() {
                     </Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Confetti burst — Peak-End Rule: make this the best moment */}
+            <Confetti visible={showCelebration} onDone={() => setShowCelebration(false)} />
 
             {/* Completion Celebration Overlay */}
             {showCelebration && (

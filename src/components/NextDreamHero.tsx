@@ -225,6 +225,71 @@ export function NextDreamHero({ goal, totalGoals, completedCount, onPress, onAdd
                     />
                 </View>
             </View>
+
+            {/* Goal Gradient Effect — momentum row */}
+            {totalGoals > 0 && (
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
+                    {/* Goals left */}
+                    <View
+                        style={{
+                            flex: 1,
+                            backgroundColor: 'rgba(255,255,255,0.04)',
+                            borderWidth: 1,
+                            borderColor: 'rgba(255,255,255,0.08)',
+                            borderRadius: 16,
+                            padding: 12,
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Text style={{ color: 'white', fontSize: 22, fontWeight: '800' }}>
+                            {totalGoals - completedCount}
+                        </Text>
+                        <Text
+                            style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, marginTop: 2 }}
+                        >
+                            dreams ahead
+                        </Text>
+                    </View>
+                    {/* Completed */}
+                    <View
+                        style={{
+                            flex: 1,
+                            backgroundColor: 'rgba(74,222,128,0.06)',
+                            borderWidth: 1,
+                            borderColor: 'rgba(74,222,128,0.15)',
+                            borderRadius: 16,
+                            padding: 12,
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Text style={{ color: '#4ade80', fontSize: 22, fontWeight: '800' }}>
+                            {completedCount}
+                        </Text>
+                        <Text style={{ color: 'rgba(74,222,128,0.5)', fontSize: 11, marginTop: 2 }}>
+                            lived ✓
+                        </Text>
+                    </View>
+                    {/* Completion % */}
+                    <View
+                        style={{
+                            flex: 1,
+                            backgroundColor: 'rgba(96,165,250,0.06)',
+                            borderWidth: 1,
+                            borderColor: 'rgba(96,165,250,0.15)',
+                            borderRadius: 16,
+                            padding: 12,
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Text style={{ color: '#60a5fa', fontSize: 22, fontWeight: '800' }}>
+                            {totalGoals > 0 ? Math.round((completedCount / totalGoals) * 100) : 0}%
+                        </Text>
+                        <Text style={{ color: 'rgba(96,165,250,0.5)', fontSize: 11, marginTop: 2 }}>
+                            complete
+                        </Text>
+                    </View>
+                </View>
+            )}
         </View>
     );
 }

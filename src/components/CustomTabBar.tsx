@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useRouter } from 'expo-router';
 
 const TAB_ICONS: Record<string, keyof typeof MaterialIcons.glyphMap> = {
     index: 'space-dashboard',
@@ -18,6 +19,8 @@ const TAB_ICONS: Record<string, keyof typeof MaterialIcons.glyphMap> = {
     map: 'explore',
     archive: 'auto-awesome',
 };
+
+const FAB_AFTER = 'gallery'; // insert FAB after this tab
 
 const TAB_LABELS: Record<string, string> = {
     index: 'Home',
@@ -32,6 +35,7 @@ const SPRING_CONFIG = { damping: 16, stiffness: 160, mass: 0.7 };
 export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const insets = useSafeAreaInsets();
     const bottomPad = Math.max(insets.bottom, 14);
+    const router = useRouter();
 
     return (
         <View style={[styles.wrapper, { bottom: bottomPad }]} pointerEvents="box-none">
@@ -46,31 +50,69 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
 
                 <View style={styles.tabRow}>
                     {state.routes.map((route, index) => {
+                        // Insert FAB between gallery and map
+                        const isAfterFab = route.name === 'map';
                         const isFocused = state.index === index;
                         const iconName = TAB_ICONS[route.name] ?? 'circle';
                         const label = TAB_LABELS[route.name] ?? route.name;
 
                         return (
-                            <TabItem
-                                key={route.key}
-                                iconName={iconName}
-                                label={label}
-                                isFocused={isFocused}
-                                onPress={() => {
-                                    const event = navigation.emit({
-                                        type: 'tabPress',
-                                        target: route.key,
-                                        canPreventDefault: true,
-                                    });
-                                    if (!isFocused && !event.defaultPrevented) {
-                                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                        navigation.navigate(route.name, route.params);
-                                    }
-                                }}
-                                onLongPress={() => {
-                                    navigation.emit({ type: 'tabLongPress', target: route.key });
-                                }}
-                            />
+                            <React.Fragment key={route.key}>
+                                {isAfterFab && (
+                                    <TouchableOpacity
+                                        activeOpacity={0.85}
+                                        onPress={() => {
+                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                            router.push('/add-goal');
+                                        }}
+                                        style={{
+                                            width: 52,
+                                            height: 52,
+                                            borderRadius: 26,
+                                            backgroundColor: '#2563eb',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            marginHorizontal: 4,
+                                            shadowColor: '#2563eb',
+                                            shadowOpacity: 0.6,
+                                            shadowRadius: 12,
+                                            shadowOffset: { width: 0, height: 4 },
+                                            elevation: 8,
+                                        }}
+                                        accessibilityLabel="Add Goal"
+                                    >
+                                        <MaterialIcons name="add" size={28} color="white" />
+                                    </TouchableOpacity>
+                                )}
+                                <>
+                                    <TabItem
+                                        key={route.key}
+                                        iconName={iconName}
+                                        label={label}
+                                        isFocused={isFocused}
+                                        onPress={() => {
+                                            const event = navigation.emit({
+                                                type: 'tabPress',
+                                                target: route.key,
+                                                canPreventDefault: true,
+                                            });
+                                            if (!isFocused && !event.defaultPrevented) {
+                                                Haptics.impactAsync(
+                                                    Haptics.ImpactFeedbackStyle.Light
+                                                );
+                                                navigation.navigate(route.name, route.params);
+                                            }
+                                        }}
+                                        onLongPress={() => {
+                                            navigation.emit({
+                                                type: 'tabLongPress',
+                                                target: route.key,
+                                            });
+                                        }}
+                                    />
+                                    );
+                                </>
+                            </React.Fragment>
                         );
                     })}
                 </View>

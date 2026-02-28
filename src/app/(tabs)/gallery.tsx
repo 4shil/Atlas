@@ -8,7 +8,9 @@ import Animated, {
     useSharedValue,
     useAnimatedStyle,
     withSpring,
+    withTiming,
     runOnJS,
+    ZoomIn,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ProfileHeader } from '../../components/ProfileHeader';
@@ -38,8 +40,6 @@ export default function DarkTravelGallery() {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
     }, [goals.length]);
-
-    const handleNext = goNext;
 
     const swipeGesture = Gesture.Pan()
         .onUpdate(e => {

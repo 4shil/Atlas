@@ -48,6 +48,21 @@ export default function DashboardDark() {
     const completedGoals = getCompletedGoals();
     const allPending = getPendingGoals();
 
+    // Sorted once — used for both hero and list (no double sort)
+    const pendingByDate = React.useMemo(
+        () =>
+            [...allPending].sort(
+                (a, b) => new Date(a.timelineDate).getTime() - new Date(b.timelineDate).getTime()
+            ),
+        [allPending]
+    );
+    const nextGoal = pendingByDate[0] ?? null;
+    const overdueGoals = pendingByDate.filter(g => {
+        const d = new Date(g.timelineDate);
+        d.setHours(23, 59, 59);
+        return d < new Date();
+    });
+
     const sortedPending = useMemo(() => {
         const list = [...allPending];
         if (sortMode === 'date')
@@ -148,27 +163,15 @@ export default function DashboardDark() {
 
                 {/* Next Dream Hero */}
                 {!showSearch &&
-                    (allPending.length > 0 ? (
+                    (nextGoal ? (
                         <NextDreamHero
-                            goal={
-                                allPending.sort(
-                                    (a, b) =>
-                                        new Date(a.timelineDate).getTime() -
-                                        new Date(b.timelineDate).getTime()
-                                )[0]
-                            }
+                            goal={nextGoal}
                             totalGoals={goals.length}
                             completedCount={completedGoals.length}
                             onPress={() =>
                                 router.push({
                                     pathname: '/goal-detail',
-                                    params: {
-                                        id: allPending.sort(
-                                            (a, b) =>
-                                                new Date(a.timelineDate).getTime() -
-                                                new Date(b.timelineDate).getTime()
-                                        )[0].id,
-                                    },
+                                    params: { id: nextGoal.id },
                                 })
                             }
                             onAddGoal={() => router.push('/add-goal')}
@@ -183,8 +186,10 @@ export default function DashboardDark() {
                     <View className="flex-row items-center justify-between mb-3">
                         <Text className="text-sm font-semibold text-white/50">
                             {showSearch && searchQuery
-                                ? `Results for "${searchQuery}"`
-                                : 'Upcoming Adventures'}
+                                ? `${filteredGoals.length} result${filteredGoals.length !== 1 ? 's' : ''} for "${searchQuery}"`
+                                : overdueGoals.length > 0
+                                  ? `${overdueGoals.length} overdue · ${allPending.length - overdueGoals.length} upcoming`
+                                  : `${allPending.length} dream${allPending.length !== 1 ? 's' : ''} ahead`}
                         </Text>
                         {!showSearch && (
                             <View className="relative">

@@ -67,9 +67,11 @@ export function GoalRow({ goal, onPress, onComplete }: GoalRowProps) {
                 style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    backgroundColor: 'rgba(255,255,255,0.04)',
+                    backgroundColor: isOverdue
+                        ? 'rgba(248,113,113,0.05)'
+                        : 'rgba(255,255,255,0.04)',
                     borderWidth: 1,
-                    borderColor: isOverdue ? 'rgba(248,113,113,0.2)' : 'rgba(255,255,255,0.08)',
+                    borderColor: isOverdue ? 'rgba(248,113,113,0.35)' : 'rgba(255,255,255,0.08)',
                     borderRadius: 20,
                     overflow: 'hidden',
                     padding: 12,
