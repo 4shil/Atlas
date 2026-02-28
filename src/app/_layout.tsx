@@ -10,6 +10,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '../theme';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { initSentry } from '../lib/sentry';
+
+// Initialize error monitoring before app renders
+initSentry();
 
 function RootLayoutNav() {
     const { colors, isDark, isReducedMotion } = useTheme();
@@ -33,7 +37,10 @@ function RootLayoutNav() {
                 <Stack.Screen name="goal-detail" options={{ presentation: 'card' }} />
                 <Stack.Screen name="profile" options={{ presentation: 'card' }} />
                 <Stack.Screen name="inspiration" options={{ presentation: 'modal' }} />
-                <Stack.Screen name="onboarding" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
+                <Stack.Screen
+                    name="onboarding"
+                    options={{ presentation: 'fullScreenModal', gestureEnabled: false }}
+                />
                 <Stack.Screen name="notifications" options={{ presentation: 'modal' }} />
             </Stack>
         </>
