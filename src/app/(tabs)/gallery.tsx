@@ -62,7 +62,7 @@ export default function DarkTravelGallery() {
                             activeOpacity={0.7}
                             onPress={() => {
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                router.push('/settings');
+                                router.push('/notifications');
                             }}
                             accessibilityRole="button"
                             accessibilityLabel="Notifications"
