@@ -19,8 +19,9 @@ export default function Index() {
     // Sync from cloud if logged in — login is never required
     useEffect(() => {
         if (session) {
-            syncProfile();
-            syncGoals();
+            // Fire and forget — never block navigation
+            syncProfile().catch(() => {});
+            syncGoals().catch(() => {});
         }
     }, [session]);
 

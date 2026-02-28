@@ -74,7 +74,9 @@ function fromRow(row: Record<string, any>): Goal {
 interface GoalState {
     goals: Goal[];
     syncing: boolean;
-    addGoal: (goal: Omit<Goal, 'id' | 'createdAt' | 'completed' | 'completedAt'>) => Promise<string>;
+    addGoal: (
+        goal: Omit<Goal, 'id' | 'createdAt' | 'completed' | 'completedAt'>
+    ) => Promise<string>;
     updateGoal: (id: string, updates: Partial<Goal>) => Promise<void>;
     deleteGoal: (id: string) => Promise<void>;
     toggleComplete: (id: string, notes?: string) => Promise<void>;
@@ -95,7 +97,7 @@ export const useGoalStore = create<GoalState>()(
             goals: [],
             syncing: false,
 
-            addGoal: async (goalData) => {
+            addGoal: async goalData => {
                 const id = uuid.v4() as string;
                 const newGoal: Goal = {
                     ...goalData,
@@ -122,7 +124,7 @@ export const useGoalStore = create<GoalState>()(
 
             updateGoal: async (id, updates) => {
                 set(state => ({
-                    goals: state.goals.map(g => g.id === id ? { ...g, ...updates } : g),
+                    goals: state.goals.map(g => (g.id === id ? { ...g, ...updates } : g)),
                 }));
 
                 const session = await getSession();
@@ -138,7 +140,7 @@ export const useGoalStore = create<GoalState>()(
                 }
             },
 
-            deleteGoal: async (id) => {
+            deleteGoal: async id => {
                 set(state => ({ goals: state.goals.filter(g => g.id !== id) }));
 
                 const session = await getSession();
@@ -183,24 +185,57 @@ export const useGoalStore = create<GoalState>()(
                 }
             },
 
-            // Pull all goals from Supabase and replace local state
+            // Sync: push local-only goals up, pull cloud goals down, merge
             syncFromCloud: async () => {
                 const session = await getSession();
                 if (!session) return;
 
                 set({ syncing: true });
-                const { data, error } = await supabase
-                    .from('goals')
-                    .select('*')
-                    .eq('user_id', session.user.id)
-                    .order('created_at', { ascending: false });
+                try {
+                    const localGoals = get().goals;
 
-                if (error) {
-                    console.error('[GoalStore] sync error:', error.message);
-                } else if (data) {
-                    set({ goals: data.map(fromRow) });
+                    // 1. Fetch cloud goals
+                    const { data, error } = await supabase
+                        .from('goals')
+                        .select('*')
+                        .eq('user_id', session.user.id)
+                        .order('created_at', { ascending: false });
+
+                    if (error) {
+                        console.error('[GoalStore] sync error:', error.message);
+                        return;
+                    }
+
+                    const cloudGoals = (data ?? []).map(fromRow);
+                    const cloudIds = new Set(cloudGoals.map(g => g.id));
+
+                    // 2. Push any local-only goals up to Supabase (created offline/before login)
+                    const localOnly = localGoals.filter(g => !cloudIds.has(g.id));
+                    if (localOnly.length > 0) {
+                        await supabase.from('goals').upsert(
+                            localOnly.map(g => toRow(g, session.user.id)),
+                            { onConflict: 'id' }
+                        );
+                    }
+
+                    // 3. Merge: cloud wins for conflicts, keep all local-only
+                    const cloudMap = new Map(cloudGoals.map(g => [g.id, g]));
+                    const merged = [
+                        ...cloudGoals,
+                        ...localOnly, // already pushed, keep locally too
+                    ];
+                    // deduplicate by id, cloud wins
+                    const seen = new Set<string>();
+                    const deduped = merged.filter(g => {
+                        if (seen.has(g.id)) return false;
+                        seen.add(g.id);
+                        return true;
+                    });
+
+                    set({ goals: deduped });
+                } finally {
+                    set({ syncing: false });
                 }
-                set({ syncing: false });
             },
 
             getCompletedGoals: () => get().goals.filter(g => g.completed),
