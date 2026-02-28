@@ -3,16 +3,58 @@ import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
+import * as Location from 'expo-location';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 import MapWrapper from '../../components/MapWrapper';
 import { useRouter } from 'expo-router';
 import { ScreenWrapper } from '../../components/ScreenWrapper';
+
+interface WeatherData {
+    temp: string;
+    desc: string;
+}
 
 export default function DarkAdventureMap() {
     const { goals } = useGoalStore();
     const router = useRouter();
     const [showOnlyPending, setShowOnlyPending] = React.useState(true);
     const [recenterTrigger, setRecenterTrigger] = React.useState(0);
+    const [currentCity, setCurrentCity] = React.useState<string | null>(null);
+    const [weather, setWeather] = React.useState<WeatherData | null>(null);
+
+    // Fetch user location + weather on mount
+    React.useEffect(() => {
+        (async () => {
+            try {
+                const { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') return;
+
+                const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+                const { latitude, longitude } = loc.coords;
+
+                // Reverse geocode for city name
+                const [place] = await Location.reverseGeocodeAsync({ latitude, longitude });
+                if (place) {
+                    setCurrentCity(`${place.city ?? place.region ?? 'Unknown'}, ${place.country ?? ''}`);
+                }
+
+                // Live weather from wttr.in (free, no API key)
+                const res = await fetch(`https://wttr.in/?format=j1&lat=${latitude}&lon=${longitude}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const current = data?.current_condition?.[0];
+                    if (current) {
+                        setWeather({
+                            temp: `${current.temp_C}°C`,
+                            desc: current.weatherDesc?.[0]?.value ?? '',
+                        });
+                    }
+                }
+            } catch (_) {
+                // Location/weather unavailable — fail silently
+            }
+        })();
+    }, []);
 
     const visibleGoals = React.useMemo(
         () => (showOnlyPending ? goals.filter(g => !g.completed) : goals),
@@ -75,11 +117,13 @@ export default function DarkAdventureMap() {
                         <View className="flex-row items-center justify-between">
                             <View>
                                 <Text className="text-3xl font-bold text-white tracking-tight">
-                                    {goals.length > 0 ? `${goals[0].location.city}, ${goals[0].location.country}` : 'Everywhere'}
+                                    {currentCity ?? 'Locating...'}
                                 </Text>
                                 <View className="flex-row items-center mt-2 space-x-2">
                                     <MaterialIcons name="cloud" size={18} color="#60a5fa" />
-                                    <Text className="text-sm font-medium text-blue-400 ml-2">18°C • Night</Text>
+                                    <Text className="text-sm font-medium text-blue-400 ml-2">
+                                        {weather ? `${weather.temp} • ${weather.desc}` : '—'}
+                                    </Text>
                                 </View>
                             </View>
                             <TouchableOpacity

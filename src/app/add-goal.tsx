@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -40,13 +40,22 @@ export default function AddGoal() {
             mediaTypes: ['images'],
             allowsEditing: true,
             aspect: [4, 3],
-            quality: 1,
+            quality: 0.6, // compressed — was 1.0
         });
         if (!result.canceled) setImage(result.assets[0].uri);
     };
     const handleSave = () => {
         if (!title.trim()) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+            return;
+        }
+
+        // Past date validation
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (date < today) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+            Alert.alert('Invalid Date', 'Target date cannot be in the past. Please pick a future date.');
             return;
         }
 
