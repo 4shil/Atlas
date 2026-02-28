@@ -27,6 +27,7 @@ function RootLayoutNav() {
                 }}
             >
                 <Stack.Screen name="index" />
+                <Stack.Screen name="auth" options={{ headerShown: false, gestureEnabled: false }} />
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="add-goal" options={{ presentation: 'modal' }} />
                 <Stack.Screen name="goal-detail" options={{ presentation: 'card' }} />
