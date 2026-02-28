@@ -16,6 +16,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Image } from 'expo-image';
+import uuid from 'react-native-uuid';
 import { useGoalStore, Location } from '../store/useGoalStore';
 import { LocationPicker } from '../components/LocationPicker';
 import { scheduleGoalReminders } from '../utils/notificationUtils';
@@ -94,62 +95,76 @@ export default function AddGoal() {
         today.setHours(0, 0, 0, 0);
         if (date < today) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-            Alert.alert(
-                'Invalid Date',
-                'Target date cannot be in the past. Please pick a future date.'
-            );
+            Alert.alert('Invalid Date', 'Target date cannot be in the past.');
             return;
         }
 
+        setSaving(true);
+
         const placeholderImage =
             'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80';
+        const localImage = image || placeholderImage;
         const goalData = {
             title: title.trim(),
             description: description.trim(),
             category,
-            image: image || placeholderImage,
+            image: localImage, // save with local URI first — fast
             timelineDate: date.toISOString(),
             notes: notes.trim(),
             location:
                 locationData.latitude !== 0
                     ? locationData
-                    : {
-                          latitude: 0,
-                          longitude: 0,
-                          city: '',
-                          country: '',
-                      },
+                    : { latitude: 0, longitude: 0, city: '', country: '' },
         };
 
-        if (isEditMode && existingGoal) {
-            setSaving(true);
-            let finalImage = goalData.image;
-            if (goalData.image && goalData.image.startsWith('file://')) {
-                finalImage = await uploadImage(goalData.image, existingGoal.id);
-            }
-            await updateGoal(existingGoal.id, { ...goalData, image: finalImage });
-        } else {
-            setSaving(true);
+        try {
+            if (isEditMode && existingGoal) {
+                // Save immediately with local/current image
+                await updateGoal(existingGoal.id, goalData);
+                // Upload in background if it's a new local file
+                if (localImage.startsWith('file://')) {
+                    uploadImage(localImage, existingGoal.id)
+                        .then(remoteUrl => {
+                            if (remoteUrl !== localImage) {
+                                updateGoal(existingGoal.id, { image: remoteUrl });
+                            }
+                        })
+                        .catch(() => {});
+                }
+            } else {
+                // Generate ID upfront so we can upload to correct path later
+                const goalId = uuid.v4() as string;
+                // Save goal immediately — local image URI is fine for now
+                const createdGoalId = await addGoal({ ...goalData, _id: goalId } as any);
+                const finalId = createdGoalId ?? goalId;
 
-            // Upload image to Supabase Storage if it's a local file
-            const tempId = require('react-native-uuid').v4() as string;
-            let finalImage = goalData.image;
-            if (goalData.image && goalData.image.startsWith('file://')) {
-                finalImage = await uploadImage(goalData.image, tempId);
+                // Background: upload image then silently update
+                if (localImage.startsWith('file://')) {
+                    uploadImage(localImage, finalId)
+                        .then(remoteUrl => {
+                            if (remoteUrl !== localImage) {
+                                updateGoal(finalId, { image: remoteUrl });
+                            }
+                        })
+                        .catch(() => {});
+                }
+
+                // Background: schedule notifications — never blocks save
+                scheduleGoalReminders({
+                    goalId: finalId,
+                    goalTitle: goalData.title,
+                    targetDate: date,
+                }).catch(() => {});
             }
 
-            const createdGoalId = await addGoal({ ...goalData, image: finalImage });
-            // Schedule reminders asynchronously — doesn't block navigation
-            scheduleGoalReminders({
-                goalId: createdGoalId,
-                goalTitle: goalData.title,
-                targetDate: date,
-            }).catch(() => {});
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            router.back();
+        } catch {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+            Alert.alert('Error', 'Could not save goal. Please try again.');
+        } finally {
+            setSaving(false);
         }
-
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        setSaving(false);
-        router.back();
     };
 
     return (

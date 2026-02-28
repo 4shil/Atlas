@@ -5,6 +5,10 @@
 
 import '../../global.css';
 import { Stack } from 'expo-router';
+import { useFonts } from 'expo-font';
+import { MaterialIcons } from '@expo/vector-icons';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -15,8 +19,20 @@ import { initSentry } from '../lib/sentry';
 // Initialize error monitoring before app renders
 initSentry();
 
+// Keep splash visible until fonts are ready
+SplashScreen.preventAutoHideAsync().catch(() => {});
+
 function RootLayoutNav() {
     const { colors, isDark, isReducedMotion } = useTheme();
+
+    // Preload MaterialIcons font so icons render instantly — no flash/layout shift
+    const [fontsLoaded] = useFonts({
+        ...MaterialIcons.font,
+    });
+
+    useEffect(() => {
+        if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
+    }, [fontsLoaded]);
 
     return (
         <>
