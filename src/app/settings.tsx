@@ -68,7 +68,7 @@ export default function SettingsScreen() {
         resetSettings,
     } = useSettingsStore();
 
-    const { signOut } = useAuthStore();
+    const { signOut, session } = useAuthStore();
 
     const handleSignOut = () => {
         Alert.alert('Sign Out', 'Sign out of Atlas?', [
@@ -240,12 +240,23 @@ export default function SettingsScreen() {
                             thumbColor="#ffffff"
                         />
                     </View>
-                    <TouchableOpacity
-                        className="py-2 border-b border-white/[0.05] mb-2"
-                        onPress={handleSignOut}
-                    >
-                        <Text className="text-red-400 text-sm font-medium">Sign Out</Text>
-                    </TouchableOpacity>
+                    {session ? (
+                        <TouchableOpacity
+                            className="py-2 border-b border-white/[0.05] mb-2"
+                            onPress={handleSignOut}
+                        >
+                            <Text className="text-red-400 text-sm font-medium">Sign Out</Text>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity
+                            className="py-2 border-b border-white/[0.05] mb-2"
+                            onPress={() => router.push('/auth')}
+                        >
+                            <Text className="text-blue-400 text-sm font-medium">
+                                Sign In for Cloud Sync
+                            </Text>
+                        </TouchableOpacity>
+                    )}
                     <TouchableOpacity
                         className="py-2 border-b border-white/[0.05] mb-2"
                         onPress={handleClearData}

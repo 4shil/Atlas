@@ -16,6 +16,7 @@ export default function Index() {
         return unsubscribe;
     }, []);
 
+    // Sync from cloud if logged in — login is never required
     useEffect(() => {
         if (session) {
             syncProfile();
@@ -24,7 +25,9 @@ export default function Index() {
     }, [session]);
 
     if (!initialized) return <LoadingScreen />;
-    if (!session) return <Redirect href="/auth" />;
+
+    // No auth gate — app works fully offline/anonymous
+    // Login is optional, only enables cloud sync
     if (!hasOnboarded) return <Redirect href="/onboarding" />;
     return <Redirect href="/(tabs)" />;
 }
