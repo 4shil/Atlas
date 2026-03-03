@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import {
     View,
     Text,
     ScrollView,
+    FlatList,
     TouchableOpacity,
     TextInput,
     RefreshControl,
@@ -544,22 +545,28 @@ export default function DashboardDark() {
                             </Text>
                         </View>
                     ) : (
-                        filteredGoals.map((goal: Goal) => (
-                            <GoalRow
-                                key={goal.id}
-                                goal={goal}
-                                onPress={() =>
-                                    router.push({
-                                        pathname: '/goal-detail',
-                                        params: { id: goal.id },
-                                    })
-                                }
-                                onComplete={() =>
-                                    toggleComplete(goal.id, 'Completed via Dashboard')
-                                }
-                                onDelete={() => deleteGoal(goal.id)}
-                            />
-                        ))
+                        <FlatList
+                            data={filteredGoals}
+                            keyExtractor={(goal: Goal) => goal.id}
+                            initialNumToRender={10}
+                            onEndReachedThreshold={0.5}
+                            scrollEnabled={false}
+                            renderItem={({ item: goal }: { item: Goal }) => (
+                                <GoalRow
+                                    goal={goal}
+                                    onPress={() =>
+                                        router.push({
+                                            pathname: '/goal-detail',
+                                            params: { id: goal.id },
+                                        })
+                                    }
+                                    onComplete={() =>
+                                        toggleComplete(goal.id, 'Completed via Dashboard')
+                                    }
+                                    onDelete={() => deleteGoal(goal.id)}
+                                />
+                            )}
+                        />
                     )}
                 </View>
             </ScrollView>
