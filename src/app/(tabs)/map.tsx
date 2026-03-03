@@ -65,10 +65,17 @@ export default function DarkAdventureMap() {
         })();
     }, []);
 
-    const visibleGoals = React.useMemo(
-        () => (showOnlyPending ? goals.filter(g => !g.completed) : goals),
-        [goals, showOnlyPending]
-    );
+    const [categoryFilter, setCategoryFilter] = React.useState<string>('All');
+
+    const CATEGORIES = ['All', 'Travel', 'Adventure', 'Fitness', 'Learning', 'Life'];
+
+    const visibleGoals = React.useMemo(() => {
+        let filtered = showOnlyPending ? goals.filter(g => !g.completed) : goals;
+        if (categoryFilter !== 'All') {
+            filtered = filtered.filter(g => g.category === categoryFilter);
+        }
+        return filtered;
+    }, [goals, showOnlyPending, categoryFilter]);
 
     return (
         <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50" edges={[]}>
@@ -162,6 +169,55 @@ export default function DarkAdventureMap() {
                                 <MaterialIcons name="my-location" size={20} color="#60a5fa" />
                             </TouchableOpacity>
                         </View>
+                    </View>
+
+                    {/* Category Filter Pills */}
+                    <View className="mb-6">
+                        <Text className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3">
+                            Filter by Category
+                        </Text>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ gap: 8 }}
+                        >
+                            {CATEGORIES.map(cat => (
+                                <TouchableOpacity
+                                    key={cat}
+                                    onPress={() => {
+                                        Haptics.selectionAsync();
+                                        setCategoryFilter(cat);
+                                    }}
+                                    style={{
+                                        paddingHorizontal: 14,
+                                        paddingVertical: 7,
+                                        borderRadius: 20,
+                                        backgroundColor:
+                                            categoryFilter === cat
+                                                ? 'rgba(96,165,250,0.2)'
+                                                : 'rgba(255,255,255,0.06)',
+                                        borderWidth: 1,
+                                        borderColor:
+                                            categoryFilter === cat
+                                                ? 'rgba(96,165,250,0.5)'
+                                                : 'rgba(255,255,255,0.08)',
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            color:
+                                                categoryFilter === cat
+                                                    ? '#60a5fa'
+                                                    : 'rgba(255,255,255,0.5)',
+                                            fontSize: 12,
+                                            fontWeight: '600',
+                                        }}
+                                    >
+                                        {cat}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
                     </View>
 
                     {/* Next Goals */}
