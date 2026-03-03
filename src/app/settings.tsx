@@ -7,6 +7,8 @@ import { ScreenWrapper } from '../components/ScreenWrapper';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useGoalStore } from '../store/useGoalStore';
 import { useProfileStore } from '../store/useProfileStore';
+import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/useAuthStore';
 
 interface AccordionItemProps {
     title: string;
@@ -112,19 +114,43 @@ export default function SettingsScreen() {
     const handleDeleteAccount = () => {
         Alert.alert(
             'Delete Account',
-            'Account deletion is not available in this local-only build. Use Clear App Data to remove data stored on this device.',
-            [{ text: 'OK' }]
+            'This will permanently delete your account and all data. This cannot be undone.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            if (session?.user?.id) {
+                                await supabase
+                                    .from('goals')
+                                    .delete()
+                                    .eq('user_id', session.user.id);
+                                await supabase.from('profiles').delete().eq('id', session.user.id);
+                                await supabase.auth.signOut();
+                            }
+                            clearGoals();
+                            resetProfile();
+                            resetSettings();
+                            router.replace('/auth');
+                        } catch (e) {
+                            Alert.alert('Error', 'Could not delete account. Please try again.');
+                        }
+                    },
+                },
+            ]
         );
     };
 
     const handleOpenTerms = () => {
-        Linking.openURL('https://atlas.example.com/terms').catch(() => {
+        Linking.openURL('https://github.com/4shil/Atlas/blob/main/TERMS.md').catch(() => {
             Alert.alert('Unable to open link', 'Please try again later.');
         });
     };
 
     const handleOpenPrivacy = () => {
-        Linking.openURL('https://atlas.example.com/privacy').catch(() => {
+        Linking.openURL('https://github.com/4shil/Atlas/blob/main/PRIVACY.md').catch(() => {
             Alert.alert('Unable to open link', 'Please try again later.');
         });
     };
