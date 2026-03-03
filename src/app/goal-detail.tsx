@@ -135,7 +135,7 @@ export default function GoalDetail() {
         try {
             await Share.share({
                 title: goal.title,
-                message: `🌍 Bucket List: ${goal.title}\n📍 ${goal.location.city}, ${goal.location.country}\n📅 Target: ${targetDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}\n\nShared from Atlas`,
+                message: `✈️ ${goal.title} — ${goal.location.city}, ${goal.location.country}\n\nTracking my adventures on Atlas 🗺️`,
             });
         } catch (e) {
             // Share dismissed
