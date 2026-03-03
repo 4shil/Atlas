@@ -1,7 +1,14 @@
 import React, { useState, useRef } from 'react';
 import {
-    View, Text, TextInput, TouchableOpacity,
-    ScrollView, Dimensions, KeyboardAvoidingView, Platform, Image,
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    ScrollView,
+    Dimensions,
+    KeyboardAvoidingView,
+    Platform,
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -11,7 +18,9 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useProfileStore } from '../store/useProfileStore';
+import { useGoalStore } from '../store/useGoalStore';
 import { ScreenWrapper } from '../components/ScreenWrapper';
+import { GOAL_TEMPLATES } from '../utils/goalTemplates';
 
 const { width } = Dimensions.get('window');
 
@@ -20,14 +29,15 @@ const SLIDES = [
         id: 'welcome',
         emoji: '🌍',
         title: 'Your Bucket List,\nBeautifully Organised',
-        subtitle: 'Atlas helps you dream big, plan adventures, and track every milestone — all in one place.',
+        subtitle:
+            'Atlas helps you dream big, plan adventures, and track every milestone — all in one place.',
         gradient: ['#0f172a', '#1e3a5f', '#0f172a'] as const,
         accent: '#3b82f6',
     },
     {
         id: 'name',
         emoji: '👋',
-        title: "What should we\ncall you?",
+        title: 'What should we\ncall you?',
         subtitle: 'Set your name and a profile photo to personalise your experience.',
         gradient: ['#0f172a', '#1e1b4b', '#0f172a'] as const,
         accent: '#8b5cf6',
@@ -40,15 +50,25 @@ const SLIDES = [
         gradient: ['#0f172a', '#064e3b', '#0f172a'] as const,
         accent: '#10b981',
     },
+    {
+        id: 'templates',
+        emoji: '✨',
+        title: 'Pick a few dreams',
+        subtitle: 'Select up to 3 goals to add to your list right away.',
+        gradient: ['#0f172a', '#1e3a5f', '#0f172a'] as const,
+        accent: '#f59e0b',
+    },
 ];
 
 export default function Onboarding() {
     const router = useRouter();
     const { updateProfile, setHasOnboarded } = useProfileStore();
+    const { addGoal } = useGoalStore();
     const scrollRef = useRef<ScrollView>(null);
     const [currentSlide, setCurrentSlide] = useState(0);
     const [name, setName] = useState('');
     const [avatarUri, setAvatarUri] = useState<string | null>(null);
+    const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]); // template titles
 
     const pickAvatar = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -77,11 +97,31 @@ export default function Onboarding() {
         }
     };
 
-    const handleFinish = () => {
+    const handleFinish = async () => {
         const savedName = name.trim() || 'Traveller';
         updateProfile({ name: savedName, avatarUri });
         setHasOnboarded();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+        // Add selected templates as real goals
+        const sixMonthsFromNow = new Date();
+        sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
+        const timelineDate = sixMonthsFromNow.toISOString();
+
+        for (const title of selectedTemplates) {
+            const template = GOAL_TEMPLATES.find(t => t.title === title);
+            if (!template) continue;
+            await addGoal({
+                title: template.title,
+                description: template.description,
+                image: '',
+                category: template.category,
+                timelineDate,
+                notes: '',
+                location: { latitude: 0, longitude: 0, city: '', country: '' },
+            });
+        }
+
         router.replace('/(tabs)');
     };
 
@@ -110,7 +150,10 @@ export default function Onboarding() {
             <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
                 {/* Skip */}
                 {currentSlide < SLIDES.length - 1 && (
-                    <TouchableOpacity className="absolute top-14 right-6 z-20" onPress={handleFinish}>
+                    <TouchableOpacity
+                        className="absolute top-14 right-6 z-20"
+                        onPress={handleFinish}
+                    >
                         <Text className="text-gray-400 text-sm font-medium">Skip</Text>
                     </TouchableOpacity>
                 )}
@@ -126,7 +169,10 @@ export default function Onboarding() {
                 >
                     {/* Slide 1: Welcome */}
                     <View style={{ width }} className="flex-1 items-center justify-center px-8">
-                        <Animated.View entering={FadeInDown.delay(100).duration(600)} className="items-center">
+                        <Animated.View
+                            entering={FadeInDown.delay(100).duration(600)}
+                            className="items-center"
+                        >
                             <Text style={{ fontSize: 80 }}>{SLIDES[0].emoji}</Text>
                             <Text className="text-4xl font-bold text-white text-center mt-8 leading-tight">
                                 {SLIDES[0].title}
@@ -137,15 +183,27 @@ export default function Onboarding() {
                         </Animated.View>
 
                         {/* Feature pills */}
-                        <Animated.View entering={FadeInUp.delay(400).duration(600)} className="mt-10 gap-3 w-full">
+                        <Animated.View
+                            entering={FadeInUp.delay(400).duration(600)}
+                            className="mt-10 gap-3 w-full"
+                        >
                             {[
                                 { icon: 'map', label: 'Track goals on a live map' },
                                 { icon: 'photo-library', label: 'Beautiful photo gallery' },
                                 { icon: 'notifications', label: 'Smart reminders' },
                             ].map(f => (
-                                <View key={f.icon} className="flex-row items-center bg-white/5 border border-white/8 rounded-2xl px-5 py-4">
-                                    <MaterialIcons name={f.icon as any} size={20} color={SLIDES[0].accent} />
-                                    <Text className="text-gray-200 text-sm ml-3 font-medium">{f.label}</Text>
+                                <View
+                                    key={f.icon}
+                                    className="flex-row items-center bg-white/5 border border-white/8 rounded-2xl px-5 py-4"
+                                >
+                                    <MaterialIcons
+                                        name={f.icon as any}
+                                        size={20}
+                                        color={SLIDES[0].accent}
+                                    />
+                                    <Text className="text-gray-200 text-sm ml-3 font-medium">
+                                        {f.label}
+                                    </Text>
                                 </View>
                             ))}
                         </Animated.View>
@@ -157,7 +215,9 @@ export default function Onboarding() {
                         style={{ width }}
                     >
                         <View className="flex-1 items-center justify-center px-8">
-                            <Text style={{ fontSize: 72 }} className="mb-6">{SLIDES[1].emoji}</Text>
+                            <Text style={{ fontSize: 72 }} className="mb-6">
+                                {SLIDES[1].emoji}
+                            </Text>
                             <Text className="text-4xl font-bold text-white text-center leading-tight mb-3">
                                 {SLIDES[1].title}
                             </Text>
@@ -169,7 +229,11 @@ export default function Onboarding() {
                             <TouchableOpacity onPress={pickAvatar} className="mb-8 relative">
                                 <View className="w-24 h-24 rounded-full border-4 border-purple-500/40 overflow-hidden bg-indigo-950 items-center justify-center">
                                     {avatarUri ? (
-                                        <Image source={{ uri: avatarUri }} className="w-full h-full" resizeMode="cover" />
+                                        <Image
+                                            source={{ uri: avatarUri }}
+                                            className="w-full h-full"
+                                            resizeMode="cover"
+                                        />
                                     ) : (
                                         <MaterialIcons name="person" size={48} color="#6b7280" />
                                     )}
@@ -198,7 +262,9 @@ export default function Onboarding() {
 
                     {/* Slide 3: Ready */}
                     <View style={{ width }} className="flex-1 items-center justify-center px-8">
-                        <Text style={{ fontSize: 80 }} className="mb-6">{SLIDES[2].emoji}</Text>
+                        <Text style={{ fontSize: 80 }} className="mb-6">
+                            {SLIDES[2].emoji}
+                        </Text>
                         <Text className="text-4xl font-bold text-white text-center leading-tight mb-3">
                             {SLIDES[2].title}
                         </Text>
@@ -208,16 +274,113 @@ export default function Onboarding() {
 
                         <View className="w-full gap-3">
                             {[
-                                { icon: 'add-circle-outline', label: 'Add your first goal', color: '#10b981' },
-                                { icon: 'lightbulb-outline', label: 'Browse Inspiration feed', color: '#f59e0b' },
+                                {
+                                    icon: 'add-circle-outline',
+                                    label: 'Add your first goal',
+                                    color: '#10b981',
+                                },
+                                {
+                                    icon: 'lightbulb-outline',
+                                    label: 'Browse Inspiration feed',
+                                    color: '#f59e0b',
+                                },
                                 { icon: 'map', label: 'Explore the world map', color: '#3b82f6' },
                             ].map(a => (
-                                <View key={a.icon} className="flex-row items-center bg-white/5 border border-white/8 rounded-2xl px-5 py-4">
+                                <View
+                                    key={a.icon}
+                                    className="flex-row items-center bg-white/5 border border-white/8 rounded-2xl px-5 py-4"
+                                >
                                     <MaterialIcons name={a.icon as any} size={20} color={a.color} />
-                                    <Text className="text-gray-200 text-sm ml-3 font-medium">{a.label}</Text>
+                                    <Text className="text-gray-200 text-sm ml-3 font-medium">
+                                        {a.label}
+                                    </Text>
                                 </View>
                             ))}
                         </View>
+                    </View>
+
+                    {/* Slide 4: Templates */}
+                    <View style={{ width }} className="flex-1 px-6 pt-12">
+                        <Text style={{ fontSize: 56 }} className="text-center mb-3">
+                            {SLIDES[3].emoji}
+                        </Text>
+                        <Text className="text-3xl font-bold text-white text-center leading-tight mb-2">
+                            {SLIDES[3].title}
+                        </Text>
+                        <Text className="text-gray-400 text-sm text-center mb-6">
+                            {selectedTemplates.length}/3 selected
+                        </Text>
+                        <ScrollView
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{ paddingBottom: 20 }}
+                        >
+                            {GOAL_TEMPLATES.map(template => {
+                                const selected = selectedTemplates.includes(template.title);
+                                return (
+                                    <TouchableOpacity
+                                        key={template.title}
+                                        onPress={() => {
+                                            Haptics.selectionAsync();
+                                            if (selected) {
+                                                setSelectedTemplates(prev =>
+                                                    prev.filter(t => t !== template.title)
+                                                );
+                                            } else if (selectedTemplates.length < 3) {
+                                                setSelectedTemplates(prev => [
+                                                    ...prev,
+                                                    template.title,
+                                                ]);
+                                            }
+                                        }}
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            backgroundColor: selected
+                                                ? 'rgba(245,158,11,0.1)'
+                                                : 'rgba(255,255,255,0.04)',
+                                            borderWidth: 1,
+                                            borderColor: selected
+                                                ? 'rgba(245,158,11,0.4)'
+                                                : 'rgba(255,255,255,0.08)',
+                                            borderRadius: 16,
+                                            padding: 12,
+                                            marginBottom: 8,
+                                        }}
+                                    >
+                                        <Text style={{ fontSize: 28, marginRight: 12 }}>
+                                            {template.emoji}
+                                        </Text>
+                                        <View style={{ flex: 1 }}>
+                                            <Text
+                                                style={{
+                                                    color: selected ? '#f59e0b' : 'white',
+                                                    fontWeight: '700',
+                                                    fontSize: 14,
+                                                }}
+                                            >
+                                                {template.title}
+                                            </Text>
+                                            <Text
+                                                style={{
+                                                    color: 'rgba(255,255,255,0.4)',
+                                                    fontSize: 12,
+                                                    marginTop: 2,
+                                                }}
+                                            >
+                                                {template.category}
+                                            </Text>
+                                        </View>
+                                        {selected && (
+                                            <MaterialIcons
+                                                name="check-circle"
+                                                size={22}
+                                                color="#f59e0b"
+                                            />
+                                        )}
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </ScrollView>
                     </View>
                 </ScrollView>
 
@@ -232,7 +395,10 @@ export default function Onboarding() {
                                         width: i === currentSlide ? 24 : 8,
                                         height: 8,
                                         borderRadius: 4,
-                                        backgroundColor: i === currentSlide ? slide.accent : 'rgba(255,255,255,0.2)',
+                                        backgroundColor:
+                                            i === currentSlide
+                                                ? slide.accent
+                                                : 'rgba(255,255,255,0.2)',
                                     }}
                                 />
                             </TouchableOpacity>
