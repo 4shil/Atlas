@@ -5,6 +5,7 @@ import {
     Image,
     ScrollView,
     TouchableOpacity,
+    TextInput,
     Alert,
     Share,
     StyleSheet,
@@ -15,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { useGoalStore } from '../store/useGoalStore';
+import { useGoalStore, Milestone } from '../store/useGoalStore';
 import Animated, {
     useSharedValue,
     withSequence,
@@ -34,8 +35,10 @@ import { Confetti } from '../components/Confetti';
 export default function GoalDetail() {
     const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
-    const { goals, toggleComplete, deleteGoal, updateGoal } = useGoalStore();
+    const { goals, toggleComplete, deleteGoal, updateGoal, addMilestone, toggleMilestone } =
+        useGoalStore();
     const [showCelebration, setShowCelebration] = useState(false);
+    const [milestoneInput, setMilestoneInput] = useState('');
     const [completionPhoto, setCompletionPhoto] = useState<string | null>(
         goal?.completionPhoto ?? null
     );
@@ -347,6 +350,152 @@ export default function GoalDetail() {
                         />
                     </View>
                 )}
+
+                {/* Milestones */}
+                <View className="mx-6 mt-4">
+                    <View className="flex-row items-center justify-between mb-3">
+                        <View className="flex-row items-center">
+                            <MaterialIcons name="checklist" size={16} color="#a78bfa" />
+                            <Text className="text-purple-400 text-xs uppercase tracking-widest ml-2">
+                                Milestones
+                            </Text>
+                        </View>
+                        {(goal.milestones?.length ?? 0) > 0 && (
+                            <Text style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>
+                                {goal.milestones?.filter(m => m.completed).length ?? 0}/
+                                {goal.milestones?.length ?? 0}
+                            </Text>
+                        )}
+                    </View>
+
+                    {/* Progress bar */}
+                    {(goal.milestones?.length ?? 0) > 0 && (
+                        <View
+                            style={{
+                                height: 4,
+                                backgroundColor: 'rgba(255,255,255,0.08)',
+                                borderRadius: 2,
+                                marginBottom: 12,
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <View
+                                style={{
+                                    height: '100%',
+                                    width: `${((goal.milestones?.filter(m => m.completed).length ?? 0) / (goal.milestones?.length ?? 1)) * 100}%`,
+                                    backgroundColor: '#a78bfa',
+                                    borderRadius: 2,
+                                }}
+                            />
+                        </View>
+                    )}
+
+                    {goal.milestones?.map((milestone: Milestone) => (
+                        <TouchableOpacity
+                            key={milestone.id}
+                            onPress={() => {
+                                Haptics.selectionAsync();
+                                toggleMilestone(goal.id, milestone.id);
+                            }}
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                padding: 10,
+                                marginBottom: 6,
+                                backgroundColor: milestone.completed
+                                    ? 'rgba(167,139,250,0.08)'
+                                    : 'rgba(255,255,255,0.04)',
+                                borderRadius: 12,
+                                borderWidth: 1,
+                                borderColor: milestone.completed
+                                    ? 'rgba(167,139,250,0.25)'
+                                    : 'rgba(255,255,255,0.08)',
+                            }}
+                        >
+                            <MaterialIcons
+                                name={
+                                    milestone.completed ? 'check-circle' : 'radio-button-unchecked'
+                                }
+                                size={18}
+                                color={milestone.completed ? '#a78bfa' : 'rgba(255,255,255,0.3)'}
+                                style={{ marginRight: 10 }}
+                            />
+                            <Text
+                                style={{
+                                    color: milestone.completed
+                                        ? 'rgba(255,255,255,0.4)'
+                                        : 'rgba(255,255,255,0.85)',
+                                    fontSize: 14,
+                                    flex: 1,
+                                    textDecorationLine: milestone.completed
+                                        ? 'line-through'
+                                        : 'none',
+                                }}
+                            >
+                                {milestone.title}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+
+                    {/* Add milestone input */}
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            marginTop: 4,
+                            gap: 8,
+                        }}
+                    >
+                        <TextInput
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'rgba(255,255,255,0.05)',
+                                borderWidth: 1,
+                                borderColor: 'rgba(255,255,255,0.1)',
+                                borderRadius: 10,
+                                paddingHorizontal: 12,
+                                paddingVertical: 8,
+                                color: 'white',
+                                fontSize: 13,
+                            }}
+                            placeholder="Add a milestone..."
+                            placeholderTextColor="rgba(255,255,255,0.25)"
+                            value={milestoneInput}
+                            onChangeText={setMilestoneInput}
+                            returnKeyType="done"
+                            onSubmitEditing={() => {
+                                if (!milestoneInput.trim()) return;
+                                Haptics.selectionAsync();
+                                addMilestone(goal.id, {
+                                    title: milestoneInput.trim(),
+                                    completed: false,
+                                });
+                                setMilestoneInput('');
+                            }}
+                        />
+                        <TouchableOpacity
+                            onPress={() => {
+                                if (!milestoneInput.trim()) return;
+                                Haptics.selectionAsync();
+                                addMilestone(goal.id, {
+                                    title: milestoneInput.trim(),
+                                    completed: false,
+                                });
+                                setMilestoneInput('');
+                            }}
+                            style={{
+                                width: 38,
+                                height: 38,
+                                backgroundColor: '#a78bfa',
+                                borderRadius: 10,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                opacity: milestoneInput.trim() ? 1 : 0.4,
+                            }}
+                        >
+                            <MaterialIcons name="add" size={20} color="white" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
 
                 {/* Notes */}
                 {goal.notes ? (
