@@ -12,6 +12,13 @@ export interface Location {
     placeId?: string;
 }
 
+export interface Milestone {
+    id: string;
+    title: string;
+    completed: boolean;
+    targetDate?: string;
+}
+
 export interface Goal {
     id: string;
     title: string;
@@ -19,11 +26,14 @@ export interface Goal {
     image: string;
     category: string;
     createdAt: string;
+    updatedAt?: string;
     timelineDate: string;
     completed: boolean;
     completedAt: string | null;
     notes: string;
     location: Location;
+    completionPhoto?: string | null;
+    milestones?: Milestone[];
 }
 
 // Map local Goal shape to Supabase row shape
@@ -36,6 +46,7 @@ function toRow(goal: Goal, userId: string) {
         image_url: goal.image,
         category: goal.category,
         created_at: goal.createdAt,
+        updated_at: goal.updatedAt ?? goal.createdAt,
         timeline_date: goal.timelineDate,
         completed: goal.completed,
         completed_at: goal.completedAt,
@@ -45,6 +56,8 @@ function toRow(goal: Goal, userId: string) {
         location_city: goal.location.city,
         location_country: goal.location.country,
         location_place_id: goal.location.placeId ?? null,
+        completion_photo_url: goal.completionPhoto ?? null,
+        milestones: goal.milestones ?? [],
     };
 }
 
@@ -57,6 +70,7 @@ function fromRow(row: Record<string, any>): Goal {
         image: row.image_url ?? '',
         category: row.category,
         createdAt: row.created_at,
+        updatedAt: row.updated_at ?? row.created_at,
         timelineDate: row.timeline_date,
         completed: row.completed,
         completedAt: row.completed_at,
@@ -68,6 +82,8 @@ function fromRow(row: Record<string, any>): Goal {
             country: row.location_country ?? '',
             placeId: row.location_place_id ?? undefined,
         },
+        completionPhoto: row.completion_photo_url ?? null,
+        milestones: row.milestones ?? [],
     };
 }
 
@@ -80,9 +96,14 @@ interface GoalState {
     updateGoal: (id: string, updates: Partial<Goal>) => Promise<void>;
     deleteGoal: (id: string) => Promise<void>;
     toggleComplete: (id: string, notes?: string) => Promise<void>;
+    addMilestone: (goalId: string, milestone: Omit<Milestone, 'id'>) => void;
+    toggleMilestone: (goalId: string, milestoneId: string) => void;
     syncFromCloud: () => Promise<void>;
     getCompletedGoals: () => Goal[];
     getPendingGoals: () => Goal[];
+    getMonthlyCompletionStreak: () => number;
+    getWeeklyActivity: () => number;
+    getGoalsPage: (page: number, pageSize: number) => Goal[];
     clearGoals: () => void;
 }
 
@@ -124,7 +145,9 @@ export const useGoalStore = create<GoalState>()(
 
             updateGoal: async (id, updates) => {
                 set(state => ({
-                    goals: state.goals.map(g => (g.id === id ? { ...g, ...updates } : g)),
+                    goals: state.goals.map(g =>
+                        g.id === id ? { ...g, ...updates, updatedAt: new Date().toISOString() } : g
+                    ),
                 }));
 
                 const session = await getSession();
@@ -164,6 +187,7 @@ export const useGoalStore = create<GoalState>()(
                             ...g,
                             completed: isNowCompleted,
                             completedAt: isNowCompleted ? new Date().toISOString() : null,
+                            updatedAt: new Date().toISOString(),
                             notes: notes !== undefined ? notes : g.notes,
                         };
                     }),
@@ -187,6 +211,34 @@ export const useGoalStore = create<GoalState>()(
                             if (error) console.error('[GoalStore] toggle:', error.message);
                         });
                 });
+            },
+
+            addMilestone: (goalId, milestone) => {
+                const newMilestone: Milestone = {
+                    ...milestone,
+                    id: uuid.v4() as string,
+                };
+                set(state => ({
+                    goals: state.goals.map(g =>
+                        g.id === goalId
+                            ? { ...g, milestones: [...(g.milestones ?? []), newMilestone] }
+                            : g
+                    ),
+                }));
+            },
+
+            toggleMilestone: (goalId, milestoneId) => {
+                set(state => ({
+                    goals: state.goals.map(g => {
+                        if (g.id !== goalId) return g;
+                        return {
+                            ...g,
+                            milestones: (g.milestones ?? []).map(m =>
+                                m.id === milestoneId ? { ...m, completed: !m.completed } : m
+                            ),
+                        };
+                    }),
+                }));
             },
 
             // Sync: push local-only goals up, pull cloud goals down, merge
@@ -222,21 +274,20 @@ export const useGoalStore = create<GoalState>()(
                         );
                     }
 
-                    // 3. Merge: cloud wins for conflicts, keep all local-only
-                    const cloudMap = new Map(cloudGoals.map(g => [g.id, g]));
-                    const merged = [
-                        ...cloudGoals,
-                        ...localOnly, // already pushed, keep locally too
-                    ];
-                    // deduplicate by id, cloud wins
-                    const seen = new Set<string>();
-                    const deduped = merged.filter(g => {
-                        if (seen.has(g.id)) return false;
-                        seen.add(g.id);
-                        return true;
-                    });
+                    // 3. Merge: newest updatedAt wins for conflicts, keep all local-only
+                    const merged = [...cloudGoals, ...localGoals].reduce((acc, goal) => {
+                        const existing = acc.find((g: Goal) => g.id === goal.id);
+                        if (!existing) return [...acc, goal];
+                        // Keep the one with newer updatedAt
+                        const existingDate = new Date(existing.updatedAt ?? existing.createdAt);
+                        const goalDate = new Date(goal.updatedAt ?? goal.createdAt);
+                        if (goalDate > existingDate) {
+                            return acc.map((g: Goal) => (g.id === goal.id ? goal : g));
+                        }
+                        return acc;
+                    }, [] as Goal[]);
 
-                    set({ goals: deduped });
+                    set({ goals: merged });
                 } finally {
                     set({ syncing: false });
                 }
@@ -244,6 +295,31 @@ export const useGoalStore = create<GoalState>()(
 
             getCompletedGoals: () => get().goals.filter(g => g.completed),
             getPendingGoals: () => get().goals.filter(g => !g.completed),
+
+            getMonthlyCompletionStreak: () => {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                return get().goals.filter(g => {
+                    if (!g.completed || !g.completedAt) return false;
+                    return new Date(g.completedAt) >= thirtyDaysAgo;
+                }).length;
+            },
+
+            getWeeklyActivity: () => {
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                return get().goals.filter(g => {
+                    if (!g.completed || !g.completedAt) return false;
+                    return new Date(g.completedAt) >= sevenDaysAgo;
+                }).length;
+            },
+
+            getGoalsPage: (page, pageSize) => {
+                const goals = get().goals;
+                const start = page * pageSize;
+                return goals.slice(start, start + pageSize);
+            },
+
             clearGoals: () => set({ goals: [] }),
         }),
         {
