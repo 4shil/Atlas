@@ -33,7 +33,7 @@ import { Confetti } from '../components/Confetti';
 export default function GoalDetail() {
     const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
-    const { goals, toggleComplete, deleteGoal } = useGoalStore();
+    const { goals, toggleComplete, deleteGoal, updateGoal } = useGoalStore();
     const [showCelebration, setShowCelebration] = useState(false);
     const [completionPhoto, setCompletionPhoto] = useState<string | null>(
         goal?.completionPhoto ?? null
@@ -95,8 +95,13 @@ export default function GoalDetail() {
                             quality: 0.7,
                         });
                         const photo = result.canceled ? null : result.assets[0].uri;
-                        if (photo) setCompletionPhoto(photo);
-                        toggleComplete(goal.id, photo ? `completionPhoto:${photo}` : undefined);
+                        if (photo) {
+                            setCompletionPhoto(photo);
+                            toggleComplete(goal.id);
+                            updateGoal(goal.id, { completionPhoto: photo });
+                        } else {
+                            toggleComplete(goal.id);
+                        }
                         triggerCelebration();
                     },
                 },
@@ -325,6 +330,20 @@ export default function GoalDetail() {
                                   ? `Today is the day you planned to achieve "${goal.title}". Make it happen.`
                                   : `"${goal.title}" is past its target date — but it's not too late. The best time to start is now.`}
                         </Text>
+                    </View>
+                )}
+
+                {/* Completion photo */}
+                {goal.completed && completionPhoto && (
+                    <View className="mx-6 mt-4 rounded-2xl overflow-hidden">
+                        <Text className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-2 px-1">
+                            Memory Photo
+                        </Text>
+                        <Image
+                            source={{ uri: completionPhoto }}
+                            style={{ width: '100%', height: 200, borderRadius: 16 }}
+                            resizeMode="cover"
+                        />
                     </View>
                 )}
 
