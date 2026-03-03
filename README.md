@@ -296,3 +296,20 @@ GitHub Actions runs on every push to `main` and every PR:
 ## License
 
 MIT
+
+---
+
+## Download
+
+> Coming soon to the App Store and Google Play!
+
+<!-- App Store badge placeholder -->
+<!-- [![App Store](https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg)](https://apps.apple.com) -->
+
+<!-- Play Store badge placeholder -->
+<!-- [![Google Play](https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg)](https://play.google.com) -->
+
+## Privacy & Terms
+
+- [Privacy Policy](./PRIVACY.md)
+- [Terms of Service](./TERMS.md)
