@@ -16,6 +16,7 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Goal } from '../store/useGoalStore';
+import { getThumbnailUrl } from '../utils/imageUtils';
 import { getDaysUntil } from '../utils/dateUtils';
 import { getCategoryIcon } from '../utils/Icons';
 
@@ -146,7 +147,7 @@ export const GoalRow = React.memo(
                         >
                             {goal.image ? (
                                 <Image
-                                    source={{ uri: goal.image }}
+                                    source={{ uri: getThumbnailUrl(goal.image, 200) }}
                                     style={{ width: '100%', height: '100%' }}
                                     resizeMode="cover"
                                 />

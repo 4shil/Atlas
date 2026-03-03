@@ -27,6 +27,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { getCategoryIcon } from '../utils/Icons';
 import { getDaysUntil } from '../utils/dateUtils';
+import { getDetailUrl } from '../utils/imageUtils';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { Confetti } from '../components/Confetti';
 
@@ -147,7 +148,7 @@ export default function GoalDetail() {
             {/* Hero Image */}
             <View className="h-[45%] relative">
                 <Image
-                    source={{ uri: goal.image }}
+                    source={{ uri: getDetailUrl(goal.image) }}
                     className="absolute inset-0 w-full h-full"
                     resizeMode="cover"
                 />

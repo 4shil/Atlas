@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import Animated, { useAnimatedStyle, SharedValue } from 'react-native-reanimated';
 import { Goal } from '../store/useGoalStore';
+import { getThumbnailUrl } from '../utils/imageUtils';
 
 interface GoalCardProps {
     goal: Goal;
@@ -35,7 +36,7 @@ export const GoalCard = React.memo(
                 >
                     <View className="h-full w-full relative">
                         <Image
-                            source={{ uri: goal.image }}
+                            source={{ uri: getThumbnailUrl(goal.image, 400) }}
                             className="absolute inset-0 w-full h-full"
                             resizeMode="cover"
                         />
