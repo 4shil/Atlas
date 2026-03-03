@@ -30,11 +30,20 @@ const SORT_LABELS: Record<SortMode, string> = {
 };
 
 export default function DashboardDark() {
-    const { getCompletedGoals, getPendingGoals, goals, toggleComplete, syncFromCloud } =
-        useGoalStore();
+    const {
+        getCompletedGoals,
+        getPendingGoals,
+        goals,
+        toggleComplete,
+        syncFromCloud,
+        deleteGoal,
+        getMonthlyCompletionStreak,
+        getWeeklyActivity,
+    } = useGoalStore();
     const { profile } = useProfileStore();
     const router = useRouter();
     const [refreshing, setRefreshing] = React.useState(false);
+    const [showOverdueBanner, setShowOverdueBanner] = useState(true);
 
     const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
@@ -135,6 +144,135 @@ export default function DashboardDark() {
                         </>
                     }
                 />
+
+                {/* Stats strip */}
+                {!showSearch && (
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            gap: 10,
+                            paddingHorizontal: 24,
+                            marginTop: 12,
+                            marginBottom: 4,
+                        }}
+                    >
+                        <View
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'rgba(255,255,255,0.05)',
+                                borderRadius: 14,
+                                padding: 12,
+                                borderWidth: 1,
+                                borderColor: 'rgba(255,255,255,0.08)',
+                            }}
+                        >
+                            <Text style={{ color: 'white', fontSize: 16, fontWeight: '700' }}>
+                                🔥 {getMonthlyCompletionStreak()}
+                            </Text>
+                            <Text
+                                style={{
+                                    color: 'rgba(255,255,255,0.4)',
+                                    fontSize: 11,
+                                    marginTop: 2,
+                                }}
+                            >
+                                completed this month
+                            </Text>
+                        </View>
+                        <View
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'rgba(255,255,255,0.05)',
+                                borderRadius: 14,
+                                padding: 12,
+                                borderWidth: 1,
+                                borderColor: 'rgba(255,255,255,0.08)',
+                            }}
+                        >
+                            <Text style={{ color: 'white', fontSize: 16, fontWeight: '700' }}>
+                                ⚡ {getWeeklyActivity()}
+                            </Text>
+                            <Text
+                                style={{
+                                    color: 'rgba(255,255,255,0.4)',
+                                    fontSize: 11,
+                                    marginTop: 2,
+                                }}
+                            >
+                                this week
+                            </Text>
+                        </View>
+                    </View>
+                )}
+
+                {/* Overdue nudge banner */}
+                {!showSearch && showOverdueBanner && overdueGoals.length > 0 && (
+                    <View
+                        style={{
+                            marginHorizontal: 24,
+                            marginTop: 12,
+                            backgroundColor: 'rgba(251,191,36,0.1)',
+                            borderRadius: 16,
+                            borderWidth: 1,
+                            borderColor: 'rgba(251,191,36,0.25)',
+                            padding: 14,
+                        }}
+                    >
+                        <Text
+                            style={{
+                                color: '#fbbf24',
+                                fontSize: 13,
+                                fontWeight: '600',
+                                marginBottom: 8,
+                            }}
+                        >
+                            🕐 {overdueGoals.length} overdue dream
+                            {overdueGoals.length !== 1 ? 's' : ''} — want to reschedule?
+                        </Text>
+                        <View style={{ flexDirection: 'row', gap: 8 }}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    Haptics.selectionAsync();
+                                    router.push('/(tabs)/archive');
+                                }}
+                                style={{
+                                    flex: 1,
+                                    backgroundColor: 'rgba(251,191,36,0.15)',
+                                    borderRadius: 10,
+                                    padding: 8,
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Text style={{ color: '#fbbf24', fontSize: 12, fontWeight: '600' }}>
+                                    Reschedule
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    Haptics.selectionAsync();
+                                    setShowOverdueBanner(false);
+                                }}
+                                style={{
+                                    flex: 1,
+                                    backgroundColor: 'rgba(255,255,255,0.05)',
+                                    borderRadius: 10,
+                                    padding: 8,
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        color: 'rgba(255,255,255,0.4)',
+                                        fontSize: 12,
+                                        fontWeight: '600',
+                                    }}
+                                >
+                                    Dismiss
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                )}
 
                 {/* Animated Travel Gallery Strip — all goals with images */}
                 {!showSearch && goals.length > 0 && (
