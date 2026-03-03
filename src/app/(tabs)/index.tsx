@@ -557,6 +557,7 @@ export default function DashboardDark() {
                                 onComplete={() =>
                                     toggleComplete(goal.id, 'Completed via Dashboard')
                                 }
+                                onDelete={() => deleteGoal(goal.id)}
                             />
                         ))
                     )}
