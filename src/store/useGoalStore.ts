@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
 import { supabase } from '../lib/supabase';
+import { track } from '../lib/analytics';
 
 export interface Location {
     latitude: number;
@@ -130,6 +131,7 @@ export const useGoalStore = create<GoalState>()(
 
                 // Optimistic local update
                 set(state => ({ goals: [...state.goals, newGoal] }));
+                track('goal_created', { category: newGoal.category });
 
                 // Cloud sync
                 const session = await getSession();
@@ -165,6 +167,7 @@ export const useGoalStore = create<GoalState>()(
 
             deleteGoal: async id => {
                 set(state => ({ goals: state.goals.filter(g => g.id !== id) }));
+                track('goal_deleted');
 
                 const session = await getSession();
                 if (session) {
@@ -179,6 +182,7 @@ export const useGoalStore = create<GoalState>()(
 
             toggleComplete: async (id, notes) => {
                 // 1. Local — instant
+                const wasCompleted = get().goals.find(g => g.id === id)?.completed ?? false;
                 set(state => ({
                     goals: state.goals.map(g => {
                         if (g.id !== id) return g;
@@ -192,6 +196,7 @@ export const useGoalStore = create<GoalState>()(
                         };
                     }),
                 }));
+                if (!wasCompleted) track('goal_completed');
 
                 // 2. Cloud — background
                 getSession().then(session => {

@@ -4,7 +4,7 @@
  */
 
 import '../../global.css';
-import { Stack } from 'expo-router';
+import { Stack , usePathname } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as SplashScreen from 'expo-splash-screen';
@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '../theme';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { track } from '../lib/analytics';
 import { initSentry } from '../lib/sentry';
 
 // Initialize error monitoring before app renders
@@ -24,6 +25,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function RootLayoutNav() {
     const { colors, isDark, isReducedMotion } = useTheme();
+    const pathname = usePathname();
 
     // Preload MaterialIcons font so icons render instantly — no flash/layout shift
     const [fontsLoaded] = useFonts({
@@ -33,6 +35,10 @@ function RootLayoutNav() {
     useEffect(() => {
         if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
     }, [fontsLoaded]);
+
+    useEffect(() => {
+        track('screen_view', { screen: pathname });
+    }, [pathname]);
 
     return (
         <>

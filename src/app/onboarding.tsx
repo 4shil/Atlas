@@ -21,6 +21,7 @@ import { useProfileStore } from '../store/useProfileStore';
 import { useGoalStore } from '../store/useGoalStore';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { GOAL_TEMPLATES } from '../utils/goalTemplates';
+import { track } from '../lib/analytics';
 
 const { width } = Dimensions.get('window');
 
@@ -122,6 +123,7 @@ export default function Onboarding() {
             });
         }
 
+        track('onboarding_completed', { templatesSelected: selectedTemplates.length });
         router.replace('/(tabs)');
     };
 
