@@ -20,7 +20,7 @@
         "@react-native-community/datetimepicker": "8.4.1",
         "@react-navigation/native": "^7.1.6",
         "@sentry/react-native": "^8.2.0",
-        "@shopify/react-native-skia": "v2.0.0-next.4",
+        "@shopify/react-native-skia": "^1.9.0",
         "@supabase/supabase-js": "^2.98.0",
         "expo": "~53.0.0",
         "expo-blur": "~14.1.5",
