@@ -65,7 +65,10 @@ export default function DarkAdventureMap() {
     } | null>(null);
     const [selectedAttraction, setSelectedAttraction] = React.useState<Attraction | null>(null);
     const { attractions, fetchAttractions } = useNearbyAttractions();
-    const [mapStyleMode, setMapStyleMode] = React.useState<'standard' | 'satellite'>('standard');
+    const mapStylePref = useSettingsStore(s => s.mapStylePref);
+    const [mapStyleMode, setMapStyleMode] = React.useState<'standard' | 'satellite'>(
+        mapStylePref ?? 'standard'
+    );
     const unitSystem = useSettingsStore(s => s.unitSystem);
 
     // Animated map height

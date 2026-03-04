@@ -63,6 +63,8 @@ export default function SettingsScreen() {
         setThemeMode,
         unitSystem,
         setUnitSystem,
+        mapStylePref,
+        setMapStylePref,
         pushNotifications,
         setPushNotifications,
         dailyReminders,
@@ -229,6 +231,29 @@ export default function SettingsScreen() {
                                     Imperial
                                 </Text>
                             </TouchableOpacity>
+                        </View>
+                    </View>
+                    <View className="flex-row items-center justify-between mt-4">
+                        <Text className="dark:text-white/70 text-gray-700 text-base">
+                            Default Map Style
+                        </Text>
+                        <View className="flex-row bg-white/[0.06] rounded-lg p-1 border dark:border-white/[0.08] border-black/[0.08]">
+                            {(['standard', 'satellite'] as const).map(style => (
+                                <TouchableOpacity
+                                    key={style}
+                                    className={`px-3 py-1 rounded-md ${mapStylePref === style ? 'bg-white/15' : ''}`}
+                                    onPress={() => {
+                                        Haptics.selectionAsync();
+                                        setMapStylePref(style);
+                                    }}
+                                >
+                                    <Text
+                                        className={`text-xs font-bold capitalize ${mapStylePref === style ? 'text-white' : 'dark:text-white/40 text-gray-400'}`}
+                                    >
+                                        {style}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
                         </View>
                     </View>
                 </AccordionItem>
