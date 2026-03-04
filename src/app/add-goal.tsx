@@ -168,7 +168,7 @@ export default function AddGoal() {
     };
 
     return (
-        <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50">
+        <ScreenWrapper bgClass="dark:bg-black bg-slate-50">
             {/* Header */}
             <View className="px-6 py-4 flex-row justify-between items-center border-b dark:border-white/10 border-black/10">
                 <TouchableOpacity
@@ -180,7 +180,7 @@ export default function AddGoal() {
                 >
                     <MaterialIcons name="close" size={20} color="white" />
                 </TouchableOpacity>
-                <Text className="text-white font-semibold text-lg">
+                <Text className="dark:text-white text-gray-900 font-semibold text-lg">
                     {isEditMode ? 'Edit Adventure' : 'New Adventure'}
                 </Text>
                 <TouchableOpacity
@@ -295,7 +295,7 @@ export default function AddGoal() {
                     >
                         <MaterialIcons name="place" size={20} color="#60a5fa" />
                         <Text
-                            className={`flex-1 text-base ml-2 ${locationData.city ? 'text-white' : 'text-gray-500'}`}
+                            className={`flex-1 text-base ml-2 ${locationData.city ? 'dark:text-white text-gray-900' : 'text-gray-500'}`}
                         >
                             {locationData.city
                                 ? `${locationData.city}, ${locationData.country}`

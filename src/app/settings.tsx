@@ -156,7 +156,7 @@ export default function SettingsScreen() {
     };
 
     return (
-        <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50">
+        <ScreenWrapper bgClass="dark:bg-black bg-slate-50">
             {/* Header */}
             <View className="px-6 py-4 flex-row items-center border-b border-white/[0.06] mt-12 mb-4">
                 <TouchableOpacity
@@ -168,7 +168,9 @@ export default function SettingsScreen() {
                 >
                     <MaterialIcons name="arrow-back" size={20} color="white" />
                 </TouchableOpacity>
-                <Text className="text-white font-semibold text-xl">Settings</Text>
+                <Text className="dark:text-white text-gray-900 font-semibold text-xl">
+                    Settings
+                </Text>
             </View>
 
             <ScrollView
@@ -299,7 +301,7 @@ export default function SettingsScreen() {
                         <View className="w-16 h-16 bg-white/15 rounded-2xl items-center justify-center mb-3 border dark:border-white/10 border-black/10">
                             <MaterialIcons name="explore" size={32} color="white" />
                         </View>
-                        <Text className="text-white dark:text-white font-bold text-lg">
+                        <Text className="dark:text-white text-gray-900 font-bold text-lg">
                             Atlas Planner
                         </Text>
                         <Text className="dark:text-white/40 text-gray-400 text-sm mb-4">

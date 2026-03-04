@@ -99,7 +99,7 @@ export default function Notifications() {
     };
 
     return (
-        <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50">
+        <ScreenWrapper bgClass="dark:bg-black bg-slate-50">
             {/* Header */}
             <View className="px-6 py-4 flex-row items-center justify-between border-b dark:border-white/10 border-black/10">
                 <View className="flex-row items-center">

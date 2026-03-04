@@ -49,7 +49,7 @@ export default function GoalDetail() {
 
     if (!goal) {
         return (
-            <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50">
+            <ScreenWrapper bgClass="dark:bg-black bg-slate-50">
                 <View className="flex-1 items-center justify-center">
                     <Text className="text-gray-400">Goal not found.</Text>
                     <TouchableOpacity onPress={() => router.back()} className="mt-4">
@@ -147,7 +147,7 @@ export default function GoalDetail() {
     };
 
     return (
-        <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50" edges={[]}>
+        <ScreenWrapper bgClass="dark:bg-black bg-slate-50" edges={[]}>
             {/* Hero Image */}
             <View className="h-[45%] relative">
                 <Image
