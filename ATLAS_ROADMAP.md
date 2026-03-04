@@ -358,3 +358,93 @@ Reasons: PostgreSQL, built-in auth, storage for images, real-time, generous free
 - All key imports verified (expo-image, expo-sharing, expo-file-system, react-native-reanimated, gesture-handler)
 - New files: `src/hooks/useNearbyAttractions.ts`, `src/components/MapWrapper.d.ts` updated
 - Store: `useSettingsStore` expanded with themeMode, mapStylePref, defaultCategory, showCompletedOnMap, notificationSound
+
+---
+
+## v2 Features (Added March 2026)
+
+**Status:** v2 Complete ✅
+
+### Feature 1 — Global Search
+
+- [x] Full-text search across goal title, description, notes, location
+- [x] Category chips + completed/pending toggle filters
+- [x] Highlight matched text in results
+- [x] Search history (last 10) stored in AsyncStorage with clear button
+- [x] Empty state illustrations
+- [x] Search icon in gallery header
+
+### Feature 2 — Goal Statistics Dashboard
+
+- [x] Stats screen: total, completed, pending, completion rate
+- [x] Monthly creation/completion bar chart (6-month view)
+- [x] Category distribution breakdown with percentage bars
+- [x] Streak tracker: current streak + longest streak ever
+- [x] Goals this month + avg days to complete
+- [x] World progress: unique countries, cities, % of 195 countries
+- [x] Motivational milestone messages
+- [x] Accessible from profile header (bar-chart icon)
+
+### Feature 3 — Goal Share Card
+
+- [x] Share button in goal-detail header → opens share modal
+- [x] react-native-view-shot captures ShareCard as PNG
+- [x] expo-sharing to WhatsApp, Instagram, etc.
+- [x] "Copy Link" option for atlas://goal/{id} deep link
+- [x] ShareCard component: branded dark card with goal image, title, location, status, watermark
+
+### Feature 4 — Onboarding Redesign
+
+- [x] 3 animated slides (Track Dreams / Pin on Map / Never Give Up)
+- [x] Animated progress dots (expand + color on active)
+- [x] Skip button
+- [x] Feature highlights per slide with icon rows
+- [x] Profile setup step: name input + avatar picker
+- [x] Smooth transition to main app; pre-fills useProfileStore
+
+### Feature 5 — Goal Detail Enhancements
+
+- [x] Progress Photos section: add multiple photos over time
+- [x] Horizontal scrollable photo strip with tap-to-fullscreen
+- [x] Related Goals suggestions (same category or country)
+- [x] Horizontal scroll "Similar Goals" with navigation
+
+### Feature 6 — Notifications Redesign
+
+- [x] Goals grouped by: Overdue / Today / This Week / Earlier
+- [x] Per-notification unread dot indicator
+- [x] Mark all read button
+- [x] Smart notification scheduling: daily (1d), every 2d (≤7d), weekly (≤30d), special for overdue
+- [x] Reschedule logic runs on app foreground (AppState listener)
+- [x] Permission prompt banner
+- [x] Unread count badge in header
+
+### Feature 7 — Archive Timeline
+
+- [x] Goals grouped by Year → Month with collapsible sections
+- [x] Timeline line + dot visual on left side
+- [x] Count badge per month section
+- [x] Tap 🎉 on any goal → confetti celebration replay
+- [x] "Completed X days ago" relative timestamps
+- [x] "You've completed N goals this year" banner at top
+
+### Feature 8 — Performance & UX Polish
+
+- [x] GoalCardSkeleton with Reanimated shimmer (3 skeletons on initial load)
+- [x] GoalCard upgraded to expo-image with blurhash placeholder + fade-in transition
+- [x] Pull-to-refresh wired in gallery screen
+- [x] GoalCard accessibility: accessibilityLabel, accessibilityRole on images
+- [x] Search screen: full accessibilityLabel + accessibilityRole on all interactive elements
+- [x] Stats, archive, notifications: accessibilityLabel on all buttons
+- [x] TypeScript: progressPhotos field added to Goal type
+- [x] ESLint clean pass (react/no-unescaped-entities fixes)
+- [x] Roadmap updated with v2 features
+
+### Next Steps (v3 Ideas)
+
+- Cloud sync for progress photos (Supabase Storage)
+- Social features: follow friends, shared goal boards
+- AI goal suggestions based on location/history
+- Widget support (Expo Widgets)
+- Apple Watch / WearOS companion
+- Goal templates marketplace

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, Platform, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Platform, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -37,8 +38,12 @@ export const GoalCard = React.memo(
                     <View className="h-full w-full relative">
                         <Image
                             source={{ uri: getThumbnailUrl(goal.image, 400) }}
-                            className="absolute inset-0 w-full h-full"
-                            resizeMode="cover"
+                            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                            contentFit="cover"
+                            transition={300}
+                            placeholder={{ blurhash: 'LGF5?xYk^6#M@-5c,1J5@[or[Q6.' }}
+                            recyclingKey={goal.id}
+                            accessibilityLabel={goal.title}
                         />
                         <LinearGradient
                             colors={['transparent', 'rgba(0,0,0,0.85)']}

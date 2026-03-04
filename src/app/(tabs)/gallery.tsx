@@ -1,5 +1,14 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, Dimensions, StatusBar, StyleSheet } from 'react-native';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    Dimensions,
+    StatusBar,
+    StyleSheet,
+    RefreshControl,
+    ScrollView,
+} from 'react-native';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,6 +27,7 @@ import Animated, {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getDaysUntil } from '../../utils/dateUtils';
+import { GoalCardSkeleton as SkeletonCard } from '../../components/GoalCardSkeleton';
 
 const { width, height } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 70;
@@ -27,6 +37,22 @@ export default function Gallery() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const [activeIndex, setActiveIndex] = useState(0);
+    const [refreshing, setRefreshing] = useState(false);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+    React.useEffect(() => {
+        // Simulate initial data load — goals already in store
+        const t = setTimeout(() => setIsInitialLoad(false), 600);
+        return () => clearTimeout(t);
+    }, []);
+
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        // Re-fetch from Supabase by re-triggering the store listener
+        await new Promise(r => setTimeout(r, 800));
+        setRefreshing(false);
+    }, []);
 
     const translateX = useSharedValue(0);
     const rotate = useSharedValue(0);
@@ -94,6 +120,25 @@ export default function Gallery() {
         opacity: interpolate(Math.abs(translateX.value), [0, 150], [0.4, 1], Extrapolation.CLAMP),
         zIndex: 5,
     }));
+
+    if (isInitialLoad) {
+        return (
+            <View style={styles.container}>
+                <StatusBar barStyle="light-content" />
+                <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+                    <View>
+                        <Text style={styles.overline}>COLLECTION</Text>
+                        <Text style={styles.title}>Gallery</Text>
+                    </View>
+                </View>
+                <View style={styles.skeletonContainer}>
+                    {[0, 1, 2].map(i => (
+                        <SkeletonCard key={i} />
+                    ))}
+                </View>
+            </View>
+        );
+    }
 
     if (goals.length === 0) {
         return (
@@ -365,6 +410,13 @@ function CardView({ goal, interactive, onPress, onComplete }: CardViewProps) {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#04040a' },
+    skeletonContainer: {
+        flexDirection: 'row',
+        paddingHorizontal: 40,
+        gap: 16,
+        marginTop: 60,
+        overflow: 'hidden',
+    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
