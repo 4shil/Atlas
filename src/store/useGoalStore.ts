@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
 import { supabase as supabaseClient } from '../lib/supabase';
 import { track } from '../lib/analytics';
- 
+
 const supabase = supabaseClient as any;
 
 export interface Location {
@@ -36,6 +36,7 @@ export interface Goal {
     notes: string;
     location: Location;
     completionPhoto?: string | null;
+    progressPhotos?: string[];
     milestones?: Milestone[];
 }
 

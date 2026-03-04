@@ -48,10 +48,27 @@ export default function GoalDetail() {
     const [completionPhoto, setCompletionPhoto] = useState<string | null>(
         goal?.completionPhoto ?? null
     );
+    const [progressPhotos, setProgressPhotos] = useState<string[]>(goal?.progressPhotos ?? []);
     const [showShareModal, setShowShareModal] = useState(false);
+    const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
     const shareCardRef = useRef<ViewShot>(null);
     const celebScale = useSharedValue(0);
     const celebOpacity = useSharedValue(0);
+
+    const handleAddProgressPhoto = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            quality: 0.7,
+        });
+        if (!result.canceled) {
+            const newUri = result.assets[0].uri;
+            const updated = [...progressPhotos, newUri];
+            setProgressPhotos(updated);
+            updateGoal(goal!.id, { progressPhotos: updated });
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+    };
 
     const handleShare = async () => {
         if (!goal) return;
@@ -575,7 +592,133 @@ export default function GoalDetail() {
                         })}
                     </Text>
                 </View>
+                {/* Progress Photos */}
+                <View style={detailStyles.section}>
+                    <View style={detailStyles.sectionHeader}>
+                        <MaterialIcons name="photo-library" size={16} color="#60a5fa" />
+                        <Text style={detailStyles.sectionTitle}>Progress Photos</Text>
+                        <Text style={detailStyles.sectionCount}>{progressPhotos.length}</Text>
+                    </View>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={detailStyles.photoRow}
+                    >
+                        {progressPhotos.map((uri, i) => (
+                            <TouchableOpacity
+                                key={i}
+                                onPress={() => setSelectedPhoto(uri)}
+                                activeOpacity={0.85}
+                                accessibilityLabel={`Progress photo ${i + 1}`}
+                                accessibilityRole="button"
+                            >
+                                <Image
+                                    source={{ uri }}
+                                    style={detailStyles.photoThumb}
+                                    resizeMode="cover"
+                                />
+                            </TouchableOpacity>
+                        ))}
+                        <TouchableOpacity
+                            onPress={handleAddProgressPhoto}
+                            style={detailStyles.addPhotoBtn}
+                            accessibilityLabel="Add progress photo"
+                            accessibilityRole="button"
+                        >
+                            <MaterialIcons
+                                name="add-photo-alternate"
+                                size={24}
+                                color="rgba(255,255,255,0.4)"
+                            />
+                            <Text style={detailStyles.addPhotoText}>Add</Text>
+                        </TouchableOpacity>
+                    </ScrollView>
+                </View>
+
+                {/* Related Goals */}
+                {(() => {
+                    const related = goals
+                        .filter(
+                            g =>
+                                g.id !== goal.id &&
+                                (g.category === goal.category ||
+                                    (g.location.country &&
+                                        g.location.country === goal.location.country))
+                        )
+                        .slice(0, 6);
+                    if (related.length === 0) return null;
+                    return (
+                        <View style={detailStyles.section}>
+                            <View style={detailStyles.sectionHeader}>
+                                <MaterialIcons name="explore" size={16} color="#a78bfa" />
+                                <Text style={detailStyles.sectionTitle}>Similar Goals</Text>
+                            </View>
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={detailStyles.relatedRow}
+                            >
+                                {related.map(rg => (
+                                    <TouchableOpacity
+                                        key={rg.id}
+                                        onPress={() => {
+                                            Haptics.selectionAsync();
+                                            router.push({
+                                                pathname: '/goal-detail',
+                                                params: { id: rg.id },
+                                            });
+                                        }}
+                                        style={detailStyles.relatedCard}
+                                        activeOpacity={0.85}
+                                        accessibilityLabel={`Related goal: ${rg.title}`}
+                                        accessibilityRole="button"
+                                    >
+                                        {rg.image ? (
+                                            <Image
+                                                source={{ uri: rg.image }}
+                                                style={StyleSheet.absoluteFillObject as any}
+                                                resizeMode="cover"
+                                            />
+                                        ) : null}
+                                        <LinearGradient
+                                            colors={['transparent', 'rgba(0,0,0,0.85)']}
+                                            style={StyleSheet.absoluteFillObject as any}
+                                        />
+                                        <View style={detailStyles.relatedCardContent}>
+                                            <Text style={detailStyles.relatedBadge}>
+                                                {rg.category}
+                                            </Text>
+                                            <Text
+                                                style={detailStyles.relatedTitle}
+                                                numberOfLines={2}
+                                            >
+                                                {rg.title}
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
+                        </View>
+                    );
+                })()}
             </ScrollView>
+
+            {/* Photo fullscreen modal */}
+            {selectedPhoto && (
+                <TouchableOpacity
+                    style={detailStyles.photoModal}
+                    onPress={() => setSelectedPhoto(null)}
+                    activeOpacity={1}
+                    accessibilityLabel="Close photo"
+                    accessibilityRole="button"
+                >
+                    <Image
+                        source={{ uri: selectedPhoto }}
+                        style={detailStyles.photoFull}
+                        resizeMode="contain"
+                    />
+                </TouchableOpacity>
+            )}
 
             {/* Bottom Action */}
             <View className="absolute bottom-0 left-0 right-0 px-6 pb-10 pt-4 bg-black/70 border-t border-white/[0.06]">
@@ -745,4 +888,59 @@ const shareStyles = StyleSheet.create({
     actionText: { color: 'white', fontWeight: '700', fontSize: 14 },
     cancelBtn: { alignItems: 'center', paddingVertical: 14 },
     cancelText: { color: 'rgba(255,255,255,0.4)', fontSize: 15 },
+});
+
+const detailStyles = StyleSheet.create({
+    section: { marginHorizontal: 24, marginTop: 24 },
+    sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+    sectionTitle: {
+        color: 'rgba(255,255,255,0.6)',
+        fontSize: 11,
+        fontWeight: '700',
+        letterSpacing: 1,
+        flex: 1,
+    },
+    sectionCount: { color: 'rgba(255,255,255,0.3)', fontSize: 11 },
+    photoRow: { gap: 10, paddingRight: 8 },
+    photoThumb: { width: 90, height: 90, borderRadius: 12, backgroundColor: '#111' },
+    addPhotoBtn: {
+        width: 90,
+        height: 90,
+        borderRadius: 12,
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 4,
+    },
+    addPhotoText: { color: 'rgba(255,255,255,0.3)', fontSize: 11 },
+    relatedRow: { gap: 10, paddingRight: 8 },
+    relatedCard: {
+        width: 140,
+        height: 100,
+        borderRadius: 14,
+        overflow: 'hidden',
+        backgroundColor: '#111',
+    },
+    relatedCardContent: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 10 },
+    relatedBadge: {
+        color: 'rgba(255,255,255,0.4)',
+        fontSize: 9,
+        fontWeight: '700',
+        marginBottom: 3,
+    },
+    relatedTitle: { color: 'white', fontSize: 12, fontWeight: '700', lineHeight: 15 },
+    photoModal: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.95)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 100,
+    },
+    photoFull: { width: '100%', height: '80%' },
 });
