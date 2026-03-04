@@ -1,5 +1,14 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    Image,
+    ScrollView,
+    Dimensions,
+    TextInput,
+    ActivityIndicator,
+} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -44,6 +53,12 @@ export default function DarkAdventureMap() {
     const [currentCity, setCurrentCity] = React.useState<string | null>(null);
     const [weather, setWeather] = React.useState<WeatherData | null>(null);
     const [isExpanded, setIsExpanded] = React.useState(false);
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [searchLoading, setSearchLoading] = React.useState(false);
+    const [flyToCoords, setFlyToCoords] = React.useState<{
+        latitude: number;
+        longitude: number;
+    } | null>(null);
     const unitSystem = useSettingsStore(s => s.unitSystem);
 
     // Animated map height
@@ -131,6 +146,29 @@ export default function DarkAdventureMap() {
                 }
             } catch (_) {}
         })();
+    }, []);
+
+    const handleSearch = React.useCallback(async (query: string) => {
+        if (!query.trim()) return;
+        setSearchLoading(true);
+        try {
+            const encoded = encodeURIComponent(query.trim());
+            const res = await fetch(
+                `https://nominatim.openstreetmap.org/search?q=${encoded}&format=json&limit=1`,
+                { headers: { 'User-Agent': 'AtlasApp/1.0' } }
+            );
+            if (res.ok) {
+                const data = await res.json();
+                if (data?.[0]) {
+                    setFlyToCoords({
+                        latitude: parseFloat(data[0].lat),
+                        longitude: parseFloat(data[0].lon),
+                    });
+                    setSearchQuery('');
+                }
+            }
+        } catch (_) {}
+        setSearchLoading(false);
     }, []);
 
     const [categoryFilter, setCategoryFilter] = React.useState<string>('All');
@@ -228,10 +266,54 @@ export default function DarkAdventureMap() {
                     </TouchableOpacity>
                 </View>
 
+                {/* Search bar overlay */}
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 110,
+                        left: 16,
+                        right: 16,
+                        zIndex: 35,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor: 'rgba(5,5,10,0.82)',
+                        borderRadius: 14,
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.12)',
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                    }}
+                >
+                    <MaterialIcons name="search" size={18} color="rgba(255,255,255,0.5)" />
+                    <TextInput
+                        style={{
+                            flex: 1,
+                            color: 'white',
+                            fontSize: 14,
+                            marginLeft: 8,
+                            marginRight: 4,
+                        }}
+                        placeholder="Search city or place…"
+                        placeholderTextColor="rgba(255,255,255,0.35)"
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        returnKeyType="search"
+                        onSubmitEditing={() => handleSearch(searchQuery)}
+                    />
+                    {searchLoading ? (
+                        <ActivityIndicator size="small" color="#60a5fa" />
+                    ) : searchQuery.length > 0 ? (
+                        <TouchableOpacity onPress={() => handleSearch(searchQuery)}>
+                            <MaterialIcons name="arrow-forward" size={18} color="#60a5fa" />
+                        </TouchableOpacity>
+                    ) : null}
+                </View>
+
                 <MapWrapper
                     goals={visibleGoals}
                     recenterTrigger={recenterTrigger}
                     isFullscreen={isExpanded}
+                    flyToCoords={flyToCoords}
                 />
 
                 {/* Drag Handle — sits at bottom of map panel */}

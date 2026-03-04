@@ -12,6 +12,7 @@ interface MapWrapperProps {
     recenterTrigger?: number;
     isFullscreen?: boolean;
     mapStyle?: 'standard' | 'satellite';
+    flyToCoords?: { latitude: number; longitude: number } | null;
 }
 
 interface Cluster {
@@ -58,6 +59,7 @@ export default function MapWrapper({
     recenterTrigger = 0,
     isFullscreen = false,
     mapStyle = 'standard',
+    flyToCoords,
 }: MapWrapperProps) {
     const router = useRouter();
     const mapRef = React.useRef<MapView | null>(null);
@@ -104,6 +106,20 @@ export default function MapWrapper({
 
         recenter();
     }, [recenterTrigger, goalsWithCoords]);
+
+    // Fly to searched coordinates
+    React.useEffect(() => {
+        if (!flyToCoords) return;
+        mapRef.current?.animateToRegion(
+            {
+                latitude: flyToCoords.latitude,
+                longitude: flyToCoords.longitude,
+                latitudeDelta: 0.5,
+                longitudeDelta: 0.5,
+            },
+            800
+        );
+    }, [flyToCoords]);
 
     const getCategoryIcon = (category: string) => {
         switch (category) {
