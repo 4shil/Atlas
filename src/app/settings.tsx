@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, ScrollView, Switch, Alert, Linking } from
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useGoalStore } from '../store/useGoalStore';
@@ -157,6 +159,28 @@ export default function SettingsScreen() {
         Linking.openURL('https://github.com/4shil/Atlas/blob/main/TERMS.md').catch(() => {
             Alert.alert('Unable to open link', 'Please try again later.');
         });
+    };
+
+    const handleExportGoals = async () => {
+        try {
+            const { goals } = useGoalStore.getState();
+            const json = JSON.stringify(goals, null, 2);
+            const path = `${FileSystem.cacheDirectory}atlas-goals-export.json`;
+            await FileSystem.writeAsStringAsync(path, json, {
+                encoding: FileSystem.EncodingType.UTF8,
+            });
+            const canShare = await Sharing.isAvailableAsync();
+            if (canShare) {
+                await Sharing.shareAsync(path, {
+                    mimeType: 'application/json',
+                    dialogTitle: 'Export Atlas Goals',
+                });
+            } else {
+                Alert.alert('Exported', `Goals saved to: ${path}`);
+            }
+        } catch (e) {
+            Alert.alert('Export Failed', 'Could not export goals. Please try again.');
+        }
     };
 
     const handleOpenPrivacy = () => {
@@ -384,6 +408,13 @@ export default function SettingsScreen() {
                             </Text>
                         </TouchableOpacity>
                     )}
+                    <TouchableOpacity
+                        className="py-3 flex-row items-center border-b border-white/[0.05] mb-2"
+                        onPress={handleExportGoals}
+                    >
+                        <MaterialIcons name="file-download" size={18} color="#60a5fa" />
+                        <Text className="text-blue-400 text-base ml-2">Export Goals as JSON</Text>
+                    </TouchableOpacity>
                     <TouchableOpacity
                         className="py-2 border-b border-white/[0.05] mb-2"
                         onPress={handleClearData}

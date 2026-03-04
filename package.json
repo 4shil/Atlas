@@ -14,7 +14,6 @@
         "prepare": "husky"
     },
     "dependencies": {
-        "posthog-react-native": "^3.3.2",
         "@expo/vector-icons": "^14.0.4",
         "@react-native-async-storage/async-storage": "^2.2.0",
         "@react-native-community/datetimepicker": "8.4.1",
@@ -33,10 +32,12 @@
         "expo-location": "~18.1.6",
         "expo-notifications": "~0.31.5",
         "expo-router": "~5.0.0",
+        "expo-sharing": "~13.1.5",
         "expo-splash-screen": "~0.30.10",
         "expo-status-bar": "~2.2.0",
         "jest-expo": "~53.0.14",
         "nativewind": "^4.2.2",
+        "posthog-react-native": "^3.3.2",
         "react": "19.0.0",
         "react-dom": "19.0.0",
         "react-native": "0.79.2",
