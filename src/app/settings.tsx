@@ -73,6 +73,8 @@ export default function SettingsScreen() {
         setPushNotifications,
         dailyReminders,
         setDailyReminders,
+        notificationSound,
+        setNotificationSound,
         locationServices,
         setLocationServices,
         resetSettings,
@@ -327,6 +329,23 @@ export default function SettingsScreen() {
                             trackColor={{
                                 false: 'rgba(255,255,255,0.1)',
                                 true: 'rgba(255,255,255,0.3)',
+                            }}
+                            thumbColor="#ffffff"
+                        />
+                    </View>
+                    <View className="flex-row items-center justify-between mt-4">
+                        <Text className="dark:text-white/70 text-gray-700 text-base">
+                            Notification Sound
+                        </Text>
+                        <Switch
+                            value={notificationSound}
+                            onValueChange={v => {
+                                Haptics.selectionAsync();
+                                setNotificationSound(v);
+                            }}
+                            trackColor={{
+                                false: 'rgba(255,255,255,0.1)',
+                                true: 'rgba(96,165,250,0.5)',
                             }}
                             thumbColor="#ffffff"
                         />
