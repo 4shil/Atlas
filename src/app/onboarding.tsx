@@ -9,6 +9,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     Image,
+    StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -16,48 +17,65 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import Animated, {
+    FadeInDown,
+    FadeInUp,
+    useSharedValue,
+    useAnimatedStyle,
+    withSpring,
+    withTiming,
+    interpolate,
+    Extrapolation,
+} from 'react-native-reanimated';
 import { useProfileStore } from '../store/useProfileStore';
 import { useGoalStore } from '../store/useGoalStore';
 import { ScreenWrapper } from '../components/ScreenWrapper';
-import { GOAL_TEMPLATES } from '../utils/goalTemplates';
 import { track } from '../lib/analytics';
 
 const { width } = Dimensions.get('window');
 
 const SLIDES = [
     {
-        id: 'welcome',
+        id: 'dreams',
         emoji: '🌍',
-        title: 'Your Bucket List,\nBeautifully Organised',
+        title: 'Track your\ndreams',
         subtitle:
-            'Atlas helps you dream big, plan adventures, and track every milestone — all in one place.',
-        gradient: ['#0f172a', '#1e3a5f', '#0f172a'] as const,
+            'Atlas helps you dream big, plan adventures, and celebrate every milestone — beautifully organised.',
         accent: '#3b82f6',
-    },
-    {
-        id: 'name',
-        emoji: '👋',
-        title: 'What should we\ncall you?',
-        subtitle: 'Set your name and a profile photo to personalise your experience.',
-        gradient: ['#0f172a', '#1e1b4b', '#0f172a'] as const,
-        accent: '#8b5cf6',
-    },
-    {
-        id: 'ready',
-        emoji: '🚀',
-        title: "You're all set!",
-        subtitle: 'Start by adding your first bucket list goal, or browse the Inspiration feed.',
-        gradient: ['#0f172a', '#064e3b', '#0f172a'] as const,
-        accent: '#10b981',
-    },
-    {
-        id: 'templates',
-        emoji: '✨',
-        title: 'Pick a few dreams',
-        subtitle: 'Select up to 3 goals to add to your list right away.',
         gradient: ['#0f172a', '#1e3a5f', '#0f172a'] as const,
-        accent: '#f59e0b',
+        features: [
+            { icon: 'flag' as const, label: 'Set goals with target dates' },
+            { icon: 'photo-library' as const, label: 'Beautiful photo gallery' },
+            { icon: 'notifications' as const, label: 'Smart deadline reminders' },
+        ],
+    },
+    {
+        id: 'map',
+        emoji: '🗺️',
+        title: 'Pin them\non the map',
+        subtitle:
+            'Every goal becomes a pin on your personal world map. Watch your adventures unfold.',
+        accent: '#8b5cf6',
+        gradient: ['#0f172a', '#1e1b4b', '#0f172a'] as const,
+        features: [
+            { icon: 'explore' as const, label: 'Interactive world map' },
+            { icon: 'place' as const, label: 'Goals linked to real places' },
+            { icon: 'bar-chart' as const, label: 'Track countries visited' },
+        ],
+    },
+    {
+        id: 'motivation',
+        emoji: '🚀',
+        title: 'Never\ngive up',
+        subtitle:
+            'Streaks, progress stats, and celebration moments keep you motivated every single day.',
+        accent: '#10b981',
+        gradient: ['#0f172a', '#064e3b', '#0f172a'] as const,
+        features: [
+            { icon: 'local-fire-department' as const, label: 'Daily streak tracker' },
+            { icon: 'emoji-events' as const, label: 'Celebrate completions' },
+            { icon: 'group' as const, label: 'Share with friends' },
+        ],
     },
 ];
 
@@ -67,9 +85,12 @@ export default function Onboarding() {
     const { addGoal } = useGoalStore();
     const scrollRef = useRef<ScrollView>(null);
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [showSetup, setShowSetup] = useState(false);
     const [name, setName] = useState('');
     const [avatarUri, setAvatarUri] = useState<string | null>(null);
-    const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]); // template titles
+
+    // Dot animation values
+    const dotProgress = useSharedValue(0);
 
     const pickAvatar = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -87,15 +108,22 @@ export default function Onboarding() {
     const goToSlide = (index: number) => {
         scrollRef.current?.scrollTo({ x: index * width, animated: true });
         setCurrentSlide(index);
+        dotProgress.value = withSpring(index);
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     };
 
     const handleNext = () => {
-        if (currentSlide === SLIDES.length - 1) {
-            handleFinish();
-        } else {
+        if (currentSlide < SLIDES.length - 1) {
             goToSlide(currentSlide + 1);
+        } else {
+            // After 3 slides, show profile setup
+            setShowSetup(true);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         }
+    };
+
+    const handleSkip = () => {
+        setShowSetup(true);
     };
 
     const handleFinish = async () => {
@@ -103,153 +131,62 @@ export default function Onboarding() {
         updateProfile({ name: savedName, avatarUri });
         setHasOnboarded();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-        // Add selected templates as real goals
-        const sixMonthsFromNow = new Date();
-        sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
-        const timelineDate = sixMonthsFromNow.toISOString();
-
-        for (const title of selectedTemplates) {
-            const template = GOAL_TEMPLATES.find(t => t.title === title);
-            if (!template) continue;
-            await addGoal({
-                title: template.title,
-                description: template.description,
-                image: '',
-                category: template.category,
-                timelineDate,
-                notes: '',
-                location: { latitude: 0, longitude: 0, city: '', country: '' },
-            });
-        }
-
-        track('onboarding_completed', { templatesSelected: selectedTemplates.length });
+        track('onboarding_completed', { hasName: !!name.trim(), hasAvatar: !!avatarUri });
         router.replace('/(tabs)');
     };
 
     const slide = SLIDES[currentSlide];
 
-    return (
-        <ScreenWrapper bgClass="bg-[#0f172a]" edges={[]}>
-            {/* Full-screen background gradient that updates per slide */}
-            <LinearGradient
-                colors={slide.gradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0.5, y: 1 }}
-                className="absolute inset-0 opacity-80"
-            />
-
-            {/* Decorative orbs */}
-            <View
-                className="absolute w-80 h-80 rounded-full opacity-20"
-                style={{ backgroundColor: slide.accent, top: -80, right: -80 }}
-            />
-            <View
-                className="absolute w-60 h-60 rounded-full opacity-10"
-                style={{ backgroundColor: slide.accent, bottom: 100, left: -60 }}
-            />
-
-            <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
-                {/* Skip */}
-                {currentSlide < SLIDES.length - 1 && (
-                    <TouchableOpacity
-                        className="absolute top-14 right-6 z-20"
-                        onPress={handleFinish}
-                    >
-                        <Text className="text-gray-400 text-sm font-medium">Skip</Text>
-                    </TouchableOpacity>
-                )}
-
-                {/* Scrollable slides */}
-                <ScrollView
-                    ref={scrollRef}
-                    horizontal
-                    pagingEnabled
-                    showsHorizontalScrollIndicator={false}
-                    scrollEnabled={false}
-                    className="flex-1"
+    if (showSetup) {
+        return (
+            <ScreenWrapper bgClass="bg-[#0f172a]" edges={[]}>
+                <LinearGradient
+                    colors={['#0f172a', '#1e1b4b', '#0f172a']}
+                    style={StyleSheet.absoluteFillObject}
+                />
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={{ flex: 1 }}
                 >
-                    {/* Slide 1: Welcome */}
-                    <View style={{ width }} className="flex-1 items-center justify-center px-8">
+                    <SafeAreaView style={styles.setupContainer} edges={['top', 'bottom']}>
                         <Animated.View
-                            entering={FadeInDown.delay(100).duration(600)}
-                            className="items-center"
+                            entering={FadeInDown.duration(500)}
+                            style={styles.setupContent}
                         >
-                            <Text style={{ fontSize: 80 }}>{SLIDES[0].emoji}</Text>
-                            <Text className="text-4xl font-bold text-white text-center mt-8 leading-tight">
-                                {SLIDES[0].title}
-                            </Text>
-                            <Text className="text-gray-400 text-base text-center mt-4 leading-7">
-                                {SLIDES[0].subtitle}
-                            </Text>
-                        </Animated.View>
-
-                        {/* Feature pills */}
-                        <Animated.View
-                            entering={FadeInUp.delay(400).duration(600)}
-                            className="mt-10 gap-3 w-full"
-                        >
-                            {[
-                                { icon: 'map', label: 'Track goals on a live map' },
-                                { icon: 'photo-library', label: 'Beautiful photo gallery' },
-                                { icon: 'notifications', label: 'Smart reminders' },
-                            ].map(f => (
-                                <View
-                                    key={f.icon}
-                                    className="flex-row items-center bg-white/5 border border-white/8 rounded-2xl px-5 py-4"
-                                >
-                                    <MaterialIcons
-                                        name={f.icon as any}
-                                        size={20}
-                                        color={SLIDES[0].accent}
-                                    />
-                                    <Text className="text-gray-200 text-sm ml-3 font-medium">
-                                        {f.label}
-                                    </Text>
-                                </View>
-                            ))}
-                        </Animated.View>
-                    </View>
-
-                    {/* Slide 2: Name & Avatar Setup */}
-                    <KeyboardAvoidingView
-                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                        style={{ width }}
-                    >
-                        <View className="flex-1 items-center justify-center px-8">
-                            <Text style={{ fontSize: 72 }} className="mb-6">
-                                {SLIDES[1].emoji}
-                            </Text>
-                            <Text className="text-4xl font-bold text-white text-center leading-tight mb-3">
-                                {SLIDES[1].title}
-                            </Text>
-                            <Text className="text-gray-400 text-base text-center leading-7 mb-10">
-                                {SLIDES[1].subtitle}
+                            <Text style={styles.setupEmoji}>👋</Text>
+                            <Text style={styles.setupTitle}>One last thing</Text>
+                            <Text style={styles.setupSubtitle}>
+                                Tell us your name and add a photo to personalise your Atlas
                             </Text>
 
-                            {/* Avatar Picker */}
-                            <TouchableOpacity onPress={pickAvatar} className="mb-8 relative">
-                                <View className="w-24 h-24 rounded-full border-4 border-purple-500/40 overflow-hidden bg-indigo-950 items-center justify-center">
+                            {/* Avatar */}
+                            <TouchableOpacity
+                                onPress={pickAvatar}
+                                style={styles.avatarBtn}
+                                accessibilityLabel="Pick profile photo"
+                                accessibilityRole="button"
+                            >
+                                <View style={styles.avatarRing}>
                                     {avatarUri ? (
                                         <Image
                                             source={{ uri: avatarUri }}
-                                            className="w-full h-full"
+                                            style={styles.avatarImage}
                                             resizeMode="cover"
                                         />
                                     ) : (
                                         <MaterialIcons name="person" size={48} color="#6b7280" />
                                     )}
                                 </View>
-                                <View className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-purple-600 items-center justify-center border-2 border-[#0f172a]">
+                                <View style={styles.avatarCamera}>
                                     <MaterialIcons name="photo-camera" size={14} color="white" />
                                 </View>
                             </TouchableOpacity>
 
-                            {/* Name Input */}
-                            <View className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 flex-row items-center">
+                            {/* Name input */}
+                            <View style={styles.inputRow}>
                                 <MaterialIcons name="person-outline" size={20} color="#6b7280" />
                                 <TextInput
-                                    className="flex-1 text-white text-base ml-3"
+                                    style={styles.nameInput}
                                     placeholder="Your first name..."
                                     placeholderTextColor="#4b5563"
                                     value={name}
@@ -259,170 +196,316 @@ export default function Onboarding() {
                                     maxLength={30}
                                 />
                             </View>
-                        </View>
-                    </KeyboardAvoidingView>
+                        </Animated.View>
 
-                    {/* Slide 3: Ready */}
-                    <View style={{ width }} className="flex-1 items-center justify-center px-8">
-                        <Text style={{ fontSize: 80 }} className="mb-6">
-                            {SLIDES[2].emoji}
-                        </Text>
-                        <Text className="text-4xl font-bold text-white text-center leading-tight mb-3">
-                            {SLIDES[2].title}
-                        </Text>
-                        <Text className="text-gray-400 text-base text-center leading-7 mb-10">
-                            {SLIDES[2].subtitle}
-                        </Text>
-
-                        <View className="w-full gap-3">
-                            {[
-                                {
-                                    icon: 'add-circle-outline',
-                                    label: 'Add your first goal',
-                                    color: '#10b981',
-                                },
-                                {
-                                    icon: 'lightbulb-outline',
-                                    label: 'Browse Inspiration feed',
-                                    color: '#f59e0b',
-                                },
-                                { icon: 'map', label: 'Explore the world map', color: '#3b82f6' },
-                            ].map(a => (
-                                <View
-                                    key={a.icon}
-                                    className="flex-row items-center bg-white/5 border border-white/8 rounded-2xl px-5 py-4"
-                                >
-                                    <MaterialIcons name={a.icon as any} size={20} color={a.color} />
-                                    <Text className="text-gray-200 text-sm ml-3 font-medium">
-                                        {a.label}
-                                    </Text>
-                                </View>
-                            ))}
-                        </View>
-                    </View>
-
-                    {/* Slide 4: Templates */}
-                    <View style={{ width }} className="flex-1 px-6 pt-12">
-                        <Text style={{ fontSize: 56 }} className="text-center mb-3">
-                            {SLIDES[3].emoji}
-                        </Text>
-                        <Text className="text-3xl font-bold text-white text-center leading-tight mb-2">
-                            {SLIDES[3].title}
-                        </Text>
-                        <Text className="text-gray-400 text-sm text-center mb-6">
-                            {selectedTemplates.length}/3 selected
-                        </Text>
-                        <ScrollView
-                            showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{ paddingBottom: 20 }}
+                        <Animated.View
+                            entering={FadeInUp.delay(200).duration(500)}
+                            style={styles.setupActions}
                         >
-                            {GOAL_TEMPLATES.map(template => {
-                                const selected = selectedTemplates.includes(template.title);
-                                return (
-                                    <TouchableOpacity
-                                        key={template.title}
-                                        onPress={() => {
-                                            Haptics.selectionAsync();
-                                            if (selected) {
-                                                setSelectedTemplates(prev =>
-                                                    prev.filter(t => t !== template.title)
-                                                );
-                                            } else if (selectedTemplates.length < 3) {
-                                                setSelectedTemplates(prev => [
-                                                    ...prev,
-                                                    template.title,
-                                                ]);
-                                            }
-                                        }}
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            backgroundColor: selected
-                                                ? 'rgba(245,158,11,0.1)'
-                                                : 'rgba(255,255,255,0.04)',
-                                            borderWidth: 1,
-                                            borderColor: selected
-                                                ? 'rgba(245,158,11,0.4)'
-                                                : 'rgba(255,255,255,0.08)',
-                                            borderRadius: 16,
-                                            padding: 12,
-                                            marginBottom: 8,
-                                        }}
+                            <TouchableOpacity
+                                style={[styles.ctaBtn, { backgroundColor: '#8b5cf6' }]}
+                                onPress={handleFinish}
+                                activeOpacity={0.85}
+                                accessibilityLabel="Start exploring"
+                                accessibilityRole="button"
+                            >
+                                <Text style={styles.ctaBtnText}>Start Exploring 🌍</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={handleFinish}
+                                style={styles.skipBtn}
+                                accessibilityLabel="Skip setup"
+                                accessibilityRole="button"
+                            >
+                                <Text style={styles.skipBtnText}>Skip for now</Text>
+                            </TouchableOpacity>
+                        </Animated.View>
+                    </SafeAreaView>
+                </KeyboardAvoidingView>
+            </ScreenWrapper>
+        );
+    }
+
+    return (
+        <ScreenWrapper bgClass="bg-[#0f172a]" edges={[]}>
+            <LinearGradient
+                colors={slide.gradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={StyleSheet.absoluteFillObject}
+            />
+
+            {/* Decorative orbs */}
+            <View style={[styles.orb1, { backgroundColor: slide.accent }]} />
+            <View style={[styles.orb2, { backgroundColor: slide.accent }]} />
+
+            <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+                {/* Skip */}
+                <TouchableOpacity
+                    style={styles.skipTopBtn}
+                    onPress={handleSkip}
+                    accessibilityLabel="Skip onboarding"
+                    accessibilityRole="button"
+                >
+                    <Text style={styles.skipTopText}>Skip</Text>
+                </TouchableOpacity>
+
+                {/* Slides */}
+                <ScrollView
+                    ref={scrollRef}
+                    horizontal
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={false}
+                    scrollEnabled={false}
+                    style={{ flex: 1 }}
+                    onMomentumScrollEnd={e => {
+                        const idx = Math.round(e.nativeEvent.contentOffset.x / width);
+                        setCurrentSlide(idx);
+                    }}
+                >
+                    {SLIDES.map((s, slideIdx) => (
+                        <View key={s.id} style={[styles.slide, { width }]}>
+                            <Animated.View
+                                entering={FadeInDown.delay(100).duration(600)}
+                                style={styles.slideHero}
+                            >
+                                <Text style={styles.slideEmoji}>{s.emoji}</Text>
+                                <Text style={styles.slideTitle}>{s.title}</Text>
+                                <Text style={styles.slideSubtitle}>{s.subtitle}</Text>
+                            </Animated.View>
+
+                            <Animated.View
+                                entering={FadeInUp.delay(300).duration(600)}
+                                style={styles.featureList}
+                            >
+                                {s.features.map((f, i) => (
+                                    <View
+                                        key={i}
+                                        style={[
+                                            styles.featureRow,
+                                            { borderColor: `${s.accent}20` },
+                                        ]}
                                     >
-                                        <Text style={{ fontSize: 28, marginRight: 12 }}>
-                                            {template.emoji}
-                                        </Text>
-                                        <View style={{ flex: 1 }}>
-                                            <Text
-                                                style={{
-                                                    color: selected ? '#f59e0b' : 'white',
-                                                    fontWeight: '700',
-                                                    fontSize: 14,
-                                                }}
-                                            >
-                                                {template.title}
-                                            </Text>
-                                            <Text
-                                                style={{
-                                                    color: 'rgba(255,255,255,0.4)',
-                                                    fontSize: 12,
-                                                    marginTop: 2,
-                                                }}
-                                            >
-                                                {template.category}
-                                            </Text>
-                                        </View>
-                                        {selected && (
+                                        <View
+                                            style={[
+                                                styles.featureIcon,
+                                                { backgroundColor: `${s.accent}20` },
+                                            ]}
+                                        >
                                             <MaterialIcons
-                                                name="check-circle"
-                                                size={22}
-                                                color="#f59e0b"
+                                                name={f.icon}
+                                                size={18}
+                                                color={s.accent}
                                             />
-                                        )}
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </ScrollView>
-                    </View>
+                                        </View>
+                                        <Text style={styles.featureLabel}>{f.label}</Text>
+                                    </View>
+                                ))}
+                            </Animated.View>
+                        </View>
+                    ))}
                 </ScrollView>
 
-                {/* Bottom controls */}
-                <View className="px-8 pb-8">
-                    {/* Dot indicators */}
-                    <View className="flex-row justify-center gap-2 mb-8">
+                {/* Bottom */}
+                <View style={styles.bottom}>
+                    {/* Animated dots */}
+                    <View style={styles.dots}>
                         {SLIDES.map((_, i) => (
-                            <TouchableOpacity key={i} onPress={() => goToSlide(i)}>
-                                <View
-                                    style={{
-                                        width: i === currentSlide ? 24 : 8,
-                                        height: 8,
-                                        borderRadius: 4,
-                                        backgroundColor:
-                                            i === currentSlide
-                                                ? slide.accent
-                                                : 'rgba(255,255,255,0.2)',
-                                    }}
-                                />
-                            </TouchableOpacity>
+                            <AnimatedDot
+                                key={i}
+                                index={i}
+                                current={currentSlide}
+                                accent={slide.accent}
+                                onPress={() => goToSlide(i)}
+                            />
                         ))}
                     </View>
 
-                    {/* CTA button */}
                     <TouchableOpacity
-                        className="w-full py-4 rounded-2xl flex-row items-center justify-center"
-                        style={{ backgroundColor: slide.accent }}
+                        style={[styles.ctaBtn, { backgroundColor: slide.accent }]}
                         onPress={handleNext}
                         activeOpacity={0.85}
+                        accessibilityLabel={
+                            currentSlide < SLIDES.length - 1 ? 'Next slide' : 'Continue to setup'
+                        }
+                        accessibilityRole="button"
                     >
-                        <Text className="text-white font-bold text-base mr-2">
-                            {currentSlide === SLIDES.length - 1 ? "Let's Go! 🌍" : 'Continue'}
+                        <Text style={styles.ctaBtnText}>
+                            {currentSlide < SLIDES.length - 1 ? 'Continue' : "Let's Go!"}
                         </Text>
-                        {currentSlide < SLIDES.length - 1 && (
-                            <MaterialIcons name="arrow-forward" size={20} color="white" />
-                        )}
+                        <MaterialIcons
+                            name={currentSlide < SLIDES.length - 1 ? 'arrow-forward' : 'check'}
+                            size={20}
+                            color="white"
+                        />
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
         </ScreenWrapper>
     );
 }
+
+function AnimatedDot({
+    index,
+    current,
+    accent,
+    onPress,
+}: {
+    index: number;
+    current: number;
+    accent: string;
+    onPress: () => void;
+}) {
+    const progress = useSharedValue(index === current ? 1 : 0);
+
+    React.useEffect(() => {
+        progress.value = withTiming(index === current ? 1 : 0, { duration: 300 });
+    }, [current, index, progress]);
+
+    const style = useAnimatedStyle(() => ({
+        width: interpolate(progress.value, [0, 1], [8, 24], Extrapolation.CLAMP),
+        backgroundColor: progress.value > 0.5 ? accent : 'rgba(255,255,255,0.2)',
+    }));
+
+    return (
+        <TouchableOpacity
+            onPress={onPress}
+            hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
+            accessibilityLabel={`Go to slide ${index + 1}`}
+        >
+            <Animated.View style={[styles.dot, style]} />
+        </TouchableOpacity>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: { flex: 1 },
+    skipTopBtn: { position: 'absolute', top: 52, right: 24, zIndex: 20 },
+    skipTopText: { color: 'rgba(255,255,255,0.4)', fontSize: 14, fontWeight: '600' },
+    orb1: {
+        position: 'absolute',
+        width: 320,
+        height: 320,
+        borderRadius: 160,
+        opacity: 0.15,
+        top: -100,
+        right: -100,
+    },
+    orb2: {
+        position: 'absolute',
+        width: 240,
+        height: 240,
+        borderRadius: 120,
+        opacity: 0.08,
+        bottom: 80,
+        left: -80,
+    },
+    slide: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
+    slideHero: { alignItems: 'center', marginBottom: 40 },
+    slideEmoji: { fontSize: 80, marginBottom: 24 },
+    slideTitle: {
+        color: 'white',
+        fontSize: 38,
+        fontWeight: '800',
+        textAlign: 'center',
+        lineHeight: 46,
+        marginBottom: 16,
+    },
+    slideSubtitle: {
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: 16,
+        textAlign: 'center',
+        lineHeight: 24,
+    },
+    featureList: { width: '100%', gap: 10 },
+    featureRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        borderWidth: 1,
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+    },
+    featureIcon: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    featureLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: '500', flex: 1 },
+    bottom: { paddingHorizontal: 28, paddingBottom: 24 },
+    dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 24 },
+    dot: { height: 8, borderRadius: 4 },
+    ctaBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 16,
+        borderRadius: 18,
+    },
+    ctaBtnText: { color: 'white', fontSize: 16, fontWeight: '700' },
+    // Setup screen
+    setupContainer: { flex: 1, paddingHorizontal: 28 },
+    setupContent: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    setupEmoji: { fontSize: 72, marginBottom: 16 },
+    setupTitle: {
+        color: 'white',
+        fontSize: 32,
+        fontWeight: '800',
+        textAlign: 'center',
+        marginBottom: 12,
+    },
+    setupSubtitle: {
+        color: 'rgba(255,255,255,0.45)',
+        fontSize: 15,
+        textAlign: 'center',
+        lineHeight: 22,
+        marginBottom: 36,
+    },
+    avatarBtn: { position: 'relative', marginBottom: 28 },
+    avatarRing: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        borderWidth: 3,
+        borderColor: 'rgba(139,92,246,0.4)',
+        backgroundColor: '#1e1b4b',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+    },
+    avatarImage: { width: '100%', height: '100%' },
+    avatarCamera: {
+        position: 'absolute',
+        bottom: 2,
+        right: 2,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        backgroundColor: '#8b5cf6',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: '#0f172a',
+    },
+    inputRow: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 18,
+        paddingHorizontal: 18,
+        paddingVertical: 14,
+        gap: 12,
+    },
+    nameInput: { flex: 1, color: 'white', fontSize: 16, padding: 0 },
+    setupActions: { paddingBottom: 8 },
+    skipBtn: { alignItems: 'center', paddingVertical: 14 },
+    skipBtnText: { color: 'rgba(255,255,255,0.3)', fontSize: 14 },
+});
