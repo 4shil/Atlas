@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
     View,
     Text,
@@ -9,6 +9,7 @@ import {
     Alert,
     Share,
     StyleSheet,
+    Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -16,6 +17,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import * as Sharing from 'expo-sharing';
+import ViewShot from 'react-native-view-shot';
 import { useGoalStore, Milestone } from '../store/useGoalStore';
 import Animated, {
     useSharedValue,
@@ -31,6 +34,7 @@ import { getDaysUntil } from '../utils/dateUtils';
 import { getDetailUrl } from '../utils/imageUtils';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { Confetti } from '../components/Confetti';
+import { ShareCard } from '../components/ShareCard';
 
 export default function GoalDetail() {
     const router = useRouter();
@@ -44,8 +48,42 @@ export default function GoalDetail() {
     const [completionPhoto, setCompletionPhoto] = useState<string | null>(
         goal?.completionPhoto ?? null
     );
+    const [showShareModal, setShowShareModal] = useState(false);
+    const shareCardRef = useRef<ViewShot>(null);
     const celebScale = useSharedValue(0);
     const celebOpacity = useSharedValue(0);
+
+    const handleShare = async () => {
+        if (!goal) return;
+        try {
+            const uri = await shareCardRef.current?.capture?.();
+            if (uri) {
+                const isAvailable = await Sharing.isAvailableAsync();
+                if (isAvailable) {
+                    await Sharing.shareAsync(uri, {
+                        mimeType: 'image/png',
+                        dialogTitle: goal.title,
+                    });
+                } else {
+                    await Share.share({
+                        message: `Check out my goal: ${goal.title} 🎯\natlas://goal/${goal.id}`,
+                    });
+                }
+            }
+        } catch {
+            await Share.share({
+                message: `Check out my goal: ${goal.title} 🎯\natlas://goal/${goal.id}`,
+            });
+        }
+        setShowShareModal(false);
+    };
+
+    const handleCopyLink = () => {
+        if (!goal) return;
+        // On RN we use Share as clipboard is not standard cross-platform
+        Share.share({ message: `atlas://goal/${goal.id}` });
+        setShowShareModal(false);
+    };
 
     if (!goal) {
         return (
@@ -136,14 +174,8 @@ export default function GoalDetail() {
     };
 
     const handleShare = async () => {
-        try {
-            await Share.share({
-                title: goal.title,
-                message: `✈️ ${goal.title} — ${goal.location.city}, ${goal.location.country}\n\nTracking my adventures on Atlas 🗺️`,
-            });
-        } catch (e) {
-            // Share dismissed
-        }
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        setShowShareModal(true);
     };
 
     return (
@@ -614,6 +646,103 @@ export default function GoalDetail() {
                     </Animated.Text>
                 </Animated.View>
             )}
+
+            {/* Share Modal */}
+            <Modal
+                visible={showShareModal}
+                transparent
+                animationType="slide"
+                onRequestClose={() => setShowShareModal(false)}
+            >
+                <View style={shareStyles.overlay}>
+                    <View style={shareStyles.sheet}>
+                        <Text style={shareStyles.sheetTitle}>Share Goal</Text>
+                        {/* Card preview captured by ViewShot */}
+                        <View style={shareStyles.cardContainer}>
+                            <ViewShot ref={shareCardRef} options={{ format: 'png', quality: 0.95 }}>
+                                <ShareCard goal={goal} />
+                            </ViewShot>
+                        </View>
+                        <View style={shareStyles.actions}>
+                            <TouchableOpacity
+                                style={shareStyles.actionBtn}
+                                onPress={handleShare}
+                                accessibilityLabel="Share as image"
+                                accessibilityRole="button"
+                            >
+                                <MaterialIcons name="share" size={20} color="white" />
+                                <Text style={shareStyles.actionText}>Share Image</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[shareStyles.actionBtn, shareStyles.actionBtnSecondary]}
+                                onPress={handleCopyLink}
+                                accessibilityLabel="Copy link"
+                                accessibilityRole="button"
+                            >
+                                <MaterialIcons
+                                    name="link"
+                                    size={20}
+                                    color="rgba(255,255,255,0.7)"
+                                />
+                                <Text
+                                    style={[
+                                        shareStyles.actionText,
+                                        { color: 'rgba(255,255,255,0.7)' },
+                                    ]}
+                                >
+                                    Copy Link
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                        <TouchableOpacity
+                            style={shareStyles.cancelBtn}
+                            onPress={() => setShowShareModal(false)}
+                            accessibilityLabel="Cancel"
+                            accessibilityRole="button"
+                        >
+                            <Text style={shareStyles.cancelText}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </ScreenWrapper>
     );
 }
+
+const shareStyles = StyleSheet.create({
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
+    sheet: {
+        backgroundColor: '#0f0f18',
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        padding: 24,
+        paddingBottom: 40,
+    },
+    sheetTitle: {
+        color: 'white',
+        fontSize: 17,
+        fontWeight: '700',
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    cardContainer: { alignItems: 'center', marginBottom: 20 },
+    actions: { flexDirection: 'row', gap: 10, marginBottom: 10 },
+    actionBtn: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        backgroundColor: '#2563eb',
+        borderRadius: 14,
+        paddingVertical: 14,
+    },
+    actionBtnSecondary: {
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    actionText: { color: 'white', fontWeight: '700', fontSize: 14 },
+    cancelBtn: { alignItems: 'center', paddingVertical: 14 },
+    cancelText: { color: 'rgba(255,255,255,0.4)', fontSize: 15 },
+});
