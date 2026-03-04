@@ -20,6 +20,7 @@ import MapWrapper from '../../components/MapWrapper';
 import { useRouter } from 'expo-router';
 import { ScreenWrapper } from '../../components/ScreenWrapper';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useTheme } from '../../theme';
 import { formatTemperature } from '../../utils/unitUtils';
 import Animated, {
     useAnimatedStyle,
@@ -49,6 +50,7 @@ interface WeatherData {
 
 export default function DarkAdventureMap() {
     const { goals } = useGoalStore();
+    const { isDark } = useTheme();
     const router = useRouter();
     const [showOnlyPending, setShowOnlyPending] = React.useState(true);
     const [recenterTrigger, setRecenterTrigger] = React.useState(0);
@@ -444,7 +446,7 @@ export default function DarkAdventureMap() {
                         zIndex: 20,
                         borderTopLeftRadius: 32,
                         borderTopRightRadius: 32,
-                        backgroundColor: 'rgba(5,5,5,0.92)',
+                        backgroundColor: isDark ? 'rgba(5,5,5,0.92)' : 'rgba(248,250,252,0.97)',
                         borderTopWidth: 1,
                         borderTopColor: 'rgba(255,255,255,0.08)',
                         overflow: 'hidden',
@@ -495,7 +497,7 @@ export default function DarkAdventureMap() {
                                     style={{
                                         fontSize: 30,
                                         fontWeight: '700',
-                                        color: 'white',
+                                        color: isDark ? 'white' : '#111827',
                                         letterSpacing: -0.5,
                                     }}
                                 >
