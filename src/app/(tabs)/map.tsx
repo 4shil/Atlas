@@ -63,6 +63,7 @@ export default function DarkAdventureMap() {
     } | null>(null);
     const [selectedAttraction, setSelectedAttraction] = React.useState<Attraction | null>(null);
     const { attractions, fetchAttractions } = useNearbyAttractions();
+    const [mapStyleMode, setMapStyleMode] = React.useState<'standard' | 'satellite'>('standard');
     const unitSystem = useSettingsStore(s => s.unitSystem);
 
     // Animated map height
@@ -321,11 +322,56 @@ export default function DarkAdventureMap() {
                     isFullscreen={isExpanded}
                     flyToCoords={flyToCoords}
                     attractions={attractions}
+                    mapStyle={mapStyleMode}
                     onAttractionPress={a => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         setSelectedAttraction(a);
                     }}
                 />
+
+                {/* Compass/Recenter + Map Style Toggle */}
+                <View style={{ position: 'absolute', right: 16, bottom: 60, zIndex: 35, gap: 10 }}>
+                    <TouchableOpacity
+                        style={{
+                            width: 42,
+                            height: 42,
+                            borderRadius: 21,
+                            backgroundColor: 'rgba(5,5,15,0.82)',
+                            borderWidth: 1,
+                            borderColor: 'rgba(255,255,255,0.15)',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            setRecenterTrigger(t => t + 1);
+                        }}
+                    >
+                        <MaterialIcons name="my-location" size={20} color="#60a5fa" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={{
+                            width: 42,
+                            height: 42,
+                            borderRadius: 21,
+                            backgroundColor: 'rgba(5,5,15,0.82)',
+                            borderWidth: 1,
+                            borderColor: 'rgba(255,255,255,0.15)',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                        onPress={() => {
+                            Haptics.selectionAsync();
+                            setMapStyleMode(m => (m === 'standard' ? 'satellite' : 'standard'));
+                        }}
+                    >
+                        <MaterialIcons
+                            name={mapStyleMode === 'standard' ? 'satellite' : 'map'}
+                            size={20}
+                            color="#a5b4fc"
+                        />
+                    </TouchableOpacity>
+                </View>
 
                 {/* Drag Handle — sits at bottom of map panel */}
                 <GestureDetector gesture={panGesture}>
