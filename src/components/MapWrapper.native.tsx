@@ -5,6 +5,7 @@ import MapView, { Marker, Callout } from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import type { Goal } from '../store/useGoalStore';
+import type { Attraction, AttractionType } from '../hooks/useNearbyAttractions';
 import { useRouter } from 'expo-router';
 
 interface MapWrapperProps {
@@ -13,6 +14,8 @@ interface MapWrapperProps {
     isFullscreen?: boolean;
     mapStyle?: 'standard' | 'satellite';
     flyToCoords?: { latitude: number; longitude: number } | null;
+    attractions?: Attraction[];
+    onAttractionPress?: (attraction: Attraction) => void;
 }
 
 interface Cluster {
@@ -60,6 +63,8 @@ export default function MapWrapper({
     isFullscreen = false,
     mapStyle = 'standard',
     flyToCoords,
+    attractions = [],
+    onAttractionPress,
 }: MapWrapperProps) {
     const router = useRouter();
     const mapRef = React.useRef<MapView | null>(null);
@@ -133,6 +138,27 @@ export default function MapWrapper({
                 return 'star';
             default:
                 return 'hiking';
+        }
+    };
+
+    const getAttractionIcon = (
+        type: AttractionType
+    ): { icon: string; color: string; bg: string } => {
+        switch (type) {
+            case 'cafe':
+                return { icon: 'local-cafe', color: '#f59e0b', bg: 'rgba(92,60,0,0.85)' };
+            case 'restaurant':
+                return { icon: 'restaurant', color: '#f97316', bg: 'rgba(92,40,0,0.85)' };
+            case 'park':
+                return { icon: 'park', color: '#4ade80', bg: 'rgba(0,60,20,0.85)' };
+            case 'museum':
+                return { icon: 'museum', color: '#a78bfa', bg: 'rgba(50,0,90,0.85)' };
+            case 'hotel':
+                return { icon: 'hotel', color: '#38bdf8', bg: 'rgba(0,40,80,0.85)' };
+            case 'shop':
+                return { icon: 'shopping-bag', color: '#f472b6', bg: 'rgba(80,0,50,0.85)' };
+            default:
+                return { icon: 'place', color: '#e2e8f0', bg: 'rgba(30,30,40,0.85)' };
         }
     };
 
@@ -257,6 +283,42 @@ export default function MapWrapper({
                                     >
                                         {goal.title}
                                     </Text>
+                                </View>
+                            </View>
+                        </Marker>
+                    );
+                })}
+                {/* Attraction pins */}
+                {attractions.map(attraction => {
+                    const { icon, color, bg } = getAttractionIcon(attraction.type);
+                    return (
+                        <Marker
+                            key={`attr-${attraction.id}`}
+                            coordinate={{
+                                latitude: attraction.latitude,
+                                longitude: attraction.longitude,
+                            }}
+                            onPress={() => onAttractionPress?.(attraction)}
+                        >
+                            <View style={{ alignItems: 'center' }}>
+                                <View
+                                    style={{
+                                        width: 34,
+                                        height: 34,
+                                        borderRadius: 17,
+                                        backgroundColor: bg,
+                                        borderWidth: 1.5,
+                                        borderColor: color,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        shadowColor: color,
+                                        shadowOffset: { width: 0, height: 2 },
+                                        shadowOpacity: 0.5,
+                                        shadowRadius: 6,
+                                        elevation: 6,
+                                    }}
+                                >
+                                    <MaterialIcons name={icon as any} size={16} color={color} />
                                 </View>
                             </View>
                         </Marker>
