@@ -59,6 +59,8 @@ export default function SettingsScreen() {
     const {
         darkMode,
         setDarkMode,
+        themeMode,
+        setThemeMode,
         unitSystem,
         setUnitSystem,
         pushNotifications,
@@ -179,19 +181,28 @@ export default function SettingsScreen() {
                 showsVerticalScrollIndicator={false}
             >
                 <AccordionItem title="Preferences" icon="tune" defaultExpanded={true}>
-                    <View className="flex-row items-center justify-between mb-4 mt-2">
-                        <Text className="dark:text-white/70 text-gray-700 text-base">
-                            Dark Mode
+                    <View className="mb-4 mt-2">
+                        <Text className="dark:text-white/70 text-gray-700 text-base mb-2">
+                            Theme
                         </Text>
-                        <Switch
-                            value={darkMode}
-                            onValueChange={setDarkMode}
-                            trackColor={{
-                                false: 'rgba(255,255,255,0.1)',
-                                true: 'rgba(255,255,255,0.3)',
-                            }}
-                            thumbColor="#ffffff"
-                        />
+                        <View className="flex-row bg-white/[0.06] rounded-xl p-1 border dark:border-white/[0.08] border-black/[0.08]">
+                            {(['dark', 'light', 'system'] as const).map(mode => (
+                                <TouchableOpacity
+                                    key={mode}
+                                    className={`flex-1 py-2 rounded-lg items-center ${themeMode === mode ? 'bg-blue-600' : ''}`}
+                                    onPress={() => {
+                                        Haptics.selectionAsync();
+                                        setThemeMode(mode);
+                                    }}
+                                >
+                                    <Text
+                                        className={`text-xs font-bold capitalize ${themeMode === mode ? 'text-white' : 'dark:text-white/40 text-gray-400'}`}
+                                    >
+                                        {mode}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
                     </View>
                     <View className="flex-row items-center justify-between">
                         <Text className="dark:text-white/70 text-gray-700 text-base">

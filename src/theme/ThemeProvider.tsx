@@ -8,7 +8,14 @@ import { useColorScheme } from 'react-native';
 import { themes, type ThemeMode, type Colors } from './tokens/colors';
 import { typography, type Typography } from './tokens/typography';
 import { spacing, space, type Spacing, type Space } from './tokens/spacing';
-import { radius, elevation, zIndex, type Radius, type Elevation, type ZIndex } from './tokens/layout';
+import {
+    radius,
+    elevation,
+    zIndex,
+    type Radius,
+    type Elevation,
+    type ZIndex,
+} from './tokens/layout';
 import { duration, springs, easing, motionPresets } from './tokens/motion';
 import { useSettingsStore } from '../store/useSettingsStore';
 
@@ -61,56 +68,64 @@ export function ThemeProvider({ children, defaultMode }: ThemeProviderProps) {
     const systemColorScheme = useColorScheme();
 
     // Subscribe to settings store for global dark mode sync
+    const themeMode = useSettingsStore(state => state.themeMode);
     const settingsDarkMode = useSettingsStore(state => state.darkMode);
     const setSettingsDarkMode = useSettingsStore(state => state.setDarkMode);
+    const setThemeMode = useSettingsStore(state => state.setThemeMode);
+
+    // Resolve effective mode
+    const effectiveDark =
+        themeMode === 'system' ? systemColorScheme === 'dark' : themeMode === 'dark';
 
     // Determine initial mode (prioritizes Settings Store > defaultProp > System)
-    const mode: ThemeMode = defaultMode ??
-        (settingsDarkMode ? 'dark' : 'light');
+    const mode: ThemeMode = defaultMode ?? (effectiveDark ? 'dark' : 'light');
 
     const [isReducedMotion, setReducedMotion] = useState(false);
 
     // Toggle between dark and light by dispatching to the Zustand settings store directly
     const toggleMode = useCallback(() => {
         setSettingsDarkMode(!settingsDarkMode);
-    }, [settingsDarkMode, setSettingsDarkMode]);
+        setThemeMode(settingsDarkMode ? 'light' : 'dark');
+    }, [settingsDarkMode, setSettingsDarkMode, setThemeMode]);
 
     // Shim to maintain backwards compatibility with any component hitting ThemeContext.setMode directly
-    const setMode = useCallback((newMode: ThemeMode) => {
-        setSettingsDarkMode(newMode === 'dark');
-    }, [setSettingsDarkMode]);
+    const setMode = useCallback(
+        (newMode: ThemeMode) => {
+            setSettingsDarkMode(newMode === 'dark');
+        },
+        [setSettingsDarkMode]
+    );
 
     // Memoized theme value
-    const value = useMemo<ThemeContextType>(() => ({
-        mode,
-        setMode,
-        toggleMode,
+    const value = useMemo<ThemeContextType>(
+        () => ({
+            mode,
+            setMode,
+            toggleMode,
 
-        colors: themes[mode],
-        typography,
-        spacing,
-        space,
-        radius,
-        elevation,
-        zIndex,
+            colors: themes[mode],
+            typography,
+            spacing,
+            space,
+            radius,
+            elevation,
+            zIndex,
 
-        motion: {
-            duration,
-            springs,
-            easing,
-            presets: motionPresets,
-        },
+            motion: {
+                duration,
+                springs,
+                easing,
+                presets: motionPresets,
+            },
 
-        isDark: mode === 'dark',
-        isReducedMotion,
-        setReducedMotion,
-    }), [mode, isReducedMotion, toggleMode]);
-
-    return (
-        <ThemeContext.Provider value={value}>
-            {children}
-        </ThemeContext.Provider>
+            isDark: mode === 'dark',
+            isReducedMotion,
+            setReducedMotion,
+        }),
+        [mode, isReducedMotion, toggleMode]
     );
+
+    return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 // ============================================
