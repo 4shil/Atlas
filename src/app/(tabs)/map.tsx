@@ -17,7 +17,12 @@ import Animated, {
     interpolate,
     runOnJS,
 } from 'react-native-reanimated';
-import { PanGestureHandler, GestureHandlerRootView , Gesture, GestureDetector } from 'react-native-gesture-handler';
+import {
+    PanGestureHandler,
+    GestureHandlerRootView,
+    Gesture,
+    GestureDetector,
+} from 'react-native-gesture-handler';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -223,7 +228,11 @@ export default function DarkAdventureMap() {
                     </TouchableOpacity>
                 </View>
 
-                <MapWrapper goals={visibleGoals} recenterTrigger={recenterTrigger} />
+                <MapWrapper
+                    goals={visibleGoals}
+                    recenterTrigger={recenterTrigger}
+                    isFullscreen={isExpanded}
+                />
 
                 {/* Drag Handle — sits at bottom of map panel */}
                 <GestureDetector gesture={panGesture}>
