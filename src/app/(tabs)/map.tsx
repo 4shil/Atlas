@@ -190,7 +190,7 @@ export default function DarkAdventureMap() {
     }, [goals, showOnlyPending, categoryFilter]);
 
     return (
-        <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50" edges={[]}>
+        <ScreenWrapper bgClass="dark:bg-black bg-slate-50" edges={[]}>
             {/* Animated Map Panel */}
             <Animated.View
                 style={[{ width: '100%', zIndex: 10, overflow: 'hidden' }, mapAnimatedStyle]}

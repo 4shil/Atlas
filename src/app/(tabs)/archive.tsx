@@ -23,7 +23,7 @@ export default function DarkInspirationArchive() {
             : allCompleted.filter(g => g.category === activeCategory);
 
     return (
-        <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50">
+        <ScreenWrapper bgClass="dark:bg-black bg-slate-50">
             <ScrollView
                 className="flex-1 z-10 pt-4"
                 showsVerticalScrollIndicator={false}

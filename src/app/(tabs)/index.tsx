@@ -101,7 +101,7 @@ export default function DashboardDark() {
     }, [sortedPending, searchQuery]);
 
     return (
-        <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50">
+        <ScreenWrapper bgClass="dark:bg-black bg-slate-50">
             <ScrollView
                 refreshControl={
                     <RefreshControl
@@ -279,7 +279,7 @@ export default function DashboardDark() {
                 {!showSearch && goals.length > 0 && (
                     <View className="mt-4 mb-2">
                         <View className="flex-row items-center justify-between px-6 mb-3">
-                            <Text className="text-xs font-semibold text-white/40 uppercase tracking-widest">
+                            <Text className="text-xs font-semibold dark:text-white/40 text-gray-500 uppercase tracking-widest">
                                 Your Adventures
                             </Text>
                             <TouchableOpacity onPress={() => router.push('/(tabs)/gallery')}>
@@ -476,7 +476,7 @@ export default function DashboardDark() {
                 <View className="px-6 mt-8">
                     {/* Header row with sort */}
                     <View className="flex-row items-center justify-between mb-3">
-                        <Text className="text-sm font-semibold text-white/50">
+                        <Text className="text-sm font-semibold dark:text-white/50 text-gray-500">
                             {showSearch && searchQuery
                                 ? `${filteredGoals.length} result${filteredGoals.length !== 1 ? 's' : ''} for "${searchQuery}"`
                                 : overdueGoals.length > 0
