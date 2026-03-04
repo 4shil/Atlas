@@ -65,6 +65,10 @@ export default function SettingsScreen() {
         setUnitSystem,
         mapStylePref,
         setMapStylePref,
+        defaultCategory,
+        setDefaultCategory,
+        showCompletedOnMap,
+        setShowCompletedOnMap,
         pushNotifications,
         setPushNotifications,
         dailyReminders,
@@ -255,6 +259,46 @@ export default function SettingsScreen() {
                                 </TouchableOpacity>
                             ))}
                         </View>
+                    </View>
+                </AccordionItem>
+
+                <AccordionItem title="Goals & Map" icon="map">
+                    <View className="mt-2 mb-4">
+                        <Text className="dark:text-white/70 text-gray-700 text-base mb-2">
+                            Default Goal Category
+                        </Text>
+                        <View className="flex-row flex-wrap gap-2">
+                            {['Travel', 'Adventures', 'Foodie', 'Stays', 'Milestone'].map(cat => (
+                                <TouchableOpacity
+                                    key={cat}
+                                    className={`px-3 py-1.5 rounded-full border ${defaultCategory === cat ? 'bg-blue-600 border-blue-600' : 'border-white/20'}`}
+                                    onPress={() => {
+                                        Haptics.selectionAsync();
+                                        setDefaultCategory(cat);
+                                    }}
+                                >
+                                    <Text
+                                        className={`text-xs font-semibold ${defaultCategory === cat ? 'text-white' : 'dark:text-white/60 text-gray-500'}`}
+                                    >
+                                        {cat}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+                    <View className="flex-row items-center justify-between">
+                        <Text className="dark:text-white/70 text-gray-700 text-base">
+                            Show Completed on Map
+                        </Text>
+                        <Switch
+                            value={showCompletedOnMap}
+                            onValueChange={setShowCompletedOnMap}
+                            trackColor={{
+                                false: 'rgba(255,255,255,0.1)',
+                                true: 'rgba(96,165,250,0.5)',
+                            }}
+                            thumbColor="#ffffff"
+                        />
                     </View>
                 </AccordionItem>
 

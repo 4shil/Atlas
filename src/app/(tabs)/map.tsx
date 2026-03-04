@@ -53,6 +53,7 @@ export default function DarkAdventureMap() {
     const { isDark } = useTheme();
     const router = useRouter();
     const [showOnlyPending, setShowOnlyPending] = React.useState(true);
+    const showCompletedOnMap = useSettingsStore(s => s.showCompletedOnMap);
     const [recenterTrigger, setRecenterTrigger] = React.useState(0);
     const [currentCity, setCurrentCity] = React.useState<string | null>(null);
     const [weather, setWeather] = React.useState<WeatherData | null>(null);
@@ -187,7 +188,9 @@ export default function DarkAdventureMap() {
     const CATEGORIES = ['All', 'Travel', 'Adventure', 'Fitness', 'Learning', 'Life'];
 
     const visibleGoals = React.useMemo(() => {
-        let filtered = showOnlyPending ? goals.filter(g => !g.completed) : goals;
+        let filtered =
+            showOnlyPending && !showCompletedOnMap ? goals.filter(g => !g.completed) : goals;
+        if (!showCompletedOnMap) filtered = filtered.filter(g => !g.completed);
         if (categoryFilter !== 'All') {
             filtered = filtered.filter(g => g.category === categoryFilter);
         }
