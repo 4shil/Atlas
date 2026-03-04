@@ -8,11 +8,13 @@ import {
     Dimensions,
     TextInput,
     ActivityIndicator,
+    Modal,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import * as Location from 'expo-location';
+import { useNearbyAttractions, Attraction } from '../../hooks/useNearbyAttractions';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 import MapWrapper from '../../components/MapWrapper';
 import { useRouter } from 'expo-router';
@@ -59,6 +61,8 @@ export default function DarkAdventureMap() {
         latitude: number;
         longitude: number;
     } | null>(null);
+    const [selectedAttraction, setSelectedAttraction] = React.useState<Attraction | null>(null);
+    const { attractions, fetchAttractions } = useNearbyAttractions();
     const unitSystem = useSettingsStore(s => s.unitSystem);
 
     // Animated map height
@@ -131,6 +135,8 @@ export default function DarkAdventureMap() {
                         `${place.city ?? place.region ?? 'Unknown'}, ${place.country ?? ''}`
                     );
                 }
+                // Fetch nearby attractions around user location
+                fetchAttractions(latitude, longitude, 2000);
                 const res = await fetch(
                     `https://wttr.in/?format=j1&lat=${latitude}&lon=${longitude}`
                 );
@@ -314,6 +320,11 @@ export default function DarkAdventureMap() {
                     recenterTrigger={recenterTrigger}
                     isFullscreen={isExpanded}
                     flyToCoords={flyToCoords}
+                    attractions={attractions}
+                    onAttractionPress={a => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        setSelectedAttraction(a);
+                    }}
                 />
 
                 {/* Drag Handle — sits at bottom of map panel */}
@@ -716,6 +727,143 @@ export default function DarkAdventureMap() {
                     </View>
                 </ScrollView>
             </Animated.View>
+
+            {/* Attraction Detail Bottom Sheet */}
+            <Modal
+                visible={!!selectedAttraction}
+                transparent
+                animationType="slide"
+                onRequestClose={() => setSelectedAttraction(null)}
+            >
+                <TouchableOpacity
+                    style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}
+                    activeOpacity={1}
+                    onPress={() => setSelectedAttraction(null)}
+                />
+                {selectedAttraction && (
+                    <View
+                        style={{
+                            backgroundColor: '#0d0d14',
+                            borderTopLeftRadius: 28,
+                            borderTopRightRadius: 28,
+                            padding: 24,
+                            paddingBottom: 48,
+                            borderTopWidth: 1,
+                            borderTopColor: 'rgba(255,255,255,0.1)',
+                        }}
+                    >
+                        <View
+                            style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}
+                        >
+                            <View
+                                style={{
+                                    width: 48,
+                                    height: 48,
+                                    borderRadius: 24,
+                                    backgroundColor: 'rgba(96,165,250,0.15)',
+                                    borderWidth: 1,
+                                    borderColor: 'rgba(96,165,250,0.3)',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginRight: 14,
+                                }}
+                            >
+                                <MaterialIcons name="place" size={24} color="#60a5fa" />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text
+                                    style={{
+                                        color: 'white',
+                                        fontSize: 18,
+                                        fontWeight: '700',
+                                        marginBottom: 2,
+                                    }}
+                                >
+                                    {selectedAttraction.name}
+                                </Text>
+                                <Text
+                                    style={{
+                                        color: '#9ca3af',
+                                        fontSize: 13,
+                                        fontWeight: '500',
+                                        textTransform: 'capitalize',
+                                    }}
+                                >
+                                    {selectedAttraction.type}
+                                </Text>
+                            </View>
+                            <TouchableOpacity
+                                onPress={() => setSelectedAttraction(null)}
+                                style={{
+                                    width: 36,
+                                    height: 36,
+                                    borderRadius: 18,
+                                    backgroundColor: 'rgba(255,255,255,0.08)',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                <MaterialIcons
+                                    name="close"
+                                    size={18}
+                                    color="rgba(255,255,255,0.6)"
+                                />
+                            </TouchableOpacity>
+                        </View>
+                        {selectedAttraction.tags?.['opening_hours'] && (
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    marginBottom: 8,
+                                }}
+                            >
+                                <MaterialIcons name="access-time" size={15} color="#6b7280" />
+                                <Text style={{ color: '#9ca3af', fontSize: 13, marginLeft: 6 }}>
+                                    {selectedAttraction.tags['opening_hours']}
+                                </Text>
+                            </View>
+                        )}
+                        {selectedAttraction.tags?.['website'] && (
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    marginBottom: 8,
+                                }}
+                            >
+                                <MaterialIcons name="language" size={15} color="#6b7280" />
+                                <Text
+                                    style={{ color: '#60a5fa', fontSize: 13, marginLeft: 6 }}
+                                    numberOfLines={1}
+                                >
+                                    {selectedAttraction.tags['website']}
+                                </Text>
+                            </View>
+                        )}
+                        <TouchableOpacity
+                            style={{
+                                marginTop: 16,
+                                backgroundColor: '#1d4ed8',
+                                borderRadius: 14,
+                                paddingVertical: 12,
+                                alignItems: 'center',
+                            }}
+                            onPress={() => {
+                                setFlyToCoords({
+                                    latitude: selectedAttraction.latitude,
+                                    longitude: selectedAttraction.longitude,
+                                });
+                                setSelectedAttraction(null);
+                            }}
+                        >
+                            <Text style={{ color: 'white', fontWeight: '700', fontSize: 14 }}>
+                                Show on Map
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+            </Modal>
         </ScreenWrapper>
     );
 }
