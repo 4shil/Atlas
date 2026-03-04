@@ -398,22 +398,56 @@ export default function SettingsScreen() {
                 <AccordionItem title="About Atlas" icon="info-outline">
                     <View className="items-center py-4">
                         <View className="w-16 h-16 bg-white/15 rounded-2xl items-center justify-center mb-3 border dark:border-white/10 border-black/10">
-                            <MaterialIcons name="explore" size={32} color="white" />
+                            <MaterialIcons name="explore" size={32} color="#60a5fa" />
                         </View>
                         <Text className="dark:text-white text-gray-900 font-bold text-lg">
                             Atlas Planner
                         </Text>
-                        <Text className="dark:text-white/40 text-gray-400 text-sm mb-4">
+                        <Text className="dark:text-white/40 text-gray-400 text-sm mb-2">
                             Version 1.0.0
                         </Text>
+                        <Text className="dark:text-white/30 text-gray-400 text-xs mb-4 text-center">
+                            Your personal bucket list & travel goal tracker
+                        </Text>
 
-                        <View className="w-full flex-row justify-between border-t border-white/[0.06] pt-4 mt-2">
-                            <TouchableOpacity onPress={handleOpenTerms}>
-                                <Text className="text-blue-400">Terms of Service</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={handleOpenPrivacy}>
-                                <Text className="text-blue-400">Privacy Policy</Text>
-                            </TouchableOpacity>
+                        <View className="w-full gap-2 border-t border-white/[0.06] pt-4 mt-2">
+                            {[
+                                {
+                                    label: 'GitHub Repository',
+                                    url: 'https://github.com/4shil/Atlas',
+                                    icon: 'code',
+                                },
+                                {
+                                    label: 'Privacy Policy',
+                                    url: 'https://github.com/4shil/Atlas/blob/main/PRIVACY.md',
+                                    icon: 'privacy-tip',
+                                },
+                                {
+                                    label: 'Terms of Service',
+                                    url: 'https://github.com/4shil/Atlas/blob/main/TERMS.md',
+                                    icon: 'gavel',
+                                },
+                            ].map(({ label, url, icon }) => (
+                                <TouchableOpacity
+                                    key={label}
+                                    className="flex-row items-center py-3 border-b border-white/[0.04]"
+                                    onPress={() =>
+                                        Linking.openURL(url).catch(() =>
+                                            Alert.alert('Cannot open URL')
+                                        )
+                                    }
+                                >
+                                    <MaterialIcons name={icon as any} size={18} color="#60a5fa" />
+                                    <Text className="text-blue-400 text-sm font-medium ml-3 flex-1">
+                                        {label}
+                                    </Text>
+                                    <MaterialIcons
+                                        name="open-in-new"
+                                        size={14}
+                                        color="rgba(96,165,250,0.5)"
+                                    />
+                                </TouchableOpacity>
+                            ))}
                         </View>
                     </View>
                 </AccordionItem>
