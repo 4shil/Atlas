@@ -72,6 +72,12 @@ export default function GoalDetail() {
 
     const handleShare = async () => {
         if (!goal) return;
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        setShowShareModal(true);
+    };
+
+    const handleShareCard = async () => {
+        if (!goal) return;
         try {
             const uri = await shareCardRef.current?.capture?.();
             if (uri) {
@@ -188,11 +194,6 @@ export default function GoalDetail() {
             withDelay(1200, withTiming(0, { duration: 300 }))
         );
         setTimeout(() => setShowCelebration(false), 1800);
-    };
-
-    const handleShare = async () => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        setShowShareModal(true);
     };
 
     return (
@@ -809,7 +810,7 @@ export default function GoalDetail() {
                         <View style={shareStyles.actions}>
                             <TouchableOpacity
                                 style={shareStyles.actionBtn}
-                                onPress={handleShare}
+                                onPress={handleShareCard}
                                 accessibilityLabel="Share as image"
                                 accessibilityRole="button"
                             >
