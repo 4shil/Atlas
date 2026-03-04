@@ -36,11 +36,13 @@ export default function Profile() {
     const pct = goals.length === 0 ? 0 : Math.round((completedGoals.length / goals.length) * 100);
 
     // Countries visited (from completed goals with valid locations)
-    const visitedCountries = [...new Set(
-        completedGoals
-            .filter(g => g.location.country && g.location.country !== 'Unknown Country')
-            .map(g => g.location.country)
-    )];
+    const visitedCountries = [
+        ...new Set(
+            completedGoals
+                .filter(g => g.location.country && g.location.country !== 'Unknown Country')
+                .map(g => g.location.country)
+        ),
+    ];
 
     const pickAvatar = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -69,7 +71,7 @@ export default function Profile() {
     };
 
     return (
-        <ScreenWrapper bgClass="bg-black" edges={[]}>
+        <ScreenWrapper bgClass="dark:bg-black bg-slate-50" edges={[]}>
             {/* Hero Banner */}
             <View className="h-56 relative">
                 <LinearGradient
@@ -89,7 +91,9 @@ export default function Profile() {
                     >
                         <MaterialIcons name="arrow-back" size={20} color="white" />
                     </TouchableOpacity>
-                    <Text className="text-white font-semibold text-base">Profile</Text>
+                    <Text className="dark:text-white text-gray-900 font-semibold text-base">
+                        Profile
+                    </Text>
                     <TouchableOpacity
                         className="w-10 h-10 rounded-full bg-white/10 items-center justify-center border border-white/[0.08]"
                         onPress={() => router.push('/settings')}
@@ -109,10 +113,16 @@ export default function Profile() {
                     <TouchableOpacity onPress={pickAvatar} className="relative mb-4">
                         <View className="w-28 h-28 rounded-full border-4 border-black overflow-hidden bg-white/10">
                             {profile.avatarUri ? (
-                                <Image source={{ uri: profile.avatarUri }} className="w-full h-full" resizeMode="cover" />
+                                <Image
+                                    source={{ uri: profile.avatarUri }}
+                                    className="w-full h-full"
+                                    resizeMode="cover"
+                                />
                             ) : (
                                 <View className="w-full h-full items-center justify-center bg-white/10">
-                                    <Text className="text-5xl">{profile.name.charAt(0).toUpperCase()}</Text>
+                                    <Text className="text-5xl">
+                                        {profile.name.charAt(0).toUpperCase()}
+                                    </Text>
                                 </View>
                             )}
                         </View>
@@ -127,7 +137,7 @@ export default function Profile() {
                             <TextInput
                                 value={nameInput}
                                 onChangeText={setNameInput}
-                                className="text-white text-2xl font-bold text-center border-b border-blue-500 pb-1 min-w-[160px]"
+                                className="dark:text-white text-gray-900 text-2xl font-bold text-center border-b border-blue-500 pb-1 min-w-[160px]"
                                 autoFocus
                                 onBlur={saveName}
                                 onSubmitEditing={saveName}
@@ -135,8 +145,13 @@ export default function Profile() {
                             />
                         </View>
                     ) : (
-                        <TouchableOpacity className="flex-row items-center gap-2 mb-2" onPress={() => setEditingName(true)}>
-                            <Text className="text-white text-2xl font-bold">{profile.name}</Text>
+                        <TouchableOpacity
+                            className="flex-row items-center gap-2 mb-2"
+                            onPress={() => setEditingName(true)}
+                        >
+                            <Text className="dark:text-white text-gray-900 text-2xl font-bold">
+                                {profile.name}
+                            </Text>
                             <MaterialIcons name="edit" size={16} color="rgba(255,255,255,0.3)" />
                         </TouchableOpacity>
                     )}
@@ -162,14 +177,36 @@ export default function Profile() {
                 {/* Stats Row */}
                 <View className="flex-row mx-6 mt-8 gap-3">
                     {[
-                        { label: 'Total Goals', value: goals.length, icon: 'list', color: '#60a5fa' },
-                        { label: 'Completed', value: completedGoals.length, icon: 'check-circle', color: '#4ade80' },
-                        { label: 'Countries', value: visitedCountries.length, icon: 'public', color: '#f59e0b' },
-                    ].map((stat) => (
-                        <View key={stat.label} className="flex-1 bg-white/[0.05] border border-white/[0.08] rounded-2xl p-4 items-center">
+                        {
+                            label: 'Total Goals',
+                            value: goals.length,
+                            icon: 'list',
+                            color: '#60a5fa',
+                        },
+                        {
+                            label: 'Completed',
+                            value: completedGoals.length,
+                            icon: 'check-circle',
+                            color: '#4ade80',
+                        },
+                        {
+                            label: 'Countries',
+                            value: visitedCountries.length,
+                            icon: 'public',
+                            color: '#f59e0b',
+                        },
+                    ].map(stat => (
+                        <View
+                            key={stat.label}
+                            className="flex-1 bg-white/[0.05] border border-white/[0.08] rounded-2xl p-4 items-center"
+                        >
                             <MaterialIcons name={stat.icon as any} size={22} color={stat.color} />
-                            <Text className="text-white font-bold text-2xl mt-2">{stat.value}</Text>
-                            <Text className="text-white/40 text-xs mt-0.5 text-center">{stat.label}</Text>
+                            <Text className="dark:text-white text-gray-900 font-bold text-2xl mt-2">
+                                {stat.value}
+                            </Text>
+                            <Text className="text-white/40 text-xs mt-0.5 text-center">
+                                {stat.label}
+                            </Text>
                         </View>
                     ))}
                 </View>
@@ -177,7 +214,9 @@ export default function Profile() {
                 {/* Progress Bar */}
                 <View className="mx-6 mt-6 bg-white/[0.05] border border-white/[0.08] rounded-2xl p-5">
                     <View className="flex-row justify-between items-center mb-3">
-                        <Text className="text-white font-semibold">Bucket List Progress</Text>
+                        <Text className="dark:text-white text-gray-900 font-semibold">
+                            Bucket List Progress
+                        </Text>
                         <Text className="text-white/70 font-bold">{pct}%</Text>
                     </View>
                     <View className="h-2 bg-white/10 rounded-full overflow-hidden">
@@ -194,19 +233,29 @@ export default function Profile() {
                 {/* Category Breakdown */}
                 {topCategories.length > 0 && (
                     <View className="mx-6 mt-5 bg-white/[0.05] border border-white/[0.08] rounded-2xl p-5">
-                        <Text className="text-white font-semibold mb-4">Top Categories</Text>
+                        <Text className="dark:text-white text-gray-900 font-semibold mb-4">
+                            Top Categories
+                        </Text>
                         {topCategories.map(([cat, count]) => (
                             <View key={cat} className="flex-row items-center mb-3">
                                 <View className="w-8 h-8 rounded-full bg-white/10 border border-white/[0.08] items-center justify-center mr-3">
-                                    <MaterialIcons name={getCategoryIcon(cat) as any} size={16} color="rgba(255,255,255,0.6)" />
+                                    <MaterialIcons
+                                        name={getCategoryIcon(cat) as any}
+                                        size={16}
+                                        color="rgba(255,255,255,0.6)"
+                                    />
                                 </View>
                                 <Text className="text-white/70 text-sm flex-1">{cat}</Text>
                                 <View className="flex-row items-center">
                                     <View
                                         className="h-1.5 rounded-full bg-white/30 mr-2"
-                                        style={{ width: Math.max(20, (count / goals.length) * 100) }}
+                                        style={{
+                                            width: Math.max(20, (count / goals.length) * 100),
+                                        }}
                                     />
-                                    <Text className="text-white/40 text-xs w-6 text-right">{count}</Text>
+                                    <Text className="text-white/40 text-xs w-6 text-right">
+                                        {count}
+                                    </Text>
                                 </View>
                             </View>
                         ))}
@@ -216,10 +265,15 @@ export default function Profile() {
                 {/* Countries Visited */}
                 {visitedCountries.length > 0 && (
                     <View className="mx-6 mt-5 bg-white/[0.05] border border-white/[0.08] rounded-2xl p-5">
-                        <Text className="text-white font-semibold mb-3">Countries Visited 🌍</Text>
+                        <Text className="dark:text-white text-gray-900 font-semibold mb-3">
+                            Countries Visited 🌍
+                        </Text>
                         <View className="flex-row flex-wrap gap-2">
                             {visitedCountries.map(c => (
-                                <View key={c} className="bg-white/[0.06] border border-white/[0.08] px-3 py-1.5 rounded-full">
+                                <View
+                                    key={c}
+                                    className="bg-white/[0.06] border border-white/[0.08] px-3 py-1.5 rounded-full"
+                                >
                                     <Text className="text-white/60 text-xs font-medium">{c}</Text>
                                 </View>
                             ))}
