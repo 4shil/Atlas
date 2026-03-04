@@ -40,7 +40,7 @@ export default function Gallery() {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         translateX.value = 0;
         rotate.value = 0;
-    }, [goals.length]);
+    }, [goals.length, rotate, translateX]);
 
     const goPrev = useCallback(() => {
         if (goals.length < 2) return;
@@ -48,7 +48,7 @@ export default function Gallery() {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         translateX.value = 0;
         rotate.value = 0;
-    }, [goals.length]);
+    }, [goals.length, rotate, translateX]);
 
     const swipe = Gesture.Pan()
         .onUpdate(e => {
@@ -149,6 +149,17 @@ export default function Gallery() {
                     <Text style={styles.title}>Gallery</Text>
                 </View>
                 <View style={{ flexDirection: 'row', gap: 10 }}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            router.push('/search');
+                        }}
+                        style={styles.iconBtn}
+                        accessibilityLabel="Search goals"
+                        accessibilityRole="button"
+                    >
+                        <MaterialIcons name="search" size={20} color="rgba(255,255,255,0.75)" />
+                    </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => router.push('/notifications')}
                         style={styles.iconBtn}
