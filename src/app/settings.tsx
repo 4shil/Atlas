@@ -103,20 +103,36 @@ export default function SettingsScreen() {
     const resetProfile = useProfileStore(state => state.resetProfile);
 
     const handleClearData = () => {
+        // Two-step confirmation for safety
         Alert.alert(
-            'Clear App Data',
-            'Are you sure you want to permanently delete all goals, profile settings, and app data? This cannot be undone.',
+            'Clear All Data',
+            'This will permanently delete ALL goals, profile data, and settings. This action cannot be undone.',
             [
                 { text: 'Cancel', style: 'cancel' },
                 {
-                    text: 'Delete All',
+                    text: 'Yes, Clear Everything',
                     style: 'destructive',
                     onPress: () => {
-                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                        clearGoals();
-                        resetProfile();
-                        resetSettings();
-                        router.replace('/');
+                        Alert.alert(
+                            'Are you absolutely sure?',
+                            'All your bucket list goals and travel history will be lost forever.',
+                            [
+                                { text: 'No, Keep My Data', style: 'cancel' },
+                                {
+                                    text: 'Delete All',
+                                    style: 'destructive',
+                                    onPress: () => {
+                                        Haptics.notificationAsync(
+                                            Haptics.NotificationFeedbackType.Success
+                                        );
+                                        clearGoals();
+                                        resetProfile();
+                                        resetSettings();
+                                        router.replace('/');
+                                    },
+                                },
+                            ]
+                        );
                     },
                 },
             ]
@@ -419,7 +435,7 @@ export default function SettingsScreen() {
                         className="py-2 border-b border-white/[0.05] mb-2"
                         onPress={handleClearData}
                     >
-                        <Text className="text-blue-400 text-base">Clear App Data</Text>
+                        <Text className="text-red-400 text-base">Clear All Data</Text>
                     </TouchableOpacity>
                     <TouchableOpacity className="py-2" onPress={handleDeleteAccount}>
                         <Text className="text-red-400 text-base">Delete Account</Text>
