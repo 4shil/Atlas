@@ -94,12 +94,24 @@ export default function Profile() {
                     <Text className="dark:text-white text-gray-900 font-semibold text-base">
                         Profile
                     </Text>
-                    <TouchableOpacity
-                        className="w-10 h-10 rounded-full bg-white/10 items-center justify-center border border-white/[0.08]"
-                        onPress={() => router.push('/settings')}
-                    >
-                        <MaterialIcons name="settings" size={20} color="white" />
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                        <TouchableOpacity
+                            className="w-10 h-10 rounded-full bg-white/10 items-center justify-center border border-white/[0.08]"
+                            onPress={() => router.push('/stats')}
+                            accessibilityLabel="View statistics"
+                            accessibilityRole="button"
+                        >
+                            <MaterialIcons name="bar-chart" size={20} color="white" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            className="w-10 h-10 rounded-full bg-white/10 items-center justify-center border border-white/[0.08]"
+                            onPress={() => router.push('/settings')}
+                            accessibilityLabel="Settings"
+                            accessibilityRole="button"
+                        >
+                            <MaterialIcons name="settings" size={20} color="white" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
 
