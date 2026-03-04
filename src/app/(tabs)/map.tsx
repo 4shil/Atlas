@@ -3,13 +3,13 @@ import {
     View,
     Text,
     TouchableOpacity,
-    Image,
     ScrollView,
     Dimensions,
     TextInput,
     ActivityIndicator,
     Modal,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';

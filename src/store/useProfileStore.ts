@@ -1,7 +1,9 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase } from '../lib/supabase';
+import { supabase as supabaseClient } from '../lib/supabase';
+ 
+const supabase = supabaseClient as any;
 
 export interface UserProfile {
     name: string;
@@ -49,7 +51,7 @@ export const useProfileStore = create<ProfileState>()(
                         .from('profiles')
                         .update({ name: p.name, bio: p.bio, avatar_url: p.avatarUri })
                         .eq('id', session.user.id)
-                        .then(({ error }) => {
+                        .then(({ error }: { error: any }) => {
                             if (error) console.error('[ProfileStore] update:', error.message);
                         });
                 });
@@ -66,7 +68,7 @@ export const useProfileStore = create<ProfileState>()(
                         .from('profiles')
                         .update({ has_onboarded: true })
                         .eq('id', session.user.id)
-                        .then(({ error }) => {
+                        .then(({ error }: { error: any }) => {
                             if (error) console.error('[ProfileStore] onboard:', error.message);
                         });
                 });
@@ -88,10 +90,10 @@ export const useProfileStore = create<ProfileState>()(
                 } else if (data) {
                     set({
                         profile: {
-                            name: data.name ?? 'Traveller',
-                            bio: data.bio ?? INITIAL_PROFILE.bio,
-                            avatarUri: data.avatar_url ?? null,
-                            hasOnboarded: data.has_onboarded ?? false,
+                            name: (data as any)?.name ?? 'Traveller',
+                            bio: (data as any)?.bio ?? INITIAL_PROFILE.bio,
+                            avatarUri: (data as any)?.avatar_url ?? null,
+                            hasOnboarded: (data as any)?.has_onboarded ?? false,
                         },
                     });
                 }

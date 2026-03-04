@@ -71,7 +71,7 @@ export function Confetti({ visible, onDone }: ConfettiProps) {
                         useNativeDriver: true,
                     }),
                     Animated.timing(p.x, {
-                        toValue: p.x._value + (Math.random() - 0.5) * 200,
+                        toValue: (p.x as any)._value + (Math.random() - 0.5) * 200,
                         duration: 1800 + Math.random() * 1000,
                         useNativeDriver: true,
                     }),

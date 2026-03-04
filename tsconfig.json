@@ -1,55 +1,36 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "target": "ESNext",
-    "lib": [
-      "DOM",
-      "ESNext"
-    ],
-    "jsx": "react-native",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "isolatedModules": true,
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@theme/*": [
-        "./src/theme/*"
-      ],
-      "@components/*": [
-        "./src/components/*"
-      ],
-      "@screens/*": [
-        "./src/screens/*"
-      ],
-      "@features/*": [
-        "./src/features/*"
-      ],
-      "@hooks/*": [
-        "./src/hooks/*"
-      ],
-      "@utils/*": [
-        "./src/utils/*"
-      ]
+    "compilerOptions": {
+        "strict": true,
+        "target": "ESNext",
+        "lib": ["DOM", "ESNext"],
+        "jsx": "react-native",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "noEmit": true,
+        "isolatedModules": true,
+        "paths": {
+            "@/*": ["./src/*"],
+            "@theme/*": ["./src/theme/*"],
+            "@components/*": ["./src/components/*"],
+            "@screens/*": ["./src/screens/*"],
+            "@features/*": ["./src/features/*"],
+            "@hooks/*": ["./src/hooks/*"],
+            "@utils/*": ["./src/utils/*"]
+        },
+        "baseUrl": "."
     },
-    "baseUrl": "."
-  },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "nativewind-env.d.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
-  "extends": "expo/tsconfig.base"
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        ".expo/types/**/*.ts",
+        "expo-env.d.ts",
+        "nativewind-env.d.ts"
+    ],
+    "exclude": ["node_modules", "__tests__"],
+    "extends": "expo/tsconfig.base"
 }

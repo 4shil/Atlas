@@ -321,7 +321,7 @@ export default function DashboardDark() {
                                             contentFit="cover"
                                             transition={300}
                                         />
-                                        {/* Gradient overlay */}
+                                        {/* Gradient overlay — using backgroundColor as React Native doesn't support CSS gradient */}
                                         <View
                                             style={{
                                                 position: 'absolute',
@@ -329,8 +329,7 @@ export default function DashboardDark() {
                                                 left: 0,
                                                 right: 0,
                                                 height: 60,
-                                                background:
-                                                    'linear-gradient(transparent, rgba(0,0,0,0.8))',
+                                                backgroundColor: 'rgba(0,0,0,0.4)',
                                             }}
                                         />
                                         <View

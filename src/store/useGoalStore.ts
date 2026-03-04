@@ -2,8 +2,10 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
-import { supabase } from '../lib/supabase';
+import { supabase as supabaseClient } from '../lib/supabase';
 import { track } from '../lib/analytics';
+ 
+const supabase = supabaseClient as any;
 
 export interface Location {
     latitude: number;
@@ -212,7 +214,7 @@ export const useGoalStore = create<GoalState>()(
                         })
                         .eq('id', id)
                         .eq('user_id', session.user.id)
-                        .then(({ error }) => {
+                        .then(({ error }: { error: any }) => {
                             if (error) console.error('[GoalStore] toggle:', error.message);
                         });
                 });
@@ -268,7 +270,7 @@ export const useGoalStore = create<GoalState>()(
                     }
 
                     const cloudGoals = (data ?? []).map(fromRow);
-                    const cloudIds = new Set(cloudGoals.map(g => g.id));
+                    const cloudIds = new Set(cloudGoals.map((g: any) => g.id));
 
                     // 2. Push any local-only goals up to Supabase (created offline/before login)
                     const localOnly = localGoals.filter(g => !cloudIds.has(g.id));

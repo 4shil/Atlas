@@ -12,7 +12,7 @@ export interface Database {
         Tables: {
             profiles: {
                 Row: {
-                    id: string;            // UUID — matches auth.users.id
+                    id: string; // UUID — matches auth.users.id
                     name: string;
                     bio: string | null;
                     avatar_url: string | null;
@@ -28,6 +28,8 @@ export interface Database {
                     has_onboarded?: boolean;
                     created_at?: string;
                     updated_at?: string;
+                    completion_photo_url?: string | null;
+                    milestones?: Json;
                 };
                 Update: {
                     name?: string;
@@ -35,6 +37,8 @@ export interface Database {
                     avatar_url?: string | null;
                     has_onboarded?: boolean;
                     updated_at?: string;
+                    completion_photo_url?: string | null;
+                    milestones?: Json;
                 };
             };
             goals: {
@@ -56,6 +60,8 @@ export interface Database {
                     location_country: string | null;
                     location_place_id: string | null;
                     updated_at: string;
+                    completion_photo_url?: string | null;
+                    milestones?: Json;
                 };
                 Insert: {
                     id?: string;
