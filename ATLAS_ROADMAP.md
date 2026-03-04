@@ -323,3 +323,30 @@ Reasons: PostgreSQL, built-in auth, storage for images, real-time, generous free
 - Error monitoring: Sentry (industry standard, Expo integration easy)
 - Builds: EAS (Expo's official build service, handles iOS certs automatically)
 - The design system is the biggest hidden asset — tokens are professional quality. Once NativeWind consumes them, light/dark/high-contrast all come for free.
+
+---
+
+## Completed in Sprint (March 2026)
+
+- [x] Expandable map panel with drag handle and swipe gesture (Reanimated + GestureDetector)
+- [x] Full-screen map mode with floating collapse button overlay
+- [x] Map location search bar with fly-to animation (Nominatim/OSM)
+- [x] Nearby attractions fetch from Overpass API — no API key required
+- [x] Attraction pins with category icons (cafe, park, landmark, museum, hotel)
+- [x] Attraction detail bottom sheet on pin tap with show-on-map action
+- [x] Compass/recenter button and map style toggle (Standard / Satellite)
+- [x] Light mode: darkMode class NativeWind config + expanded settings store
+- [x] Light mode: semantic theme classes on home, gallery, archive screens
+- [x] Light mode: semantic theme classes on map screen bottom sheet
+- [x] Light mode: semantic theme classes on profile screen
+- [x] Light mode: semantic classes on settings, add-goal, notifications screens
+- [x] Theme toggle: Dark / Light / System in settings (3-way segmented control)
+- [x] Settings: map default style preference persisted to store
+- [x] Settings: default goal category picker + show completed goals on map toggle
+- [x] Settings: notification sound toggle
+- [x] Settings: about section (version, GitHub, privacy policy, terms links)
+- [x] Settings: export goals as JSON via expo-sharing + expo-file-system
+- [x] Settings: clear all data with two-step confirmation dialog
+- [x] add-goal: crash bug fixes, null safety, correct goal ID for image uploads
+- [x] TypeScript: npx tsc --noEmit passes clean (0 errors)
+- [x] ESLint: npx eslint src/ --ext .ts,.tsx --fix passes (0 errors, 58 warnings)
