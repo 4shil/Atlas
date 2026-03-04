@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -10,9 +10,24 @@ import { useRouter } from 'expo-router';
 import { ScreenWrapper } from '../../components/ScreenWrapper';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { formatTemperature } from '../../utils/unitUtils';
+import Animated, {
+    useAnimatedStyle,
+    useSharedValue,
+    withSpring,
+    interpolate,
+    runOnJS,
+} from 'react-native-reanimated';
+import { PanGestureHandler, GestureHandlerRootView , Gesture, GestureDetector } from 'react-native-gesture-handler';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Map panel heights
+const MAP_COLLAPSED_HEIGHT = SCREEN_HEIGHT * 0.6;
+const MAP_EXPANDED_HEIGHT = SCREEN_HEIGHT;
+const SNAP_THRESHOLD = 80;
 
 interface WeatherData {
-    temp: string; // raw celsius as string from API
+    temp: string;
     desc: string;
 }
 
@@ -23,7 +38,62 @@ export default function DarkAdventureMap() {
     const [recenterTrigger, setRecenterTrigger] = React.useState(0);
     const [currentCity, setCurrentCity] = React.useState<string | null>(null);
     const [weather, setWeather] = React.useState<WeatherData | null>(null);
+    const [isExpanded, setIsExpanded] = React.useState(false);
     const unitSystem = useSettingsStore(s => s.unitSystem);
+
+    // Animated map height
+    const mapHeight = useSharedValue(MAP_COLLAPSED_HEIGHT);
+    const startHeight = useSharedValue(MAP_COLLAPSED_HEIGHT);
+
+    const expandMap = React.useCallback(() => {
+        mapHeight.value = withSpring(MAP_EXPANDED_HEIGHT, { damping: 20, stiffness: 200 });
+        setIsExpanded(true);
+    }, [mapHeight]);
+
+    const collapseMap = React.useCallback(() => {
+        mapHeight.value = withSpring(MAP_COLLAPSED_HEIGHT, { damping: 20, stiffness: 200 });
+        setIsExpanded(false);
+    }, [mapHeight]);
+
+    // Pan gesture for drag handle
+    const panGesture = Gesture.Pan()
+        .onBegin(() => {
+            startHeight.value = mapHeight.value;
+        })
+        .onUpdate(e => {
+            const newHeight = startHeight.value + e.translationY;
+            mapHeight.value = Math.max(
+                MAP_COLLAPSED_HEIGHT,
+                Math.min(MAP_EXPANDED_HEIGHT, newHeight)
+            );
+        })
+        .onEnd(e => {
+            const current = mapHeight.value;
+            const mid = (MAP_COLLAPSED_HEIGHT + MAP_EXPANDED_HEIGHT) / 2;
+            if (e.translationY < -SNAP_THRESHOLD || current > mid) {
+                // Expand
+                mapHeight.value = withSpring(MAP_EXPANDED_HEIGHT, { damping: 20, stiffness: 200 });
+                runOnJS(setIsExpanded)(true);
+            } else {
+                // Collapse
+                mapHeight.value = withSpring(MAP_COLLAPSED_HEIGHT, { damping: 20, stiffness: 200 });
+                runOnJS(setIsExpanded)(false);
+            }
+        });
+
+    const mapAnimatedStyle = useAnimatedStyle(() => ({
+        height: mapHeight.value,
+    }));
+
+    // Sheet opacity: hide when map expanded
+    const sheetOpacity = useAnimatedStyle(() => ({
+        opacity: interpolate(
+            mapHeight.value,
+            [MAP_COLLAPSED_HEIGHT, MAP_COLLAPSED_HEIGHT + 100],
+            [1, 0]
+        ),
+        pointerEvents: isExpanded ? 'none' : 'auto',
+    }));
 
     // Fetch user location + weather on mount
     React.useEffect(() => {
@@ -31,21 +101,16 @@ export default function DarkAdventureMap() {
             try {
                 const { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') return;
-
                 const loc = await Location.getCurrentPositionAsync({
                     accuracy: Location.Accuracy.Balanced,
                 });
                 const { latitude, longitude } = loc.coords;
-
-                // Reverse geocode for city name
                 const [place] = await Location.reverseGeocodeAsync({ latitude, longitude });
                 if (place) {
                     setCurrentCity(
                         `${place.city ?? place.region ?? 'Unknown'}, ${place.country ?? ''}`
                     );
                 }
-
-                // Live weather from wttr.in (free, no API key)
                 const res = await fetch(
                     `https://wttr.in/?format=j1&lat=${latitude}&lon=${longitude}`
                 );
@@ -59,14 +124,11 @@ export default function DarkAdventureMap() {
                         });
                     }
                 }
-            } catch (_) {
-                // Location/weather unavailable — fail silently
-            }
+            } catch (_) {}
         })();
     }, []);
 
     const [categoryFilter, setCategoryFilter] = React.useState<string>('All');
-
     const CATEGORIES = ['All', 'Travel', 'Adventure', 'Fitness', 'Learning', 'Life'];
 
     const visibleGoals = React.useMemo(() => {
@@ -79,41 +141,79 @@ export default function DarkAdventureMap() {
 
     return (
         <ScreenWrapper bgClass="bg-black dark:bg-black bg-slate-50" edges={[]}>
-            {/* Top Map Area 60% */}
-            <View className="relative h-[60%] w-full bg-[#050505] z-10 overflow-hidden">
+            {/* Animated Map Panel */}
+            <Animated.View
+                style={[{ width: '100%', zIndex: 10, overflow: 'hidden' }, mapAnimatedStyle]}
+            >
                 <LinearGradient
                     colors={['rgba(0,0,0,0.8)', 'transparent', 'rgba(0,0,0,0.9)']}
-                    className="absolute inset-0 pointer-events-none z-10"
+                    style={
+                        { position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none' } as any
+                    }
                 />
-                <View className="absolute inset-0 bg-blue-900/10 pointer-events-none z-10" />
+                <View
+                    style={
+                        {
+                            position: 'absolute',
+                            inset: 0,
+                            backgroundColor: 'rgba(0,30,80,0.1)',
+                            zIndex: 10,
+                            pointerEvents: 'none',
+                        } as any
+                    }
+                />
 
-                {/* Top Floating Buttons */}
-                <View className="absolute top-0 left-0 right-0 pt-16 px-6 flex-row justify-between items-start z-30 pointer-events-box-none">
+                {/* Top Buttons */}
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        paddingTop: 56,
+                        paddingHorizontal: 24,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        zIndex: 30,
+                    }}
+                >
                     <TouchableOpacity
-                        className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 items-center justify-center border dark:border-white/[0.08] border-black/[0.08]"
+                        style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 20,
+                            backgroundColor: 'rgba(255,255,255,0.1)',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderWidth: 1,
+                            borderColor: 'rgba(255,255,255,0.08)',
+                        }}
                         activeOpacity={0.7}
                         onPress={() => {
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            if (router.canGoBack()) {
-                                router.back();
-                            } else {
-                                router.push('/(tabs)');
-                            }
+                            if (router.canGoBack()) router.back();
+                            else router.push('/(tabs)');
                         }}
-                        accessibilityRole="button"
-                        accessibilityLabel="Go back"
                     >
                         <MaterialIcons name="arrow-back" size={20} color="white" />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 items-center justify-center border dark:border-white/[0.08] border-black/[0.08]"
+                        style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 20,
+                            backgroundColor: 'rgba(255,255,255,0.1)',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderWidth: 1,
+                            borderColor: 'rgba(255,255,255,0.08)',
+                        }}
                         activeOpacity={0.7}
                         onPress={() => {
                             Haptics.selectionAsync();
                             setShowOnlyPending(prev => !prev);
                         }}
-                        accessibilityRole="button"
-                        accessibilityLabel="Filter map"
                     >
                         <MaterialIcons
                             name={showOnlyPending ? 'tune' : 'filter-alt-off'}
@@ -124,32 +224,151 @@ export default function DarkAdventureMap() {
                 </View>
 
                 <MapWrapper goals={visibleGoals} recenterTrigger={recenterTrigger} />
-            </View>
 
-            {/* Bottom Sheet 48% */}
-            <View className="relative flex-1 -mt-10 w-full z-20 rounded-t-[32px] bg-black/70 border-t dark:border-white/[0.08] border-black/[0.08] overflow-hidden flex-col">
-                <View className="w-full items-center pt-4 pb-2">
-                    <View className="w-10 h-1 bg-white/20 rounded-full" />
+                {/* Drag Handle — sits at bottom of map panel */}
+                <GestureDetector gesture={panGesture}>
+                    <View
+                        style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: 36,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 40,
+                        }}
+                        onTouchEnd={() => {
+                            if (!isExpanded) expandMap();
+                            else collapseMap();
+                        }}
+                    >
+                        <View
+                            style={{
+                                width: 40,
+                                height: 4,
+                                borderRadius: 2,
+                                backgroundColor: 'rgba(255,255,255,0.35)',
+                            }}
+                        />
+                    </View>
+                </GestureDetector>
+
+                {/* Collapse button when expanded */}
+                {isExpanded && (
+                    <TouchableOpacity
+                        style={{
+                            position: 'absolute',
+                            bottom: 48,
+                            alignSelf: 'center',
+                            left: '50%',
+                            marginLeft: -56,
+                            zIndex: 50,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            backgroundColor: 'rgba(0,0,0,0.75)',
+                            borderRadius: 24,
+                            paddingHorizontal: 20,
+                            paddingVertical: 10,
+                            borderWidth: 1,
+                            borderColor: 'rgba(255,255,255,0.15)',
+                            gap: 6,
+                        }}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                            collapseMap();
+                        }}
+                    >
+                        <MaterialIcons name="keyboard-arrow-down" size={20} color="white" />
+                        <Text style={{ color: 'white', fontSize: 13, fontWeight: '600' }}>
+                            Collapse
+                        </Text>
+                    </TouchableOpacity>
+                )}
+            </Animated.View>
+
+            {/* Bottom Sheet */}
+            <Animated.View
+                style={[
+                    {
+                        flex: 1,
+                        marginTop: -10,
+                        zIndex: 20,
+                        borderTopLeftRadius: 32,
+                        borderTopRightRadius: 32,
+                        backgroundColor: 'rgba(5,5,5,0.92)',
+                        borderTopWidth: 1,
+                        borderTopColor: 'rgba(255,255,255,0.08)',
+                        overflow: 'hidden',
+                    },
+                    sheetOpacity,
+                ]}
+                pointerEvents={isExpanded ? 'none' : 'auto'}
+            >
+                <View style={{ alignItems: 'center', paddingTop: 16, paddingBottom: 8 }}>
+                    <View
+                        style={{
+                            width: 40,
+                            height: 4,
+                            borderRadius: 2,
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+                        }}
+                    />
                 </View>
 
                 <ScrollView
-                    className="flex-1 px-6 pb-8 pt-2"
+                    style={{ flex: 1, paddingHorizontal: 24 }}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingBottom: 40 }}
+                    contentContainerStyle={{ paddingBottom: 40, paddingTop: 8 }}
                 >
                     {/* Current Location */}
-                    <View className="mb-8">
-                        <Text className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3">
+                    <View style={{ marginBottom: 32 }}>
+                        <Text
+                            style={{
+                                fontSize: 10,
+                                fontWeight: '700',
+                                color: '#6b7280',
+                                letterSpacing: 3,
+                                marginBottom: 12,
+                                textTransform: 'uppercase',
+                            }}
+                        >
                             Currently In
                         </Text>
-                        <View className="flex-row items-center justify-between">
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                            }}
+                        >
                             <View>
-                                <Text className="text-3xl font-bold text-white tracking-tight">
+                                <Text
+                                    style={{
+                                        fontSize: 30,
+                                        fontWeight: '700',
+                                        color: 'white',
+                                        letterSpacing: -0.5,
+                                    }}
+                                >
                                     {currentCity ?? 'Locating...'}
                                 </Text>
-                                <View className="flex-row items-center mt-2 space-x-2">
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        marginTop: 8,
+                                    }}
+                                >
                                     <MaterialIcons name="cloud" size={18} color="#60a5fa" />
-                                    <Text className="text-sm font-medium text-blue-400 ml-2">
+                                    <Text
+                                        style={{
+                                            fontSize: 13,
+                                            fontWeight: '500',
+                                            color: '#60a5fa',
+                                            marginLeft: 8,
+                                        }}
+                                    >
                                         {weather
                                             ? `${formatTemperature(parseInt(weather.temp), unitSystem)} • ${weather.desc}`
                                             : '—'}
@@ -157,23 +376,39 @@ export default function DarkAdventureMap() {
                                 </View>
                             </View>
                             <TouchableOpacity
-                                className="w-12 h-12 rounded-full dark:bg-white/10 bg-black/10 border dark:border-white/[0.08] border-black/[0.08] items-center justify-center"
+                                style={{
+                                    width: 48,
+                                    height: 48,
+                                    borderRadius: 24,
+                                    backgroundColor: 'rgba(255,255,255,0.08)',
+                                    borderWidth: 1,
+                                    borderColor: 'rgba(255,255,255,0.08)',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
                                 activeOpacity={0.7}
                                 onPress={() => {
                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                     setRecenterTrigger(prev => prev + 1);
                                 }}
-                                accessibilityRole="button"
-                                accessibilityLabel="Recenter map"
                             >
                                 <MaterialIcons name="my-location" size={20} color="#60a5fa" />
                             </TouchableOpacity>
                         </View>
                     </View>
 
-                    {/* Category Filter Pills */}
-                    <View className="mb-6">
-                        <Text className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3">
+                    {/* Category Pills */}
+                    <View style={{ marginBottom: 24 }}>
+                        <Text
+                            style={{
+                                fontSize: 10,
+                                fontWeight: '700',
+                                color: '#6b7280',
+                                letterSpacing: 3,
+                                marginBottom: 12,
+                                textTransform: 'uppercase',
+                            }}
+                        >
                             Filter by Category
                         </Text>
                         <ScrollView
@@ -222,8 +457,23 @@ export default function DarkAdventureMap() {
 
                     {/* Next Goals */}
                     <View>
-                        <View className="flex-row justify-between items-end mb-5">
-                            <Text className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-end',
+                                marginBottom: 20,
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    fontSize: 10,
+                                    fontWeight: '700',
+                                    color: '#6b7280',
+                                    letterSpacing: 3,
+                                    textTransform: 'uppercase',
+                                }}
+                            >
                                 Next Goals
                             </Text>
                             <TouchableOpacity
@@ -232,33 +482,48 @@ export default function DarkAdventureMap() {
                                     Haptics.selectionAsync();
                                     router.push('/(tabs)/archive');
                                 }}
-                                accessibilityRole="button"
-                                accessibilityLabel="See all goals"
                             >
-                                <Text className="text-xs text-blue-400 font-semibold">See all</Text>
+                                <Text style={{ fontSize: 12, color: '#60a5fa', fontWeight: '600' }}>
+                                    See all
+                                </Text>
                             </TouchableOpacity>
                         </View>
 
                         <ScrollView
                             horizontal
                             showsHorizontalScrollIndicator={false}
-                            className="overflow-visible pb-4"
                             contentContainerStyle={{ paddingRight: 16 }}
                         >
                             {visibleGoals.length === 0 ? (
-                                <Text className="text-gray-500">
+                                <Text style={{ color: '#6b7280' }}>
                                     No goals to show for this filter.
                                 </Text>
                             ) : (
                                 visibleGoals.slice(0, 5).map((goal: Goal) => (
                                     <View
                                         key={goal.id}
-                                        className="w-[260px] h-[170px] relative rounded-3xl overflow-hidden mr-4 border dark:border-white/10 border-black/10"
+                                        style={{
+                                            width: 260,
+                                            height: 170,
+                                            borderRadius: 24,
+                                            overflow: 'hidden',
+                                            marginRight: 16,
+                                            borderWidth: 1,
+                                            borderColor: 'rgba(255,255,255,0.1)',
+                                            position: 'relative',
+                                        }}
                                     >
                                         <Image
                                             source={{ uri: goal.image }}
-                                            className="absolute inset-0 w-full h-full opacity-60"
-                                            resizeMode="cover"
+                                            style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                                opacity: 0.6,
+                                            }}
+                                            contentFit="cover"
                                         />
                                         <LinearGradient
                                             colors={[
@@ -266,41 +531,77 @@ export default function DarkAdventureMap() {
                                                 'rgba(0,0,0,0.4)',
                                                 'rgba(0,0,0,1)',
                                             ]}
-                                            className="absolute inset-0"
+                                            style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                            }}
                                         />
-
-                                        <View className="absolute inset-0 p-5 flex-col justify-between">
-                                            <View className="self-end hidden">
-                                                <View className="w-8 h-8 rounded-full dark:bg-white/10 bg-black/10 border border-white/20 items-center justify-center">
-                                                    <MaterialIcons
-                                                        name="bookmark-border"
-                                                        size={16}
-                                                        color="white"
-                                                    />
-                                                </View>
-                                            </View>
-                                            <View className="flex-1 justify-end flex-row items-end">
-                                                <View className="flex-1">
+                                        <View
+                                            style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                                padding: 20,
+                                                justifyContent: 'flex-end',
+                                            }}
+                                        >
+                                            <View
+                                                style={{
+                                                    flexDirection: 'row',
+                                                    alignItems: 'flex-end',
+                                                }}
+                                            >
+                                                <View style={{ flex: 1 }}>
                                                     <Text
-                                                        className="text-white dark:text-white font-bold text-xl leading-tight mb-1"
+                                                        style={{
+                                                            color: 'white',
+                                                            fontWeight: '700',
+                                                            fontSize: 18,
+                                                            lineHeight: 22,
+                                                            marginBottom: 4,
+                                                        }}
                                                         numberOfLines={1}
                                                     >
                                                         {goal.title}
                                                     </Text>
-                                                    <View className="flex-row items-center">
+                                                    <View
+                                                        style={{
+                                                            flexDirection: 'row',
+                                                            alignItems: 'center',
+                                                        }}
+                                                    >
                                                         <MaterialIcons
                                                             name="near-me"
                                                             size={14}
                                                             color="#3b82f6"
                                                         />
-                                                        <Text className="text-gray-400 text-xs font-medium ml-1">
+                                                        <Text
+                                                            style={{
+                                                                color: '#9ca3af',
+                                                                fontSize: 11,
+                                                                fontWeight: '500',
+                                                                marginLeft: 4,
+                                                            }}
+                                                        >
                                                             {goal.location.city},{' '}
                                                             {goal.location.country}
                                                         </Text>
                                                     </View>
                                                 </View>
                                                 <TouchableOpacity
-                                                    className="w-10 h-10 rounded-full bg-blue-600 items-center justify-center shadow-lg shadow-blue-900/40"
+                                                    style={{
+                                                        width: 40,
+                                                        height: 40,
+                                                        borderRadius: 20,
+                                                        backgroundColor: '#2563eb',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                    }}
                                                     onPress={() => {
                                                         Haptics.selectionAsync();
                                                         router.push({
@@ -323,7 +624,7 @@ export default function DarkAdventureMap() {
                         </ScrollView>
                     </View>
                 </ScrollView>
-            </View>
+            </Animated.View>
         </ScreenWrapper>
     );
 }

@@ -37,6 +37,8 @@ export default function GoalDetail() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const { goals, toggleComplete, deleteGoal, updateGoal, addMilestone, toggleMilestone } =
         useGoalStore();
+    const goal = goals.find(g => g.id === id);
+
     const [showCelebration, setShowCelebration] = useState(false);
     const [milestoneInput, setMilestoneInput] = useState('');
     const [completionPhoto, setCompletionPhoto] = useState<string | null>(
@@ -44,8 +46,6 @@ export default function GoalDetail() {
     );
     const celebScale = useSharedValue(0);
     const celebOpacity = useSharedValue(0);
-
-    const goal = goals.find(g => g.id === id);
 
     if (!goal) {
         return (

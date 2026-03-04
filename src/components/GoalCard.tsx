@@ -66,7 +66,6 @@ export const GoalCard = React.memo(
                                 >
                                     <View
                                         style={{
-                                            position: 'absolute',
                                             ...StyleSheet.absoluteFillObject,
                                             backgroundColor: 'rgba(255,255,255,0.08)',
                                             borderRadius: 20,
@@ -90,7 +89,6 @@ export const GoalCard = React.memo(
                             <BlurView intensity={50} tint="dark" style={{ padding: 20 }}>
                                 <View
                                     style={{
-                                        position: 'absolute',
                                         ...StyleSheet.absoluteFillObject,
                                         backgroundColor: 'rgba(0,0,0,0.25)',
                                     }}
