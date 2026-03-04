@@ -22,11 +22,15 @@ import { LocationPicker } from '../components/LocationPicker';
 import { scheduleGoalReminders } from '../utils/notificationUtils';
 import { CATEGORIES } from '../utils/constants';
 import { ScreenWrapper } from '../components/ScreenWrapper';
+import { useSettingsStore } from '../store/useSettingsStore';
+
+const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80';
 
 export default function AddGoal() {
     const router = useRouter();
     const { editId } = useLocalSearchParams<{ editId?: string }>();
     const { addGoal, updateGoal, goals } = useGoalStore();
+    const defaultCategory = useSettingsStore(s => s.defaultCategory);
 
     // Determine if we're in edit mode
     const existingGoal = editId ? goals.find(g => g.id === editId) : null;
@@ -35,33 +39,44 @@ export default function AddGoal() {
     const [title, setTitle] = useState(existingGoal?.title ?? '');
     const [description, setDescription] = useState(existingGoal?.description ?? '');
     const [notes, setNotes] = useState(existingGoal?.notes ?? '');
-    const [category, setCategory] = useState(existingGoal?.category ?? 'Travel');
+    const [category, setCategory] = useState(existingGoal?.category ?? defaultCategory ?? 'Travel');
     const [locationData, setLocationData] = useState<Location>(
         existingGoal?.location ?? { latitude: 0, longitude: 0, city: '', country: '' }
     );
     const [isLocationPickerVisible, setIsLocationPickerVisible] = useState(false);
     const [image, setImage] = useState<string | null>(existingGoal?.image ?? null);
-    const [date, setDate] = useState<Date>(
-        existingGoal
-            ? new Date(existingGoal.timelineDate)
-            : new Date(new Date().setMonth(new Date().getMonth() + 1))
-    );
+    const [date, setDate] = useState<Date>(() => {
+        if (existingGoal?.timelineDate) {
+            const d = new Date(existingGoal.timelineDate);
+            return isNaN(d.getTime()) ? new Date() : d;
+        }
+        const d = new Date();
+        d.setMonth(d.getMonth() + 1);
+        return d;
+    });
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [saving, setSaving] = useState(false);
 
     const pickImage = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 0.6, // compressed — was 1.0
-        });
-        if (!result.canceled) setImage(result.assets[0].uri);
+        try {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 0.6,
+            });
+            if (!result.canceled && result.assets?.[0]?.uri) {
+                setImage(result.assets[0].uri);
+            }
+        } catch {
+            Alert.alert('Error', 'Could not open image picker.');
+        }
     };
+
     const uploadImage = async (localUri: string, goalId: string): Promise<string> => {
         try {
             const session = await supabase.auth.getSession();
-            if (!session.data.session) return localUri;
+            if (!session?.data?.session) return localUri;
             const ext = localUri.split('.').pop()?.toLowerCase() ?? 'jpg';
             const mime = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
             const path = `${session.data.session.user.id}/${goalId}.${ext}`;
@@ -78,7 +93,7 @@ export default function AddGoal() {
                 .upload(path, arrayBuffer, { contentType: mime, upsert: true });
             if (error) return localUri;
             const { data } = supabase.storage.from('goal-images').getPublicUrl(path);
-            return data.publicUrl;
+            return data?.publicUrl ?? localUri;
         } catch {
             return localUri;
         }
@@ -87,6 +102,7 @@ export default function AddGoal() {
     const handleSave = async () => {
         if (!title.trim()) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+            Alert.alert('Title Required', 'Please enter a title for your adventure.');
             return;
         }
 
@@ -101,27 +117,25 @@ export default function AddGoal() {
 
         setSaving(true);
 
-        const placeholderImage =
-            'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80';
-        const localImage = image || placeholderImage;
+        const localImage = image ?? PLACEHOLDER_IMAGE;
+        const safeLocation: Location =
+            locationData && locationData.city
+                ? locationData
+                : { latitude: 0, longitude: 0, city: '', country: '' };
+
         const goalData = {
             title: title.trim(),
             description: description.trim(),
             category,
-            image: localImage, // save with local URI first — fast
+            image: localImage,
             timelineDate: date.toISOString(),
             notes: notes.trim(),
-            location:
-                locationData.latitude !== 0
-                    ? locationData
-                    : { latitude: 0, longitude: 0, city: '', country: '' },
+            location: safeLocation,
         };
 
         try {
             if (isEditMode && existingGoal) {
-                // Save immediately with local/current image
                 await updateGoal(existingGoal.id, goalData);
-                // Upload in background if it's a new local file
                 if (localImage.startsWith('file://')) {
                     uploadImage(localImage, existingGoal.id)
                         .then(remoteUrl => {
@@ -132,29 +146,26 @@ export default function AddGoal() {
                         .catch(() => {});
                 }
             } else {
-                // Generate ID upfront so we can upload to correct path later
-                const goalId = uuid.v4() as string;
-                // Save goal immediately — local image URI is fine for now
-                const createdGoalId = await addGoal({ ...goalData, _id: goalId } as any);
-                const finalId = createdGoalId ?? goalId;
+                // addGoal returns the generated id
+                const createdId = await addGoal(goalData);
 
-                // Background: upload image then silently update
-                if (localImage.startsWith('file://')) {
-                    uploadImage(localImage, finalId)
+                if (localImage.startsWith('file://') && createdId) {
+                    uploadImage(localImage, createdId)
                         .then(remoteUrl => {
-                            if (remoteUrl !== localImage) {
-                                updateGoal(finalId, { image: remoteUrl });
+                            if (remoteUrl !== localImage && createdId) {
+                                updateGoal(createdId, { image: remoteUrl });
                             }
                         })
                         .catch(() => {});
                 }
 
-                // Background: schedule notifications — never blocks save
-                scheduleGoalReminders({
-                    goalId: finalId,
-                    goalTitle: goalData.title,
-                    targetDate: date,
-                }).catch(() => {});
+                if (createdId) {
+                    scheduleGoalReminders({
+                        goalId: createdId,
+                        goalTitle: goalData.title,
+                        targetDate: date,
+                    }).catch(() => {});
+                }
             }
 
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -295,15 +306,15 @@ export default function AddGoal() {
                     >
                         <MaterialIcons name="place" size={20} color="#60a5fa" />
                         <Text
-                            className={`flex-1 text-base ml-2 ${locationData.city ? 'dark:text-white text-gray-900' : 'text-gray-500'}`}
+                            className={`flex-1 text-base ml-2 ${locationData?.city ? 'dark:text-white text-gray-900' : 'text-gray-500'}`}
                         >
-                            {locationData.city
-                                ? `${locationData.city}, ${locationData.country}`
+                            {locationData?.city
+                                ? `${locationData.city}${locationData.country ? `, ${locationData.country}` : ''}`
                                 : Platform.OS === 'web'
                                   ? 'Enter location'
                                   : 'Pick on map'}
                         </Text>
-                        {locationData.city ? (
+                        {locationData?.city ? (
                             <TouchableOpacity
                                 onPress={() =>
                                     setLocationData({
@@ -369,9 +380,7 @@ export default function AddGoal() {
                                 />
                                 <View className="absolute bottom-3 right-3 bg-black/60 rounded-full px-3 py-1 flex-row items-center">
                                     <MaterialIcons name="edit" size={14} color="white" />
-                                    <Text className="dark:text-white text-gray-900 text-xs ml-1">
-                                        Change
-                                    </Text>
+                                    <Text className="text-white text-xs ml-1">Change</Text>
                                 </View>
                             </>
                         ) : (
@@ -390,7 +399,7 @@ export default function AddGoal() {
                 visible={isLocationPickerVisible}
                 onClose={() => setIsLocationPickerVisible(false)}
                 onSelect={loc => setLocationData({ ...loc })}
-                initialLocation={locationData.latitude !== 0 ? locationData : undefined}
+                initialLocation={locationData?.latitude !== 0 ? locationData : undefined}
             />
         </ScreenWrapper>
     );
