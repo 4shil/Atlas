@@ -14,6 +14,13 @@ import * as Haptics from 'expo-haptics';
 import { Goal } from '../store/useGoalStore';
 import { getDaysUntil } from '../utils/dateUtils';
 
+import AnimatedReanimated, {
+    SharedValue,
+    useAnimatedStyle,
+    interpolate,
+    Extrapolation,
+} from 'react-native-reanimated';
+
 const { width } = Dimensions.get('window');
 
 interface Props {
@@ -22,9 +29,17 @@ interface Props {
     completedCount: number;
     onPress: () => void;
     onAddGoal: () => void;
+    scrollY?: SharedValue<number>;
 }
 
-export function NextDreamHero({ goal, totalGoals, completedCount, onPress, onAddGoal }: Props) {
+export function NextDreamHero({
+    goal,
+    totalGoals,
+    completedCount,
+    onPress,
+    onAddGoal,
+    scrollY,
+}: Props) {
     const daysLeft = getDaysUntil(goal.timelineDate);
     const progress = totalGoals > 0 ? completedCount / totalGoals : 0;
     const shimmer = useRef(new Animated.Value(0)).current;
@@ -63,6 +78,19 @@ export function NextDreamHero({ goal, totalGoals, completedCount, onPress, onAdd
         return `${months} month${months !== 1 ? 's' : ''} away`;
     };
 
+    const parallaxStyle = useAnimatedStyle(() => {
+        if (!scrollY) return {};
+        const translateY = interpolate(
+            scrollY.value,
+            [-100, 0, 300],
+            [-40, 0, 120],
+            Extrapolation.CLAMP
+        );
+        return {
+            transform: [{ translateY }],
+        };
+    });
+
     return (
         <View className="mx-6 mt-6 mb-2">
             {/* Hero Card */}
@@ -74,15 +102,23 @@ export function NextDreamHero({ goal, totalGoals, completedCount, onPress, onAdd
                 }}
                 style={{ borderRadius: 28, overflow: 'hidden', height: 260 }}
             >
-                <ImageBackground
-                    source={{
-                        uri:
-                            goal.image ||
-                            'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800',
-                    }}
-                    style={{ flex: 1 }}
-                    resizeMode="cover"
+                <AnimatedReanimated.View
+                    style={[
+                        { position: 'absolute', top: -50, bottom: -50, left: 0, right: 0 },
+                        parallaxStyle,
+                    ]}
                 >
+                    <ImageBackground
+                        source={{
+                            uri:
+                                goal.image ||
+                                'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800',
+                        }}
+                        style={{ flex: 1 }}
+                        resizeMode="cover"
+                    />
+                </AnimatedReanimated.View>
+                <View style={{ flex: 1 }}>
                     <LinearGradient
                         colors={[
                             'transparent',
@@ -174,7 +210,7 @@ export function NextDreamHero({ goal, totalGoals, completedCount, onPress, onAdd
                             </View>
                         )}
                     </LinearGradient>
-                </ImageBackground>
+                </View>
             </TouchableOpacity>
 
             {/* Progress bar — your journey at a glance */}

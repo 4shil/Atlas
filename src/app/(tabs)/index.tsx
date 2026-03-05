@@ -436,6 +436,7 @@ export default function DashboardDark() {
                             goal={nextGoal}
                             totalGoals={goals.length}
                             completedCount={completedGoals.length}
+                            scrollY={scrollY}
                             onPress={() =>
                                 router.push({
                                     pathname: '/goal-detail',
