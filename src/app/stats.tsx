@@ -1,10 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useGoalStore } from '../store/useGoalStore';
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withDelay,
+    withTiming,
+} from 'react-native-reanimated';
 
 const WORLD_COUNTRIES = 195;
 
@@ -28,6 +34,31 @@ function StatCard({
     );
 }
 
+function AnimatedBar({
+    targetHeight,
+    color,
+    index,
+}: {
+    targetHeight: number;
+    color: string;
+    index: number;
+}) {
+    const height = useSharedValue(0);
+
+    useEffect(() => {
+        height.value = withDelay(
+            index * 80,
+            withTiming(Math.max(4, targetHeight), { duration: 500 })
+        );
+    }, [targetHeight]);
+
+    const animStyle = useAnimatedStyle(() => ({
+        height: height.value,
+    }));
+
+    return <Animated.View style={[styles.bar, { backgroundColor: color }, animStyle]} />;
+}
+
 function BarChart({
     data,
     maxVal,
@@ -40,23 +71,15 @@ function BarChart({
             {data.map((item, i) => (
                 <View key={i} style={styles.barGroup}>
                     <View style={styles.barPair}>
-                        <View
-                            style={[
-                                styles.bar,
-                                {
-                                    height: Math.max(4, (item.created / maxVal) * 80),
-                                    backgroundColor: '#3b82f640',
-                                },
-                            ]}
+                        <AnimatedBar
+                            targetHeight={(item.created / maxVal) * 80}
+                            color="#3b82f640"
+                            index={i}
                         />
-                        <View
-                            style={[
-                                styles.bar,
-                                {
-                                    height: Math.max(4, (item.completed / maxVal) * 80),
-                                    backgroundColor: '#4ade80',
-                                },
-                            ]}
+                        <AnimatedBar
+                            targetHeight={(item.completed / maxVal) * 80}
+                            color="#4ade80"
+                            index={i}
                         />
                     </View>
                     <Text style={styles.barLabel}>{item.label}</Text>
@@ -64,6 +87,20 @@ function BarChart({
             ))}
         </View>
     );
+}
+
+function AnimatedPieBar({ pct, color, index }: { pct: number; color: string; index: number }) {
+    const widthVal = useSharedValue(0);
+
+    useEffect(() => {
+        widthVal.value = withDelay(index * 80, withTiming(pct, { duration: 600 }));
+    }, [pct]);
+
+    const animStyle = useAnimatedStyle(() => ({
+        width: `${widthVal.value}%` as any,
+    }));
+
+    return <Animated.View style={[styles.pieBarFill, { backgroundColor: color }, animStyle]} />;
 }
 
 function PieSegments({ data }: { data: { label: string; count: number; color: string }[] }) {
@@ -77,12 +114,7 @@ function PieSegments({ data }: { data: { label: string; count: number; color: st
                     <Text style={styles.pieLabel}>{d.label}</Text>
                     <Text style={styles.pieCount}>{d.count}</Text>
                     <View style={styles.pieBarBg}>
-                        <View
-                            style={[
-                                styles.pieBarFill,
-                                { width: `${(d.count / total) * 100}%`, backgroundColor: d.color },
-                            ]}
-                        />
+                        <AnimatedPieBar pct={(d.count / total) * 100} color={d.color} index={i} />
                     </View>
                     <Text style={styles.piePct}>{Math.round((d.count / total) * 100)}%</Text>
                 </View>
