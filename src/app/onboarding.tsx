@@ -91,6 +91,9 @@ export default function Onboarding() {
 
     // Dot animation values
     const dotProgress = useSharedValue(0);
+    // #33 - Slide transition animation
+    const slideTranslateX = useSharedValue(0);
+    const slideOpacity = useSharedValue(1);
 
     const pickAvatar = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -106,9 +109,20 @@ export default function Onboarding() {
     };
 
     const goToSlide = (index: number) => {
-        scrollRef.current?.scrollTo({ x: index * width, animated: true });
-        setCurrentSlide(index);
-        dotProgress.value = withSpring(index);
+        const direction = index > currentSlide ? 1 : -1;
+        // Animate out current slide
+        slideOpacity.value = withTiming(0, { duration: 150 });
+        slideTranslateX.value = withTiming(-direction * width * 0.3, { duration: 150 });
+        setTimeout(() => {
+            scrollRef.current?.scrollTo({ x: index * width, animated: false });
+            setCurrentSlide(index);
+            dotProgress.value = withSpring(index);
+            // Animate in new slide from opposite direction
+            slideTranslateX.value = direction * width * 0.3;
+            slideOpacity.value = 0;
+            slideTranslateX.value = withTiming(0, { duration: 300 });
+            slideOpacity.value = withTiming(1, { duration: 300 });
+        }, 160);
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     };
 
@@ -136,6 +150,12 @@ export default function Onboarding() {
     };
 
     const slide = SLIDES[currentSlide];
+
+    // #33 - Slide content animated style
+    const slideContentStyle = useAnimatedStyle(() => ({
+        opacity: slideOpacity.value,
+        transform: [{ translateX: slideTranslateX.value }],
+    }));
 
     if (showSetup) {
         return (
@@ -266,41 +286,45 @@ export default function Onboarding() {
                     {SLIDES.map((s, slideIdx) => (
                         <View key={s.id} style={[styles.slide, { width }]}>
                             <Animated.View
-                                entering={FadeInDown.delay(100).duration(600)}
-                                style={styles.slideHero}
+                                style={[{ width: '100%', alignItems: 'center' }, slideContentStyle]}
                             >
-                                <Text style={styles.slideEmoji}>{s.emoji}</Text>
-                                <Text style={styles.slideTitle}>{s.title}</Text>
-                                <Text style={styles.slideSubtitle}>{s.subtitle}</Text>
-                            </Animated.View>
+                                <Animated.View
+                                    entering={FadeInDown.delay(100).duration(600)}
+                                    style={styles.slideHero}
+                                >
+                                    <Text style={styles.slideEmoji}>{s.emoji}</Text>
+                                    <Text style={styles.slideTitle}>{s.title}</Text>
+                                    <Text style={styles.slideSubtitle}>{s.subtitle}</Text>
+                                </Animated.View>
 
-                            <Animated.View
-                                entering={FadeInUp.delay(300).duration(600)}
-                                style={styles.featureList}
-                            >
-                                {s.features.map((f, i) => (
-                                    <View
-                                        key={i}
-                                        style={[
-                                            styles.featureRow,
-                                            { borderColor: `${s.accent}20` },
-                                        ]}
-                                    >
+                                <Animated.View
+                                    entering={FadeInUp.delay(300).duration(600)}
+                                    style={styles.featureList}
+                                >
+                                    {s.features.map((f, i) => (
                                         <View
+                                            key={i}
                                             style={[
-                                                styles.featureIcon,
-                                                { backgroundColor: `${s.accent}20` },
+                                                styles.featureRow,
+                                                { borderColor: `${s.accent}20` },
                                             ]}
                                         >
-                                            <MaterialIcons
-                                                name={f.icon}
-                                                size={18}
-                                                color={s.accent}
-                                            />
+                                            <View
+                                                style={[
+                                                    styles.featureIcon,
+                                                    { backgroundColor: `${s.accent}20` },
+                                                ]}
+                                            >
+                                                <MaterialIcons
+                                                    name={f.icon}
+                                                    size={18}
+                                                    color={s.accent}
+                                                />
+                                            </View>
+                                            <Text style={styles.featureLabel}>{f.label}</Text>
                                         </View>
-                                        <Text style={styles.featureLabel}>{f.label}</Text>
-                                    </View>
-                                ))}
+                                    ))}
+                                </Animated.View>
                             </Animated.View>
                         </View>
                     ))}
