@@ -4,9 +4,27 @@ import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import Animated, { useAnimatedStyle, SharedValue } from 'react-native-reanimated';
+import Animated, {
+    useAnimatedStyle,
+    useSharedValue,
+    withSequence,
+    withSpring,
+    SharedValue,
+} from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 import { Goal } from '../store/useGoalStore';
 import { getThumbnailUrl } from '../utils/imageUtils';
+
+// #14 - Category badge colors
+const CATEGORY_COLORS: Record<string, string> = {
+    adventure: '#f97316',
+    travel: '#3b82f6',
+    food: '#22c55e',
+    culture: '#a855f7',
+    nature: '#10b981',
+    sports: '#ef4444',
+    default: '#6366f1',
+};
 
 interface GoalCardProps {
     goal: Goal;
@@ -26,14 +44,32 @@ export const GoalCard = React.memo(
         animatedStyle,
         isInteractive = true,
     }: GoalCardProps) {
+        // #15 - Completion button scale
+        const checkScale = useSharedValue(1);
+        // #16 - Card long-press scale
+        const cardScale = useSharedValue(1);
+
+        const cardScaleStyle = useAnimatedStyle(() => ({
+            transform: [{ scale: cardScale.value }],
+        }));
+
+        const checkScaleStyle = useAnimatedStyle(() => ({
+            transform: [{ scale: checkScale.value }],
+        }));
+
         return (
-            <Animated.View style={[{ zIndex: 20 }, animatedStyle]}>
+            <Animated.View style={[{ zIndex: 20 }, animatedStyle, cardScaleStyle]}>
                 <TouchableOpacity
                     activeOpacity={0.95}
                     style={cardShadow}
                     className="relative w-[300px] h-[440px] rounded-[28px] overflow-hidden"
                     onPress={onPress}
                     disabled={!isInteractive}
+                    onLongPress={() => {
+                        // #16
+                        cardScale.value = withSequence(withSpring(0.97), withSpring(1.0));
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    }}
                 >
                     <View className="h-full w-full relative">
                         <Image
@@ -50,43 +86,78 @@ export const GoalCard = React.memo(
                             className="absolute inset-0 pointer-events-none"
                         />
 
+                        {/* #14 - Category Badge */}
+                        <View
+                            style={{
+                                position: 'absolute',
+                                top: 12,
+                                left: 12,
+                                backgroundColor:
+                                    CATEGORY_COLORS[goal.category.toLowerCase()] ??
+                                    CATEGORY_COLORS.default,
+                                borderRadius: 99,
+                                paddingHorizontal: 8,
+                                paddingVertical: 3,
+                            }}
+                        >
+                            <Text style={{ color: 'white', fontSize: 10, fontWeight: '700' }}>
+                                {goal.category}
+                            </Text>
+                        </View>
+
                         {isInteractive && (
-                            <TouchableOpacity
-                                className="absolute top-4 right-4 rounded-full overflow-hidden"
-                                onPress={e => {
-                                    e.stopPropagation?.();
-                                    onToggleComplete();
-                                }}
+                            // #15 - Completion button with scale animation
+                            <Animated.View
+                                style={[
+                                    { position: 'absolute', top: 4, right: 4 },
+                                    checkScaleStyle,
+                                ]}
                             >
-                                <BlurView
-                                    intensity={40}
-                                    tint="dark"
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        paddingHorizontal: 12,
-                                        paddingVertical: 7,
-                                        borderRadius: 20,
+                                <TouchableOpacity
+                                    className="rounded-full overflow-hidden"
+                                    onPress={e => {
+                                        e.stopPropagation?.();
+                                        checkScale.value = withSequence(
+                                            withSpring(1.35),
+                                            withSpring(1.0)
+                                        );
+                                        onToggleComplete();
                                     }}
                                 >
-                                    <View
+                                    <BlurView
+                                        intensity={40}
+                                        tint="dark"
                                         style={{
-                                            ...StyleSheet.absoluteFillObject,
-                                            backgroundColor: 'rgba(255,255,255,0.08)',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            paddingHorizontal: 12,
+                                            paddingVertical: 7,
                                             borderRadius: 20,
                                         }}
-                                    />
-                                    {goal.completed ? (
-                                        <MaterialIcons
-                                            name="check-circle"
-                                            size={14}
-                                            color="#34d399"
+                                    >
+                                        <View
+                                            style={{
+                                                ...StyleSheet.absoluteFillObject,
+                                                backgroundColor: 'rgba(255,255,255,0.08)',
+                                                borderRadius: 20,
+                                            }}
                                         />
-                                    ) : (
-                                        <MaterialIcons name="schedule" size={14} color="#93c5fd" />
-                                    )}
-                                </BlurView>
-                            </TouchableOpacity>
+                                        {goal.completed ? (
+                                            <MaterialIcons
+                                                name="check-circle"
+                                                size={14}
+                                                color="#34d399"
+                                            />
+                                        ) : (
+                                            <MaterialIcons
+                                                name="schedule"
+                                                size={14}
+                                                color="#93c5fd"
+                                            />
+                                        )}
+                                    </BlurView>
+                                </TouchableOpacity>
+                            </Animated.View>
                         )}
 
                         {/* Glassmorphic bottom info panel */}
