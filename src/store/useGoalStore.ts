@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
 import uuid from 'react-native-uuid';
 import { supabase as supabaseClient } from '../lib/supabase';
 import { track } from '../lib/analytics';

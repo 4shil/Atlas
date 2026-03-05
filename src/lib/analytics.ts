@@ -1,13 +1,15 @@
 // PostHog analytics — uses a placeholder key; swap for real key in production
- 
+
 let posthogInstance: any = null;
 try {
-    // Dynamic require to avoid ESLint unresolved error at build time
-     
-    const PostHog = require('posthog-react-native').default;
-    posthogInstance = new PostHog('phc_placeholder_key', {
-        host: 'https://app.posthog.com',
-    });
+    // Skip analytics client initialization during SSR/Node render.
+    if (typeof window !== 'undefined') {
+        // Dynamic require to avoid ESLint unresolved error at build time
+        const PostHog = require('posthog-react-native').default;
+        posthogInstance = new PostHog('phc_placeholder_key', {
+            host: 'https://app.posthog.com',
+        });
+    }
 } catch {
     // PostHog failed to initialise — analytics are non-critical
 }
