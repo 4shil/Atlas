@@ -48,9 +48,16 @@ export const GoalCard = React.memo(
         const checkScale = useSharedValue(1);
         // #16 - Card long-press scale
         const cardScale = useSharedValue(1);
+        // #32 - 3D tilt effect
+        const rotateX = useSharedValue(0);
+        const rotateY = useSharedValue(0);
 
         const cardScaleStyle = useAnimatedStyle(() => ({
-            transform: [{ scale: cardScale.value }],
+            transform: [
+                { scale: cardScale.value },
+                { rotateX: `${rotateX.value}deg` },
+                { rotateY: `${rotateY.value}deg` },
+            ],
         }));
 
         const checkScaleStyle = useAnimatedStyle(() => ({
@@ -65,6 +72,15 @@ export const GoalCard = React.memo(
                     className="relative w-[300px] h-[440px] rounded-[28px] overflow-hidden"
                     onPress={onPress}
                     disabled={!isInteractive}
+                    onPressIn={() => {
+                        // #32 - 3D tilt on press
+                        rotateX.value = withSpring(3, { damping: 15, stiffness: 200 });
+                        rotateY.value = withSpring(2, { damping: 15, stiffness: 200 });
+                    }}
+                    onPressOut={() => {
+                        rotateX.value = withSpring(0, { damping: 15, stiffness: 200 });
+                        rotateY.value = withSpring(0, { damping: 15, stiffness: 200 });
+                    }}
                     onLongPress={() => {
                         // #16
                         cardScale.value = withSequence(withSpring(0.97), withSpring(1.0));
