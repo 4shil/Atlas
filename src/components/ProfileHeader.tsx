@@ -30,15 +30,20 @@ export function ProfileHeader({ rightActions, scrollY }: ProfileHeaderProps) {
 
         const translateY = interpolate(scrollY.value, [0, 60], [0, -20], Extrapolation.CLAMP);
 
+        const height = interpolate(scrollY.value, [0, 60], [56, 0], Extrapolation.CLAMP);
+        const marginBottom = interpolate(scrollY.value, [0, 60], [16, 0], Extrapolation.CLAMP);
+
         return {
             opacity,
+            height,
+            marginBottom,
             transform: [{ scale }, { translateY }],
         };
     });
 
     return (
         <Animated.View
-            className="px-6 mt-4 flex-row justify-between items-center z-50"
+            className="px-6 mt-4 flex-row justify-between items-center z-50 overflow-hidden"
             style={animatedStyle}
         >
             <TouchableOpacity

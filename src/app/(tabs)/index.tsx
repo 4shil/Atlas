@@ -110,6 +110,38 @@ export default function DashboardDark() {
 
     return (
         <ScreenWrapper bgClass="dark:bg-black bg-slate-50">
+            {/* Sticky Header */}
+            <ProfileHeader
+                scrollY={scrollY}
+                rightActions={
+                    <>
+                        <TouchableOpacity
+                            className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 border dark:border-white/[0.08] border-black/[0.08] items-center justify-center"
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                router.push('/inspiration');
+                            }}
+                        >
+                            <MaterialIcons name="lightbulb-outline" size={22} color="#fbbf24" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 border dark:border-white/[0.08] border-black/[0.08] items-center justify-center"
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                setShowSearch(v => !v);
+                                setSearchQuery('');
+                            }}
+                        >
+                            <MaterialIcons
+                                name={showSearch ? 'close' : 'search'}
+                                size={22}
+                                color="rgba(255,255,255,0.8)"
+                            />
+                        </TouchableOpacity>
+                    </>
+                }
+            />
+
             <Animated.ScrollView
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
@@ -125,38 +157,6 @@ export default function DashboardDark() {
                 contentContainerStyle={{ paddingBottom: 100 }}
                 keyboardShouldPersistTaps="handled"
             >
-                {/* Header */}
-                <ProfileHeader
-                    scrollY={scrollY}
-                    rightActions={
-                        <>
-                            <TouchableOpacity
-                                className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 border dark:border-white/[0.08] border-black/[0.08] items-center justify-center"
-                                onPress={() => {
-                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                    router.push('/inspiration');
-                                }}
-                            >
-                                <MaterialIcons name="lightbulb-outline" size={22} color="#fbbf24" />
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 border dark:border-white/[0.08] border-black/[0.08] items-center justify-center"
-                                onPress={() => {
-                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                    setShowSearch(v => !v);
-                                    setSearchQuery('');
-                                }}
-                            >
-                                <MaterialIcons
-                                    name={showSearch ? 'close' : 'search'}
-                                    size={22}
-                                    color="rgba(255,255,255,0.8)"
-                                />
-                            </TouchableOpacity>
-                        </>
-                    }
-                />
-
                 {/* Stats strip */}
                 {!showSearch && (
                     <View
