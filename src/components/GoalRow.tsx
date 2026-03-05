@@ -114,6 +114,15 @@ export const GoalRow = React.memo(
                 renderRightActions={renderRightActions}
                 overshootLeft={false}
                 overshootRight={false}
+                onSwipeableWillOpen={direction => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }}
+                onSwipeableOpen={direction => {
+                    if (direction === 'right') {
+                        // Full swipe open on right = delete intent
+                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+                    }
+                }}
             >
                 <Animated.View style={{ transform: [{ scale: scaleAnim }], marginBottom: 12 }}>
                     <TouchableOpacity
