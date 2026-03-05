@@ -22,6 +22,7 @@ import { NextDreamHero, HeroEmpty } from '../../components/NextDreamHero';
 import { GoalRow } from '../../components/GoalRow';
 import { EmptyState } from '../../components/EmptyState';
 import { ScreenWrapper } from '../../components/ScreenWrapper';
+import { StatRing } from '../../components/StatRing';
 
 type SortMode = 'date' | 'category' | 'name';
 
@@ -168,52 +169,20 @@ export default function DashboardDark() {
                             marginBottom: 4,
                         }}
                     >
-                        <View
-                            style={{
-                                flex: 1,
-                                backgroundColor: 'rgba(255,255,255,0.05)',
-                                borderRadius: 14,
-                                padding: 12,
-                                borderWidth: 1,
-                                borderColor: 'rgba(255,255,255,0.08)',
-                            }}
-                        >
-                            <Text style={{ color: 'white', fontSize: 16, fontWeight: '700' }}>
-                                🔥 {getMonthlyCompletionStreak()}
-                            </Text>
-                            <Text
-                                style={{
-                                    color: 'rgba(255,255,255,0.4)',
-                                    fontSize: 11,
-                                    marginTop: 2,
-                                }}
-                            >
-                                completed this month
-                            </Text>
-                        </View>
-                        <View
-                            style={{
-                                flex: 1,
-                                backgroundColor: 'rgba(255,255,255,0.05)',
-                                borderRadius: 14,
-                                padding: 12,
-                                borderWidth: 1,
-                                borderColor: 'rgba(255,255,255,0.08)',
-                            }}
-                        >
-                            <Text style={{ color: 'white', fontSize: 16, fontWeight: '700' }}>
-                                ⚡ {getWeeklyActivity()}
-                            </Text>
-                            <Text
-                                style={{
-                                    color: 'rgba(255,255,255,0.4)',
-                                    fontSize: 11,
-                                    marginTop: 2,
-                                }}
-                            >
-                                this week
-                            </Text>
-                        </View>
+                        <StatRing
+                            value={getMonthlyCompletionStreak()}
+                            maxValue={10}
+                            color="#ef4444"
+                            title="Monthly"
+                            subtitle="completed"
+                        />
+                        <StatRing
+                            value={getWeeklyActivity()}
+                            maxValue={7}
+                            color="#eab308"
+                            title="Weekly"
+                            subtitle="activity"
+                        />
                     </View>
                 )}
 
