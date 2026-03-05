@@ -1,12 +1,16 @@
-import React, { useEffect } from 'react';
-import { View, TouchableOpacity, Platform, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, Platform, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
     withSpring,
+    withRepeat,
+    withSequence,
+    withTiming,
     interpolateColor,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
@@ -20,7 +24,7 @@ const TAB_ICONS: Record<string, keyof typeof MaterialIcons.glyphMap> = {
     archive: 'auto-awesome',
 };
 
-const FAB_AFTER = 'gallery'; // insert FAB after this tab
+const FAB_AFTER = 'gallery';
 
 const TAB_LABELS: Record<string, string> = {
     index: 'Home',
@@ -37,20 +41,43 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
     const bottomPad = Math.max(insets.bottom, 14);
     const router = useRouter();
 
+    // #17 - FAB breathing animation
+    const fabScale = useSharedValue(1);
+    useEffect(() => {
+        fabScale.value = withRepeat(
+            withSequence(withTiming(1.07, { duration: 1200 }), withTiming(1.0, { duration: 1200 })),
+            -1,
+            true
+        );
+    }, []);
+    const fabScaleStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: fabScale.value }],
+    }));
+
+    // #18 - Tab labels first-run
+    const [showAllLabels, setShowAllLabels] = useState(false);
+    useEffect(() => {
+        AsyncStorage.getItem('tabs_intro_done').then(val => {
+            if (val === null) {
+                setShowAllLabels(true);
+                setTimeout(() => {
+                    setShowAllLabels(false);
+                    AsyncStorage.setItem('tabs_intro_done', '1');
+                }, 3000);
+            }
+        });
+    }, []);
+
     return (
         <View style={[styles.wrapper, { bottom: bottomPad }]} pointerEvents="box-none">
             <View style={styles.container}>
-                {/* Apple-style frosted glass */}
                 <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill}>
                     <View style={styles.blurTint} />
                 </BlurView>
-
-                {/* Inner highlight along top edge */}
                 <View style={styles.innerHighlight} />
 
                 <View style={styles.tabRow}>
                     {state.routes.map((route, index) => {
-                        // Insert FAB between gallery and map
                         const isAfterFab = route.name === 'map';
                         const isFocused = state.index === index;
                         const iconName = TAB_ICONS[route.name] ?? 'circle';
@@ -59,59 +86,60 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                         return (
                             <React.Fragment key={route.key}>
                                 {isAfterFab && (
-                                    <TouchableOpacity
-                                        activeOpacity={0.85}
-                                        onPress={() => {
-                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                                            router.push('/add-goal');
-                                        }}
-                                        style={{
-                                            width: 52,
-                                            height: 52,
-                                            borderRadius: 26,
-                                            backgroundColor: '#2563eb',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            marginHorizontal: 4,
-                                            shadowColor: '#2563eb',
-                                            shadowOpacity: 0.6,
-                                            shadowRadius: 12,
-                                            shadowOffset: { width: 0, height: 4 },
-                                            elevation: 8,
-                                        }}
-                                        accessibilityLabel="Add Goal"
-                                    >
-                                        <MaterialIcons name="add" size={28} color="white" />
-                                    </TouchableOpacity>
-                                )}
-                                <>
-                                    <TabItem
-                                        key={route.key}
-                                        iconName={iconName}
-                                        label={label}
-                                        isFocused={isFocused}
-                                        onPress={() => {
-                                            const event = navigation.emit({
-                                                type: 'tabPress',
-                                                target: route.key,
-                                                canPreventDefault: true,
-                                            });
-                                            if (!isFocused && !event.defaultPrevented) {
+                                    // #17 - FAB with breathing animation
+                                    <Animated.View style={fabScaleStyle}>
+                                        <TouchableOpacity
+                                            activeOpacity={0.85}
+                                            onPress={() => {
                                                 Haptics.impactAsync(
-                                                    Haptics.ImpactFeedbackStyle.Light
+                                                    Haptics.ImpactFeedbackStyle.Medium
                                                 );
-                                                navigation.navigate(route.name, route.params);
-                                            }
-                                        }}
-                                        onLongPress={() => {
-                                            navigation.emit({
-                                                type: 'tabLongPress',
-                                                target: route.key,
-                                            });
-                                        }}
-                                    />
-                                    );
-                                </>
+                                                router.push('/add-goal');
+                                            }}
+                                            style={{
+                                                width: 52,
+                                                height: 52,
+                                                borderRadius: 26,
+                                                backgroundColor: '#2563eb',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                marginHorizontal: 4,
+                                                shadowColor: '#2563eb',
+                                                shadowOpacity: 0.6,
+                                                shadowRadius: 12,
+                                                shadowOffset: { width: 0, height: 4 },
+                                                elevation: 8,
+                                            }}
+                                            accessibilityLabel="Add Goal"
+                                        >
+                                            <MaterialIcons name="add" size={28} color="white" />
+                                        </TouchableOpacity>
+                                    </Animated.View>
+                                )}
+                                <TabItem
+                                    key={route.key}
+                                    iconName={iconName}
+                                    label={label}
+                                    isFocused={isFocused}
+                                    showAllLabels={showAllLabels}
+                                    onPress={() => {
+                                        const event = navigation.emit({
+                                            type: 'tabPress',
+                                            target: route.key,
+                                            canPreventDefault: true,
+                                        });
+                                        if (!isFocused && !event.defaultPrevented) {
+                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                            navigation.navigate(route.name, route.params);
+                                        }
+                                    }}
+                                    onLongPress={() => {
+                                        navigation.emit({
+                                            type: 'tabLongPress',
+                                            target: route.key,
+                                        });
+                                    }}
+                                />
                             </React.Fragment>
                         );
                     })}
@@ -125,11 +153,19 @@ interface TabItemProps {
     iconName: keyof typeof MaterialIcons.glyphMap;
     label: string;
     isFocused: boolean;
+    showAllLabels: boolean;
     onPress: () => void;
     onLongPress: () => void;
 }
 
-function TabItem({ iconName, label, isFocused, onPress, onLongPress }: TabItemProps) {
+function TabItem({
+    iconName,
+    label,
+    isFocused,
+    showAllLabels,
+    onPress,
+    onLongPress,
+}: TabItemProps) {
     const progress = useSharedValue(isFocused ? 1 : 0);
 
     useEffect(() => {
@@ -149,11 +185,12 @@ function TabItem({ iconName, label, isFocused, onPress, onLongPress }: TabItemPr
         transform: [{ translateY: withSpring(isFocused ? -2 : 0, SPRING_CONFIG) }],
     }));
 
+    const showLabel = isFocused || showAllLabels;
     const labelStyle = useAnimatedStyle(() => ({
-        opacity: withSpring(isFocused ? 1 : 0, SPRING_CONFIG),
+        opacity: withSpring(showLabel ? 1 : 0, SPRING_CONFIG),
         transform: [
-            { translateY: withSpring(isFocused ? 0 : 6, SPRING_CONFIG) },
-            { scale: withSpring(isFocused ? 1 : 0.7, SPRING_CONFIG) },
+            { translateY: withSpring(showLabel ? 0 : 6, SPRING_CONFIG) },
+            { scale: withSpring(showLabel ? 1 : 0.7, SPRING_CONFIG) },
         ],
     }));
 
