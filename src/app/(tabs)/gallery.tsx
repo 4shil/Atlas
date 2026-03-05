@@ -23,6 +23,8 @@ import Animated, {
     interpolate,
     runOnJS,
     Extrapolation,
+    withRepeat,
+    withSequence,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -39,6 +41,30 @@ export default function Gallery() {
     const [activeIndex, setActiveIndex] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+    // #31 - Notification badge count
+    const notifBadgeCount = React.useMemo(() => {
+        const now = Date.now();
+        return goals.filter(
+            g => !g.completed && new Date(g.timelineDate).getTime() <= now + 7 * 86400000
+        ).length;
+    }, [goals]);
+    const badgeScale = useSharedValue(1);
+    React.useEffect(() => {
+        if (notifBadgeCount > 0) {
+            badgeScale.value = withRepeat(
+                withSequence(
+                    withTiming(1.25, { duration: 700 }),
+                    withTiming(1.0, { duration: 700 })
+                ),
+                -1,
+                true
+            );
+        }
+    }, [notifBadgeCount]);
+    const badgeScaleStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: badgeScale.value }],
+    }));
 
     React.useEffect(() => {
         // Simulate initial data load — goals already in store
@@ -207,13 +233,31 @@ export default function Gallery() {
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => router.push('/notifications')}
-                        style={styles.iconBtn}
+                        style={[styles.iconBtn, { position: 'relative' }]}
+                        accessibilityLabel="Notifications"
+                        accessibilityRole="button"
                     >
                         <MaterialIcons
                             name="notifications-none"
                             size={20}
                             color="rgba(255,255,255,0.75)"
                         />
+                        {notifBadgeCount > 0 && (
+                            <Animated.View
+                                style={[
+                                    {
+                                        position: 'absolute',
+                                        top: 2,
+                                        right: 2,
+                                        width: 8,
+                                        height: 8,
+                                        borderRadius: 4,
+                                        backgroundColor: '#ef4444',
+                                    },
+                                    badgeScaleStyle,
+                                ]}
+                            />
+                        )}
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {
