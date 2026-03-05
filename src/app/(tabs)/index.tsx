@@ -7,13 +7,16 @@ import {
     TouchableOpacity,
     TextInput,
     RefreshControl,
-    Animated as RNAnimated,
+    Animated,
     Dimensions,
+    Modal,
 } from 'react-native';
-import Animated, { useSharedValue, useAnimatedScrollHandler } from 'react-native-reanimated';
+import AnimatedReanimated, {
+    useSharedValue,
+    useAnimatedScrollHandler,
+} from 'react-native-reanimated';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
 import { useGoalStore, Goal } from '../../store/useGoalStore';
 import { useRouter } from 'expo-router';
 import { useProfileStore } from '../../store/useProfileStore';
@@ -23,6 +26,7 @@ import { GoalRow } from '../../components/GoalRow';
 import { EmptyState } from '../../components/EmptyState';
 import { ScreenWrapper } from '../../components/ScreenWrapper';
 import { StatRing } from '../../components/StatRing';
+import { hapticImpact, hapticSelect } from '../../utils/haptics';
 
 type SortMode = 'date' | 'category' | 'name';
 
@@ -59,6 +63,9 @@ export default function DashboardDark() {
     const [sortMode, setSortMode] = useState<SortMode>('date');
     const [showSortMenu, setShowSortMenu] = useState(false);
 
+    // #5 - Overdue Banner Slide Animation
+    const bannerAnim = useRef(new Animated.Value(-50)).current;
+
     const completedGoals = getCompletedGoals();
     const allPending = getPendingGoals();
 
@@ -75,6 +82,32 @@ export default function DashboardDark() {
         const d = new Date(g.timelineDate);
         d.setHours(23, 59, 59);
         return d < new Date();
+    });
+
+    // #5 - Spring animation for overdue banner
+    useEffect(() => {
+        if (overdueGoals.length > 0 && showOverdueBanner) {
+            bannerAnim.setValue(-50);
+            Animated.spring(bannerAnim, { toValue: 0, useNativeDriver: true }).start();
+        }
+    }, [overdueGoals.length, showOverdueBanner]);
+
+    // #24 - Custom Pull-to-Refresh spin animation
+    const spinAnim = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+        if (refreshing) {
+            Animated.loop(
+                Animated.timing(spinAnim, { toValue: 1, duration: 800, useNativeDriver: true })
+            ).start();
+        } else {
+            spinAnim.stopAnimation();
+            spinAnim.setValue(0);
+        }
+    }, [refreshing]);
+
+    const spinInterpolate = spinAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg'],
     });
 
     const sortedPending = useMemo(() => {
@@ -119,7 +152,7 @@ export default function DashboardDark() {
                         <TouchableOpacity
                             className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 border dark:border-white/[0.08] border-black/[0.08] items-center justify-center"
                             onPress={() => {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                hapticImpact();
                                 router.push('/inspiration');
                             }}
                         >
@@ -128,7 +161,7 @@ export default function DashboardDark() {
                         <TouchableOpacity
                             className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 border dark:border-white/[0.08] border-black/[0.08] items-center justify-center"
                             onPress={() => {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                hapticImpact();
                                 setShowSearch(v => !v);
                                 setSearchQuery('');
                             }}
@@ -143,7 +176,7 @@ export default function DashboardDark() {
                 }
             />
 
-            <Animated.ScrollView
+            <AnimatedReanimated.ScrollView
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
                 refreshControl={
@@ -158,6 +191,15 @@ export default function DashboardDark() {
                 contentContainerStyle={{ paddingBottom: 100 }}
                 keyboardShouldPersistTaps="handled"
             >
+                {/* #24 - Custom refresh indicator */}
+                {refreshing && (
+                    <View style={{ alignItems: 'center', paddingTop: 8, paddingBottom: 4 }}>
+                        <Animated.View style={{ transform: [{ rotate: spinInterpolate }] }}>
+                            <MaterialIcons name="explore" size={24} color="rgba(96,165,250,0.8)" />
+                        </Animated.View>
+                    </View>
+                )}
+
                 {/* Stats strip */}
                 {!showSearch && (
                     <View
@@ -186,10 +228,11 @@ export default function DashboardDark() {
                     </View>
                 )}
 
-                {/* Overdue nudge banner */}
+                {/* #5 - Overdue nudge banner with slide animation */}
                 {!showSearch && showOverdueBanner && overdueGoals.length > 0 && (
-                    <View
+                    <Animated.View
                         style={{
+                            transform: [{ translateY: bannerAnim }],
                             marginHorizontal: 24,
                             marginTop: 12,
                             backgroundColor: 'rgba(251,191,36,0.1)',
@@ -213,7 +256,7 @@ export default function DashboardDark() {
                         <View style={{ flexDirection: 'row', gap: 8 }}>
                             <TouchableOpacity
                                 onPress={() => {
-                                    Haptics.selectionAsync();
+                                    hapticSelect();
                                     router.push('/(tabs)/archive');
                                 }}
                                 style={{
@@ -230,7 +273,7 @@ export default function DashboardDark() {
                             </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() => {
-                                    Haptics.selectionAsync();
+                                    hapticSelect();
                                     setShowOverdueBanner(false);
                                 }}
                                 style={{
@@ -252,7 +295,7 @@ export default function DashboardDark() {
                                 </Text>
                             </TouchableOpacity>
                         </View>
-                    </View>
+                    </Animated.View>
                 )}
 
                 {/* Animated Travel Gallery Strip — all goals with images */}
@@ -278,7 +321,7 @@ export default function DashboardDark() {
                                         key={goal.id}
                                         activeOpacity={0.85}
                                         onPress={() => {
-                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                            hapticImpact();
                                             router.push({
                                                 pathname: '/goal-detail',
                                                 params: { id: goal.id },
@@ -301,7 +344,6 @@ export default function DashboardDark() {
                                             contentFit="cover"
                                             transition={300}
                                         />
-                                        {/* Gradient overlay — using backgroundColor as React Native doesn't support CSS gradient */}
                                         <View
                                             style={{
                                                 position: 'absolute',
@@ -360,7 +402,7 @@ export default function DashboardDark() {
                             <TouchableOpacity
                                 activeOpacity={0.85}
                                 onPress={() => {
-                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                    hapticImpact();
                                     router.push('/add-goal');
                                 }}
                                 style={{
@@ -464,50 +506,19 @@ export default function DashboardDark() {
                                   : `${allPending.length} dream${allPending.length !== 1 ? 's' : ''} ahead`}
                         </Text>
                         {!showSearch && (
-                            <View className="relative">
-                                <TouchableOpacity
-                                    className="flex-row items-center bg-white/[0.06] border dark:border-white/[0.08] border-black/[0.08] px-3 py-1.5 rounded-full"
-                                    onPress={() => setShowSortMenu(v => !v)}
-                                >
-                                    <MaterialIcons
-                                        name="sort"
-                                        size={14}
-                                        color="rgba(255,255,255,0.4)"
-                                    />
-                                    <Text className="dark:text-white/40 text-gray-400 text-xs ml-1">
-                                        {SORT_LABELS[sortMode]}
-                                    </Text>
-                                </TouchableOpacity>
-                                {showSortMenu && (
-                                    <View className="absolute right-0 top-9 bg-black/80 border dark:border-white/10 border-black/10 rounded-2xl overflow-hidden z-50 w-36 shadow-2xl">
-                                        {(Object.keys(SORT_LABELS) as SortMode[]).map(mode => (
-                                            <TouchableOpacity
-                                                key={mode}
-                                                className={`px-4 py-3 flex-row items-center ${sortMode === mode ? 'dark:bg-white/10 bg-black/10' : ''}`}
-                                                onPress={() => {
-                                                    Haptics.selectionAsync();
-                                                    setSortMode(mode);
-                                                    setShowSortMenu(false);
-                                                }}
-                                            >
-                                                <Text
-                                                    className={`text-sm ${sortMode === mode ? 'text-white font-semibold' : 'dark:text-white/60 text-gray-600'}`}
-                                                >
-                                                    {SORT_LABELS[mode]}
-                                                </Text>
-                                                {sortMode === mode && (
-                                                    <MaterialIcons
-                                                        name="check"
-                                                        size={14}
-                                                        color="white"
-                                                        style={{ marginLeft: 'auto' }}
-                                                    />
-                                                )}
-                                            </TouchableOpacity>
-                                        ))}
-                                    </View>
-                                )}
-                            </View>
+                            <TouchableOpacity
+                                className="flex-row items-center bg-white/[0.06] border dark:border-white/[0.08] border-black/[0.08] px-3 py-1.5 rounded-full"
+                                onPress={() => setShowSortMenu(true)}
+                            >
+                                <MaterialIcons
+                                    name="sort"
+                                    size={14}
+                                    color="rgba(255,255,255,0.4)"
+                                />
+                                <Text className="dark:text-white/40 text-gray-400 text-xs ml-1">
+                                    {SORT_LABELS[sortMode]}
+                                </Text>
+                            </TouchableOpacity>
                         )}
                     </View>
 
@@ -549,7 +560,92 @@ export default function DashboardDark() {
                         />
                     )}
                 </View>
-            </Animated.ScrollView>
+            </AnimatedReanimated.ScrollView>
+
+            {/* #6 - Sort Menu Bottom Sheet Modal */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={showSortMenu}
+                onRequestClose={() => setShowSortMenu(false)}
+            >
+                <TouchableOpacity
+                    style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}
+                    activeOpacity={1}
+                    onPress={() => setShowSortMenu(false)}
+                />
+                <View
+                    style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        backgroundColor: '#1a1a2e',
+                        borderTopLeftRadius: 24,
+                        borderTopRightRadius: 24,
+                        paddingTop: 12,
+                        paddingBottom: 34,
+                        borderTopWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.1)',
+                    }}
+                >
+                    <View
+                        style={{
+                            width: 36,
+                            height: 4,
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+                            borderRadius: 2,
+                            alignSelf: 'center',
+                            marginBottom: 16,
+                        }}
+                    />
+                    <Text
+                        style={{
+                            color: 'rgba(255,255,255,0.5)',
+                            fontSize: 11,
+                            fontWeight: '600',
+                            textTransform: 'uppercase',
+                            letterSpacing: 1,
+                            paddingHorizontal: 20,
+                            marginBottom: 8,
+                        }}
+                    >
+                        Sort By
+                    </Text>
+                    {(Object.keys(SORT_LABELS) as SortMode[]).map(mode => (
+                        <TouchableOpacity
+                            key={mode}
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                paddingHorizontal: 20,
+                                paddingVertical: 14,
+                                backgroundColor:
+                                    sortMode === mode ? 'rgba(255,255,255,0.07)' : 'transparent',
+                            }}
+                            onPress={() => {
+                                hapticSelect();
+                                setSortMode(mode);
+                                setShowSortMenu(false);
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    flex: 1,
+                                    color: sortMode === mode ? 'white' : 'rgba(255,255,255,0.6)',
+                                    fontSize: 16,
+                                    fontWeight: sortMode === mode ? '600' : '400',
+                                }}
+                            >
+                                {SORT_LABELS[mode]}
+                            </Text>
+                            {sortMode === mode && (
+                                <MaterialIcons name="check" size={18} color="#60a5fa" />
+                            )}
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </Modal>
         </ScreenWrapper>
     );
 }
