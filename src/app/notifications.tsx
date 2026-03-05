@@ -5,19 +5,78 @@ import {
     ScrollView,
     TouchableOpacity,
     Switch,
-    Alert,
     StyleSheet,
     AppState,
+    Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { useGoalStore } from '../store/useGoalStore';
 import { getDaysUntil } from '../utils/dateUtils';
 import { getCategoryIcon } from '../utils/Icons';
+
+type NotificationsModule = typeof import('expo-notifications');
+
+let notificationsModulePromise: Promise<NotificationsModule | null> | null = null;
+
+async function getNotificationsModule(): Promise<NotificationsModule | null> {
+    if (notificationsModulePromise) return notificationsModulePromise;
+
+    notificationsModulePromise = (async () => {
+        // On web SSR there is no browser localStorage/window; skip loading notifications module.
+        if (Platform.OS === 'web' && typeof window === 'undefined') return null;
+        try {
+            return await import('expo-notifications');
+        } catch {
+            return null;
+        }
+    })();
+
+    return notificationsModulePromise;
+}
+
+async function requestNotificationsPermission(): Promise<boolean> {
+    const Notifications = await getNotificationsModule();
+    if (!Notifications) return false;
+    const { status } = await Notifications.requestPermissionsAsync();
+    return status === 'granted';
+}
+
+async function getNotificationsPermissionStatus(): Promise<'granted' | string> {
+    const Notifications = await getNotificationsModule();
+    if (!Notifications) return 'denied';
+    const { status } = await Notifications.getPermissionsAsync();
+    return status;
+}
+
+async function scheduleNotification(args: {
+    identifier: string;
+    content: {
+        title: string;
+        body: string;
+        data: { goalId: string };
+    };
+    trigger: Date;
+}) {
+    const Notifications = await getNotificationsModule();
+    if (!Notifications) return;
+    await Notifications.scheduleNotificationAsync(args);
+}
+
+async function getAllScheduledNotifications() {
+    const Notifications = await getNotificationsModule();
+    if (!Notifications) return [];
+    return Notifications.getAllScheduledNotificationsAsync();
+}
+
+async function cancelScheduledNotification(id: string) {
+    const Notifications = await getNotificationsModule();
+    if (!Notifications) return;
+    await Notifications.cancelScheduledNotificationAsync(id);
+}
 
 // Smart scheduling: schedule push notifications based on deadline proximity
 async function scheduleGoalNotification(goalId: string, goalTitle: string, daysLeft: number) {
@@ -26,7 +85,7 @@ async function scheduleGoalNotification(goalId: string, goalTitle: string, daysL
         const trigger = new Date();
         trigger.setDate(trigger.getDate() + 1);
         trigger.setHours(9, 0, 0, 0);
-        await Notifications.scheduleNotificationAsync({
+        await scheduleNotification({
             identifier: `goal-overdue-${goalId}`,
             content: {
                 title: 'You still have time! 💪',
@@ -40,7 +99,7 @@ async function scheduleGoalNotification(goalId: string, goalTitle: string, daysL
         const trigger = new Date();
         trigger.setHours(18, 0, 0, 0);
         if (trigger < new Date()) trigger.setDate(trigger.getDate() + 1);
-        await Notifications.scheduleNotificationAsync({
+        await scheduleNotification({
             identifier: `goal-due-soon-${goalId}`,
             content: {
                 title: 'Last chance! ⏰',
@@ -54,7 +113,7 @@ async function scheduleGoalNotification(goalId: string, goalTitle: string, daysL
         const trigger = new Date();
         trigger.setDate(trigger.getDate() + 2);
         trigger.setHours(9, 0, 0, 0);
-        await Notifications.scheduleNotificationAsync({
+        await scheduleNotification({
             identifier: `goal-week-${goalId}`,
             content: {
                 title: 'Goal deadline approaching 🎯',
@@ -68,7 +127,7 @@ async function scheduleGoalNotification(goalId: string, goalTitle: string, daysL
         const trigger = new Date();
         trigger.setDate(trigger.getDate() + 7);
         trigger.setHours(9, 0, 0, 0);
-        await Notifications.scheduleNotificationAsync({
+        await scheduleNotification({
             identifier: `goal-month-${goalId}`,
             content: {
                 title: 'Goal check-in 📋',
@@ -81,14 +140,14 @@ async function scheduleGoalNotification(goalId: string, goalTitle: string, daysL
 }
 
 async function rescheduleAllGoals(goals: ReturnType<typeof useGoalStore>['goals']) {
-    const { status } = await Notifications.getPermissionsAsync();
+    const status = await getNotificationsPermissionStatus();
     if (status !== 'granted') return;
 
     // Cancel all existing goal notifications
-    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    const scheduled = await getAllScheduledNotifications();
     for (const n of scheduled) {
         if (String(n.identifier).startsWith('goal-')) {
-            await Notifications.cancelScheduledNotificationAsync(n.identifier);
+            await cancelScheduledNotification(String(n.identifier));
         }
     }
 
@@ -174,9 +233,7 @@ export default function NotificationsScreen() {
     const groupOrder: NotificationItem['group'][] = ['Overdue', 'Today', 'This Week', 'Earlier'];
 
     useEffect(() => {
-        Notifications.requestPermissionsAsync().then(({ status }) => {
-            setNotifGranted(status === 'granted');
-        });
+        requestNotificationsPermission().then(setNotifGranted);
     }, []);
 
     // Reschedule on foreground
@@ -252,11 +309,7 @@ export default function NotificationsScreen() {
                         Enable notifications for deadline reminders
                     </Text>
                     <TouchableOpacity
-                        onPress={() =>
-                            Notifications.requestPermissionsAsync().then(({ status }) =>
-                                setNotifGranted(status === 'granted')
-                            )
-                        }
+                        onPress={() => requestNotificationsPermission().then(setNotifGranted)}
                         accessibilityRole="button"
                     >
                         <Text style={styles.permissionAction}>Enable</Text>
