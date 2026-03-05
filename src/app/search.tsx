@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
     View,
     Text,
@@ -16,6 +16,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGoalStore, Goal } from '../store/useGoalStore';
 import { LinearGradient } from 'expo-linear-gradient';
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withDelay,
+    withSpring,
+    withTiming,
+    FadeIn,
+} from 'react-native-reanimated';
 
 const HISTORY_KEY = 'atlas-search-history';
 const MAX_HISTORY = 10;
@@ -73,11 +81,25 @@ function SearchResultCard({
     goal,
     query,
     onPress,
+    index = 0,
 }: {
     goal: Goal;
     query: string;
     onPress: () => void;
+    index?: number;
 }) {
+    const translateY = useSharedValue(24);
+    const opacity = useSharedValue(0);
+
+    useEffect(() => {
+        translateY.value = withDelay(index * 60, withSpring(0, { damping: 20, stiffness: 150 }));
+        opacity.value = withDelay(index * 60, withTiming(1, { duration: 300 }));
+    }, []);
+
+    const animStyle = useAnimatedStyle(() => ({
+        opacity: opacity.value,
+        transform: [{ translateY: translateY.value }],
+    }));
     const matchedField = useMemo(() => {
         const q = query.toLowerCase();
         if (goal.title.toLowerCase().includes(q)) return 'title';
@@ -99,60 +121,66 @@ function SearchResultCard({
                   : goal.location.country;
 
     return (
-        <TouchableOpacity
-            onPress={onPress}
-            activeOpacity={0.8}
-            style={styles.resultCard}
-            accessibilityLabel={`Goal: ${goal.title}`}
-            accessibilityRole="button"
-        >
-            <Image
-                source={goal.image}
-                style={StyleSheet.absoluteFillObject}
-                contentFit="cover"
-                transition={200}
-            />
-            <LinearGradient
-                colors={['transparent', 'rgba(0,0,0,0.92)']}
-                style={StyleSheet.absoluteFillObject}
-            />
-            <View style={styles.resultContent}>
-                <View style={styles.resultMeta}>
-                    <View
-                        style={[
-                            styles.resultBadge,
-                            { backgroundColor: goal.completed ? '#4ade8020' : '#3b82f620' },
-                        ]}
-                    >
-                        <Text
+        <Animated.View style={animStyle}>
+            <TouchableOpacity
+                onPress={onPress}
+                activeOpacity={0.8}
+                style={styles.resultCard}
+                accessibilityLabel={`Goal: ${goal.title}`}
+                accessibilityRole="button"
+            >
+                <Image
+                    source={goal.image}
+                    style={StyleSheet.absoluteFillObject}
+                    contentFit="cover"
+                    transition={200}
+                />
+                <LinearGradient
+                    colors={['transparent', 'rgba(0,0,0,0.92)']}
+                    style={StyleSheet.absoluteFillObject}
+                />
+                <View style={styles.resultContent}>
+                    <View style={styles.resultMeta}>
+                        <View
                             style={[
-                                styles.resultBadgeText,
-                                { color: goal.completed ? '#4ade80' : '#3b82f6' },
+                                styles.resultBadge,
+                                { backgroundColor: goal.completed ? '#4ade8020' : '#3b82f620' },
                             ]}
                         >
-                            {goal.completed ? '✓ Done' : goal.category}
-                        </Text>
+                            <Text
+                                style={[
+                                    styles.resultBadgeText,
+                                    { color: goal.completed ? '#4ade80' : '#3b82f6' },
+                                ]}
+                            >
+                                {goal.completed ? '✓ Done' : goal.category}
+                            </Text>
+                        </View>
                     </View>
+                    <HighlightedText
+                        text={goal.title}
+                        query={matchedField === 'title' ? query : ''}
+                        style={styles.resultTitle}
+                    />
+                    {matchedField !== 'title' && snippet ? (
+                        <HighlightedText
+                            text={snippet}
+                            query={query}
+                            style={styles.resultSnippet}
+                        />
+                    ) : null}
+                    {goal.location.city ? (
+                        <View style={styles.resultLocation}>
+                            <MaterialIcons name="place" size={11} color="rgba(255,255,255,0.4)" />
+                            <Text style={styles.resultLocationText}>
+                                {goal.location.city}
+                                {goal.location.country ? `, ${goal.location.country}` : ''}
+                            </Text>
+                        </View>
+                    ) : null}
                 </View>
-                <HighlightedText
-                    text={goal.title}
-                    query={matchedField === 'title' ? query : ''}
-                    style={styles.resultTitle}
-                />
-                {matchedField !== 'title' && snippet ? (
-                    <HighlightedText text={snippet} query={query} style={styles.resultSnippet} />
-                ) : null}
-                {goal.location.city ? (
-                    <View style={styles.resultLocation}>
-                        <MaterialIcons name="place" size={11} color="rgba(255,255,255,0.4)" />
-                        <Text style={styles.resultLocationText}>
-                            {goal.location.city}
-                            {goal.location.country ? `, ${goal.location.country}` : ''}
-                        </Text>
-                    </View>
-                ) : null}
-            </View>
-        </TouchableOpacity>
+            </TouchableOpacity>
+        </Animated.View>
     );
 }
 
@@ -351,11 +379,12 @@ export default function SearchScreen() {
                 {/* Results */}
                 {query.trim().length > 0 ? (
                     results.length > 0 ? (
-                        results.map(goal => (
+                        results.map((goal, idx) => (
                             <SearchResultCard
                                 key={goal.id}
                                 goal={goal}
                                 query={query}
+                                index={idx}
                                 onPress={() => handleGoalPress(goal)}
                             />
                         ))
