@@ -753,6 +753,31 @@ export default function GoalDetail() {
                 </TouchableOpacity>
             </View>
 
+            {/* Share FAB - bottom right */}
+            <TouchableOpacity
+                onPress={handleShare}
+                style={{
+                    position: 'absolute',
+                    bottom: 110,
+                    right: 24,
+                    width: 52,
+                    height: 52,
+                    borderRadius: 26,
+                    backgroundColor: '#2563eb',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    shadowColor: '#2563eb',
+                    shadowOpacity: 0.6,
+                    shadowRadius: 12,
+                    shadowOffset: { width: 0, height: 4 },
+                    elevation: 8,
+                }}
+                accessibilityLabel="Share goal"
+                accessibilityRole="button"
+            >
+                <MaterialIcons name="share" size={22} color="white" />
+            </TouchableOpacity>
+
             {/* Confetti burst — Peak-End Rule: make this the best moment */}
             <Confetti visible={showCelebration} onDone={() => setShowCelebration(false)} />
 
