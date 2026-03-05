@@ -10,7 +10,7 @@ const noopStorage = {
 };
 
 const persistStorage = createJSONStorage(() =>
-    Platform.OS === 'web' && typeof window === 'undefined' ? noopStorage : (AsyncStorage as any)
+    typeof window === 'undefined' ? noopStorage : (AsyncStorage as any)
 );
 
 export type ThemeMode = 'dark' | 'light' | 'system';
