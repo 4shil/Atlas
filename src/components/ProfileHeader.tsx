@@ -1,20 +1,46 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useProfileStore } from '../store/useProfileStore';
+import Animated, {
+    SharedValue,
+    useAnimatedStyle,
+    interpolate,
+    Extrapolation,
+} from 'react-native-reanimated';
 
 interface ProfileHeaderProps {
     rightActions?: React.ReactNode;
+    scrollY?: SharedValue<number>;
 }
 
-export function ProfileHeader({ rightActions }: ProfileHeaderProps) {
+export function ProfileHeader({ rightActions, scrollY }: ProfileHeaderProps) {
     const { profile } = useProfileStore();
     const router = useRouter();
 
+    const animatedStyle = useAnimatedStyle(() => {
+        if (!scrollY) return {};
+
+        const opacity = interpolate(scrollY.value, [0, 60], [1, 0], Extrapolation.CLAMP);
+
+        const scale = interpolate(scrollY.value, [0, 60], [1, 0.8], Extrapolation.CLAMP);
+
+        const translateY = interpolate(scrollY.value, [0, 60], [0, -20], Extrapolation.CLAMP);
+
+        return {
+            opacity,
+            transform: [{ scale }, { translateY }],
+        };
+    });
+
     return (
-        <View className="px-6 mt-4 flex-row justify-between items-center">
+        <Animated.View
+            className="px-6 mt-4 flex-row justify-between items-center z-50"
+            style={animatedStyle}
+        >
             <TouchableOpacity
                 className="w-10 h-10 rounded-full overflow-hidden border border-gray-700 shadow-lg"
                 onPress={() => {
@@ -38,6 +64,6 @@ export function ProfileHeader({ rightActions }: ProfileHeaderProps) {
             </TouchableOpacity>
 
             {rightActions && <View className="flex-row gap-2">{rightActions}</View>}
-        </View>
+        </Animated.View>
     );
 }

@@ -7,9 +7,10 @@ import {
     TouchableOpacity,
     TextInput,
     RefreshControl,
-    Animated,
+    Animated as RNAnimated,
     Dimensions,
 } from 'react-native';
+import Animated, { useSharedValue, useAnimatedScrollHandler } from 'react-native-reanimated';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -100,9 +101,18 @@ export default function DashboardDark() {
         );
     }, [sortedPending, searchQuery]);
 
+    const scrollY = useSharedValue(0);
+    const scrollHandler = useAnimatedScrollHandler({
+        onScroll: event => {
+            scrollY.value = event.contentOffset.y;
+        },
+    });
+
     return (
         <ScreenWrapper bgClass="dark:bg-black bg-slate-50">
-            <ScrollView
+            <Animated.ScrollView
+                onScroll={scrollHandler}
+                scrollEventThrottle={16}
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -117,6 +127,7 @@ export default function DashboardDark() {
             >
                 {/* Header */}
                 <ProfileHeader
+                    scrollY={scrollY}
                     rightActions={
                         <>
                             <TouchableOpacity
@@ -568,7 +579,7 @@ export default function DashboardDark() {
                         />
                     )}
                 </View>
-            </ScrollView>
+            </Animated.ScrollView>
         </ScreenWrapper>
     );
 }
