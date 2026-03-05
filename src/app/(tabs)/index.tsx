@@ -286,7 +286,7 @@ export default function DashboardDark() {
                                         }}
                                         style={{
                                             width: 100,
-                                            height: 130,
+                                            height: i % 2 === 0 ? 120 : 140,
                                             borderRadius: 18,
                                             overflow: 'hidden',
                                             borderWidth: 1,
