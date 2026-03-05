@@ -3,8 +3,14 @@
  * Provides theme context with semantic tokens
  */
 
-import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withSequence,
+    withTiming,
+} from 'react-native-reanimated';
 import { themes, type ThemeMode, type Colors } from './tokens/colors';
 import { typography, type Typography } from './tokens/typography';
 import { spacing, space, type Spacing, type Space } from './tokens/spacing';
@@ -82,6 +88,16 @@ export function ThemeProvider({ children, defaultMode }: ThemeProviderProps) {
 
     const [isReducedMotion, setReducedMotion] = useState(false);
 
+    // #21 - Theme transition fade
+    const fadeAnim = useSharedValue(1);
+    useEffect(() => {
+        fadeAnim.value = withSequence(
+            withTiming(0.92, { duration: 100 }),
+            withTiming(1, { duration: 200 })
+        );
+    }, [effectiveDark]);
+    const fadeStyle = useAnimatedStyle(() => ({ opacity: fadeAnim.value }));
+
     // Toggle between dark and light by dispatching to the Zustand settings store directly
     const toggleMode = useCallback(() => {
         setSettingsDarkMode(!settingsDarkMode);
@@ -125,7 +141,11 @@ export function ThemeProvider({ children, defaultMode }: ThemeProviderProps) {
         [mode, isReducedMotion, toggleMode]
     );
 
-    return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+    return (
+        <ThemeContext.Provider value={value}>
+            <Animated.View style={[{ flex: 1 }, fadeStyle]}>{children}</Animated.View>
+        </ThemeContext.Provider>
+    );
 }
 
 // ============================================

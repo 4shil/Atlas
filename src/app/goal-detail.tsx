@@ -55,6 +55,18 @@ export default function GoalDetail() {
     const celebScale = useSharedValue(0);
     const celebOpacity = useSharedValue(0);
 
+    // #19 - Hero mount animation
+    const heroOpacity = useSharedValue(0);
+    const heroScale = useSharedValue(1.06);
+    useEffect(() => {
+        heroOpacity.value = withTiming(1, { duration: 400 });
+        heroScale.value = withTiming(1, { duration: 400 });
+    }, []);
+    const heroAnimStyle = useAnimatedStyle(() => ({
+        opacity: heroOpacity.value,
+        transform: [{ scale: heroScale.value }],
+    }));
+
     const handleAddProgressPhoto = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
@@ -199,7 +211,7 @@ export default function GoalDetail() {
     return (
         <ScreenWrapper bgClass="dark:bg-black bg-slate-50" edges={[]}>
             {/* Hero Image */}
-            <View className="h-[45%] relative">
+            <Animated.View className="h-[45%] relative" style={heroAnimStyle}>
                 <Image
                     source={{ uri: getDetailUrl(goal.image) }}
                     className="absolute inset-0 w-full h-full"
@@ -278,7 +290,7 @@ export default function GoalDetail() {
                         {goal.title}
                     </Text>
                 </View>
-            </View>
+            </Animated.View>
 
             {/* Content */}
             <ScrollView
