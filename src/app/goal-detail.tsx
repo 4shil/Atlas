@@ -30,7 +30,7 @@ import Animated, {
     FadeOut,
 } from 'react-native-reanimated';
 import { getCategoryIcon } from '../utils/Icons';
-import { getDaysUntil } from '../utils/dateUtils';
+import { getDaysUntil, isOverdue } from '../utils/dateUtils';
 import { getDetailUrl } from '../utils/imageUtils';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { Confetti } from '../components/Confetti';
@@ -135,7 +135,7 @@ export default function GoalDetail() {
 
     const targetDate = new Date(goal.timelineDate);
     const daysLeft = getDaysUntil(goal.timelineDate);
-    const isOverdue = daysLeft < 0 && !goal.completed;
+    const isGoalOverdue = isOverdue(goal.timelineDate) && !goal.completed;
 
     const handleDelete = () => {
         Alert.alert(
@@ -280,7 +280,7 @@ export default function GoalDetail() {
                                 </Text>
                             </View>
                         )}
-                        {isOverdue && (
+                        {isGoalOverdue && (
                             <View className="bg-red-900/60 border border-red-500/30 px-3 py-1 rounded-full">
                                 <Text className="text-red-400 text-xs font-medium">Overdue</Text>
                             </View>
@@ -325,9 +325,11 @@ export default function GoalDetail() {
                         </Text>
                         {!goal.completed && (
                             <Text
-                                className={`text-xs mt-0.5 ${isOverdue ? 'text-red-400' : 'dark:text-white/40 text-gray-400'}`}
+                                className={`text-xs mt-0.5 ${isGoalOverdue ? 'text-red-400' : 'dark:text-white/40 text-gray-400'}`}
                             >
-                                {isOverdue ? `${Math.abs(daysLeft)}d overdue` : `${daysLeft}d left`}
+                                {isGoalOverdue
+                                    ? `${Math.abs(daysLeft)}d overdue`
+                                    : `${daysLeft}d left`}
                             </Text>
                         )}
                     </View>

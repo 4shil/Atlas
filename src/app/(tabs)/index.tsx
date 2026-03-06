@@ -28,6 +28,7 @@ import { ScreenWrapper } from '../../components/ScreenWrapper';
 import { StatRing } from '../../components/StatRing';
 import { hapticImpact, hapticSelect } from '../../utils/haptics';
 import { Confetti } from '../../components/Confetti';
+import { isOverdue } from '../../utils/dateUtils';
 
 type SortMode = 'date' | 'category' | 'name';
 
@@ -91,11 +92,7 @@ export default function DashboardDark() {
         [allPending]
     );
     const nextGoal = pendingByDate[0] ?? null;
-    const overdueGoals = pendingByDate.filter(g => {
-        const d = new Date(g.timelineDate);
-        d.setHours(23, 59, 59);
-        return d < new Date();
-    });
+    const overdueGoals = pendingByDate.filter(g => isOverdue(g.timelineDate));
 
     // #5 - Spring animation for overdue banner
     useEffect(() => {
