@@ -8,6 +8,7 @@ import {
     Platform,
     Alert,
     ActivityIndicator,
+    KeyboardAvoidingView,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
@@ -187,320 +188,345 @@ export default function AddGoal() {
 
     return (
         <ScreenWrapper bgClass="dark:bg-black bg-slate-50">
-            {/* Header */}
-            <View className="px-6 py-4 flex-row justify-between items-center border-b dark:border-white/10 border-black/10">
-                <TouchableOpacity
-                    className="w-10 h-10 rounded-full bg-white/5 border dark:border-white/10 border-black/10 items-center justify-center"
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        router.back();
-                    }}
-                >
-                    <MaterialIcons name="close" size={20} color="white" />
-                </TouchableOpacity>
-                <Text className="dark:text-white text-gray-900 font-semibold text-lg">
-                    {isEditMode ? 'Edit Adventure' : 'New Adventure'}
-                </Text>
-                <TouchableOpacity
-                    className={`px-5 py-2 rounded-full ${title.trim() && !saving ? 'bg-blue-600' : 'bg-gray-800'}`}
-                    onPress={handleSave}
-                    disabled={!title.trim() || saving}
-                >
-                    {saving ? (
-                        <ActivityIndicator size="small" color="white" />
-                    ) : (
-                        <Text
-                            className={`font-semibold ${title.trim() ? 'text-white' : 'text-gray-500'}`}
-                        >
-                            {isEditMode ? 'Update' : 'Save'}
-                        </Text>
-                    )}
-                </TouchableOpacity>
-            </View>
-
-            <ScrollView
-                className="flex-1 px-6 pt-6"
-                contentContainerStyle={{ paddingBottom: 60 }}
-                keyboardShouldPersistTaps="handled"
-                showsVerticalScrollIndicator={false}
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
             >
-                {/* Title */}
-                <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
-                        Title *
-                    </Text>
-                    <TextInput
-                        className="dark:text-white text-gray-900 text-3xl font-bold border-b border-white/20 pb-2"
-                        placeholder="e.g. Ski in Niseko"
-                        placeholderTextColor="#4b5563"
-                        value={title}
-                        onChangeText={setTitle}
-                        autoFocus={!isEditMode}
-                    />
-                </View>
-
-                {/* Category */}
-                <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-3">
-                        Category
-                    </Text>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        className="overflow-visible"
+                {/* Header */}
+                <View className="px-6 py-4 flex-row justify-between items-center border-b dark:border-white/10 border-black/10">
+                    <TouchableOpacity
+                        className="w-10 h-10 rounded-full bg-white/5 border dark:border-white/10 border-black/10 items-center justify-center"
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            router.back();
+                        }}
                     >
-                        {CATEGORIES.filter(c => c !== 'All').map(cat => (
-                            <TouchableOpacity
-                                key={cat}
-                                className={`px-5 py-2.5 rounded-full mr-3 border ${category === cat ? 'bg-blue-600 border-blue-500' : 'bg-white/5 dark:border-white/10 border-black/10'}`}
-                                onPress={() => {
-                                    Haptics.selectionAsync();
-                                    setCategory(cat);
-                                }}
+                        <MaterialIcons name="close" size={20} color="white" />
+                    </TouchableOpacity>
+                    <Text className="dark:text-white text-gray-900 font-semibold text-lg">
+                        {isEditMode ? 'Edit Adventure' : 'New Adventure'}
+                    </Text>
+                    <TouchableOpacity
+                        className={`px-5 py-2 rounded-full ${title.trim() && !saving ? 'bg-blue-600' : 'bg-gray-800'}`}
+                        onPress={handleSave}
+                        disabled={!title.trim() || saving}
+                    >
+                        {saving ? (
+                            <ActivityIndicator size="small" color="white" />
+                        ) : (
+                            <Text
+                                className={`font-semibold ${title.trim() ? 'text-white' : 'text-gray-500'}`}
                             >
-                                <Text
-                                    className={`text-xs font-medium ${category === cat ? 'text-white' : 'text-gray-300'}`}
-                                >
-                                    {cat}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
+                                {isEditMode ? 'Update' : 'Save'}
+                            </Text>
+                        )}
+                    </TouchableOpacity>
                 </View>
 
-                {/* Description */}
-                <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
-                        Description
-                    </Text>
-                    <TextInput
-                        className="dark:text-white text-gray-900 text-base bg-white/5 rounded-2xl p-4 border dark:border-white/10 border-black/10"
-                        placeholder="What do you want to experience?"
-                        placeholderTextColor="#4b5563"
-                        value={description}
-                        onChangeText={setDescription}
-                        multiline
-                        numberOfLines={3}
-                        textAlignVertical="top"
-                    />
-                </View>
+                <ScrollView
+                    className="flex-1 px-6 pt-6"
+                    contentContainerStyle={{ paddingBottom: 60 }}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
+                    {/* Title */}
+                    <View className="mb-7">
+                        <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                            Title *
+                        </Text>
+                        <TextInput
+                            className="dark:text-white text-gray-900 text-3xl font-bold border-b border-white/20 pb-2"
+                            placeholder="e.g. Ski in Niseko"
+                            placeholderTextColor="#4b5563"
+                            value={title}
+                            onChangeText={setTitle}
+                            autoFocus={!isEditMode}
+                        />
+                    </View>
 
-                {/* Priority */}
-                <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-3">
-                        Priority
-                    </Text>
-                    <View style={{ flexDirection: 'row', gap: 10 }}>
-                        {(['low', 'medium', 'high'] as const).map(p => {
-                            const colors = { low: '#4ade80', medium: '#eab308', high: '#ef4444' };
-                            const active = priority === p;
-                            return (
+                    {/* Category */}
+                    <View className="mb-7">
+                        <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-3">
+                            Category
+                        </Text>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            className="overflow-visible"
+                        >
+                            {CATEGORIES.filter(c => c !== 'All').map(cat => (
                                 <TouchableOpacity
-                                    key={p}
+                                    key={cat}
+                                    className={`px-5 py-2.5 rounded-full mr-3 border ${category === cat ? 'bg-blue-600 border-blue-500' : 'bg-white/5 dark:border-white/10 border-black/10'}`}
                                     onPress={() => {
                                         Haptics.selectionAsync();
-                                        setPriority(p);
+                                        setCategory(cat);
                                     }}
+                                >
+                                    <Text
+                                        className={`text-xs font-medium ${category === cat ? 'text-white' : 'text-gray-300'}`}
+                                    >
+                                        {cat}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    </View>
+
+                    {/* Description */}
+                    <View className="mb-7">
+                        <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                            Description
+                        </Text>
+                        <TextInput
+                            className="dark:text-white text-gray-900 text-base bg-white/5 rounded-2xl p-4 border dark:border-white/10 border-black/10"
+                            placeholder="What do you want to experience?"
+                            placeholderTextColor="#4b5563"
+                            value={description}
+                            onChangeText={setDescription}
+                            multiline
+                            numberOfLines={3}
+                            textAlignVertical="top"
+                        />
+                    </View>
+
+                    {/* Priority */}
+                    <View className="mb-7">
+                        <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-3">
+                            Priority
+                        </Text>
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                            {(['low', 'medium', 'high'] as const).map(p => {
+                                const colors = {
+                                    low: '#4ade80',
+                                    medium: '#eab308',
+                                    high: '#ef4444',
+                                };
+                                const active = priority === p;
+                                return (
+                                    <TouchableOpacity
+                                        key={p}
+                                        onPress={() => {
+                                            Haptics.selectionAsync();
+                                            setPriority(p);
+                                        }}
+                                        style={{
+                                            flex: 1,
+                                            paddingVertical: 10,
+                                            borderRadius: 12,
+                                            borderWidth: 1.5,
+                                            alignItems: 'center',
+                                            borderColor: active
+                                                ? colors[p]
+                                                : 'rgba(255,255,255,0.1)',
+                                            backgroundColor: active
+                                                ? `${colors[p]}20`
+                                                : 'rgba(255,255,255,0.03)',
+                                        }}
+                                    >
+                                        <Text
+                                            style={{
+                                                color: active ? colors[p] : 'rgba(255,255,255,0.4)',
+                                                fontWeight: '600',
+                                                fontSize: 13,
+                                                textTransform: 'capitalize',
+                                            }}
+                                        >
+                                            {p}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                    </View>
+
+                    {/* Tags */}
+                    <View className="mb-7">
+                        <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                            Tags
+                        </Text>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                flexWrap: 'wrap',
+                                gap: 8,
+                                marginBottom: 8,
+                            }}
+                        >
+                            {tags.map((tag, i) => (
+                                <TouchableOpacity
+                                    key={i}
+                                    onPress={() => setTags(tags.filter((_, j) => j !== i))}
                                     style={{
-                                        flex: 1,
-                                        paddingVertical: 10,
-                                        borderRadius: 12,
-                                        borderWidth: 1.5,
+                                        flexDirection: 'row',
                                         alignItems: 'center',
-                                        borderColor: active ? colors[p] : 'rgba(255,255,255,0.1)',
-                                        backgroundColor: active
-                                            ? `${colors[p]}20`
-                                            : 'rgba(255,255,255,0.03)',
+                                        backgroundColor: 'rgba(96,165,250,0.15)',
+                                        borderRadius: 99,
+                                        paddingHorizontal: 10,
+                                        paddingVertical: 4,
+                                        gap: 4,
                                     }}
                                 >
                                     <Text
                                         style={{
-                                            color: active ? colors[p] : 'rgba(255,255,255,0.4)',
+                                            color: '#60a5fa',
+                                            fontSize: 12,
                                             fontWeight: '600',
-                                            fontSize: 13,
-                                            textTransform: 'capitalize',
                                         }}
                                     >
-                                        {p}
+                                        #{tag}
                                     </Text>
+                                    <MaterialIcons name="close" size={12} color="#60a5fa" />
                                 </TouchableOpacity>
-                            );
-                        })}
-                    </View>
-                </View>
-
-                {/* Tags */}
-                <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
-                        Tags
-                    </Text>
-                    <View
-                        style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}
-                    >
-                        {tags.map((tag, i) => (
-                            <TouchableOpacity
-                                key={i}
-                                onPress={() => setTags(tags.filter((_, j) => j !== i))}
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    backgroundColor: 'rgba(96,165,250,0.15)',
-                                    borderRadius: 99,
-                                    paddingHorizontal: 10,
-                                    paddingVertical: 4,
-                                    gap: 4,
-                                }}
-                            >
-                                <Text style={{ color: '#60a5fa', fontSize: 12, fontWeight: '600' }}>
-                                    #{tag}
-                                </Text>
-                                <MaterialIcons name="close" size={12} color="#60a5fa" />
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                    <TextInput
-                        className="dark:text-white text-gray-900 text-base bg-white/5 rounded-2xl px-4 py-3 border dark:border-white/10 border-black/10"
-                        placeholder="Add tag, press space..."
-                        placeholderTextColor="#4b5563"
-                        value={tagInput}
-                        onChangeText={v => {
-                            if (v.endsWith(' ') || v.endsWith(',')) {
-                                const t = v.replace(/[, ]+$/, '').trim();
+                            ))}
+                        </View>
+                        <TextInput
+                            className="dark:text-white text-gray-900 text-base bg-white/5 rounded-2xl px-4 py-3 border dark:border-white/10 border-black/10"
+                            placeholder="Add tag, press space..."
+                            placeholderTextColor="#4b5563"
+                            value={tagInput}
+                            onChangeText={v => {
+                                if (v.endsWith(' ') || v.endsWith(',')) {
+                                    const t = v.replace(/[, ]+$/, '').trim();
+                                    if (t && !tags.includes(t)) setTags([...tags, t]);
+                                    setTagInput('');
+                                } else setTagInput(v);
+                            }}
+                            onSubmitEditing={() => {
+                                const t = tagInput.trim();
                                 if (t && !tags.includes(t)) setTags([...tags, t]);
                                 setTagInput('');
-                            } else setTagInput(v);
-                        }}
-                        onSubmitEditing={() => {
-                            const t = tagInput.trim();
-                            if (t && !tags.includes(t)) setTags([...tags, t]);
-                            setTagInput('');
-                        }}
-                    />
-                </View>
-
-                {/* Notes */}
-                <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
-                        Notes
-                    </Text>
-                    <TextInput
-                        className="dark:text-white text-gray-900 text-base bg-white/5 rounded-2xl p-4 border dark:border-white/10 border-black/10"
-                        placeholder="Tips, packing list, memories..."
-                        placeholderTextColor="#4b5563"
-                        value={notes}
-                        onChangeText={setNotes}
-                        multiline
-                        numberOfLines={3}
-                        textAlignVertical="top"
-                    />
-                </View>
-
-                {/* Location */}
-                <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
-                        Location
-                    </Text>
-                    <TouchableOpacity
-                        className="flex-row items-center bg-white/5 rounded-2xl border dark:border-white/10 border-black/10 px-4 py-4"
-                        onPress={() => setIsLocationPickerVisible(true)}
-                    >
-                        <MaterialIcons name="place" size={20} color="#60a5fa" />
-                        <Text
-                            className={`flex-1 text-base ml-2 ${locationData?.city ? 'dark:text-white text-gray-900' : 'text-gray-500'}`}
-                        >
-                            {locationData?.city
-                                ? `${locationData.city}${locationData.country ? `, ${locationData.country}` : ''}`
-                                : Platform.OS === 'web'
-                                  ? 'Enter location'
-                                  : 'Pick on map'}
-                        </Text>
-                        {locationData?.city ? (
-                            <TouchableOpacity
-                                onPress={() =>
-                                    setLocationData({
-                                        latitude: 0,
-                                        longitude: 0,
-                                        city: '',
-                                        country: '',
-                                    })
-                                }
-                            >
-                                <MaterialIcons name="close" size={18} color="#6b7280" />
-                            </TouchableOpacity>
-                        ) : (
-                            <MaterialIcons name="chevron-right" size={20} color="#6b7280" />
-                        )}
-                    </TouchableOpacity>
-                </View>
-
-                {/* Target Date */}
-                <View className="mb-7">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
-                        Target Date
-                    </Text>
-                    <TouchableOpacity
-                        className="flex-row items-center bg-white/5 rounded-2xl border dark:border-white/10 border-black/10 px-4 py-4"
-                        onPress={() => setShowDatePicker(true)}
-                    >
-                        <MaterialIcons name="event" size={20} color="#60a5fa" />
-                        <Text className="flex-1 dark:text-white text-gray-900 text-base ml-2">
-                            {date.toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
-                        </Text>
-                        <MaterialIcons name="chevron-right" size={20} color="#6b7280" />
-                    </TouchableOpacity>
-                    {showDatePicker && (
-                        <DateTimePicker
-                            value={date}
-                            mode="date"
-                            display="default"
-                            minimumDate={new Date()}
-                            onChange={(_, selectedDate) => {
-                                setShowDatePicker(Platform.OS === 'ios');
-                                if (selectedDate) setDate(selectedDate);
                             }}
                         />
-                    )}
-                </View>
+                    </View>
 
-                {/* Cover Image */}
-                <View className="mb-4">
-                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
-                        Cover Image
-                    </Text>
-                    <TouchableOpacity
-                        className="bg-white/5 rounded-2xl border dark:border-white/10 border-black/10 h-48 justify-center items-center overflow-hidden"
-                        onPress={pickImage}
-                    >
-                        {image ? (
-                            <>
-                                <Image
-                                    source={image}
-                                    className="w-full h-full"
-                                    contentFit="cover"
-                                />
-                                <View className="absolute bottom-3 right-3 bg-black/60 rounded-full px-3 py-1 flex-row items-center">
-                                    <MaterialIcons name="edit" size={14} color="white" />
-                                    <Text className="text-white text-xs ml-1">Change</Text>
-                                </View>
-                            </>
-                        ) : (
-                            <View className="items-center">
-                                <MaterialIcons name="add-a-photo" size={32} color="#9ca3af" />
-                                <Text className="text-gray-400 mt-2 text-sm font-medium">
-                                    Select a photo
-                                </Text>
-                            </View>
+                    {/* Notes */}
+                    <View className="mb-7">
+                        <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                            Notes
+                        </Text>
+                        <TextInput
+                            className="dark:text-white text-gray-900 text-base bg-white/5 rounded-2xl p-4 border dark:border-white/10 border-black/10"
+                            placeholder="Tips, packing list, memories..."
+                            placeholderTextColor="#4b5563"
+                            value={notes}
+                            onChangeText={setNotes}
+                            multiline
+                            numberOfLines={3}
+                            textAlignVertical="top"
+                        />
+                    </View>
+
+                    {/* Location */}
+                    <View className="mb-7">
+                        <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                            Location
+                        </Text>
+                        <TouchableOpacity
+                            className="flex-row items-center bg-white/5 rounded-2xl border dark:border-white/10 border-black/10 px-4 py-4"
+                            onPress={() => setIsLocationPickerVisible(true)}
+                        >
+                            <MaterialIcons name="place" size={20} color="#60a5fa" />
+                            <Text
+                                className={`flex-1 text-base ml-2 ${locationData?.city ? 'dark:text-white text-gray-900' : 'text-gray-500'}`}
+                            >
+                                {locationData?.city
+                                    ? `${locationData.city}${locationData.country ? `, ${locationData.country}` : ''}`
+                                    : Platform.OS === 'web'
+                                      ? 'Enter location'
+                                      : 'Pick on map'}
+                            </Text>
+                            {locationData?.city ? (
+                                <TouchableOpacity
+                                    onPress={() =>
+                                        setLocationData({
+                                            latitude: 0,
+                                            longitude: 0,
+                                            city: '',
+                                            country: '',
+                                        })
+                                    }
+                                >
+                                    <MaterialIcons name="close" size={18} color="#6b7280" />
+                                </TouchableOpacity>
+                            ) : (
+                                <MaterialIcons name="chevron-right" size={20} color="#6b7280" />
+                            )}
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Target Date */}
+                    <View className="mb-7">
+                        <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                            Target Date
+                        </Text>
+                        <TouchableOpacity
+                            className="flex-row items-center bg-white/5 rounded-2xl border dark:border-white/10 border-black/10 px-4 py-4"
+                            onPress={() => setShowDatePicker(true)}
+                        >
+                            <MaterialIcons name="event" size={20} color="#60a5fa" />
+                            <Text className="flex-1 dark:text-white text-gray-900 text-base ml-2">
+                                {date.toLocaleDateString(undefined, {
+                                    year: 'numeric',
+                                    month: 'long',
+                                })}
+                            </Text>
+                            <MaterialIcons name="chevron-right" size={20} color="#6b7280" />
+                        </TouchableOpacity>
+                        {showDatePicker && (
+                            <DateTimePicker
+                                value={date}
+                                mode="date"
+                                display="default"
+                                minimumDate={new Date()}
+                                onChange={(_, selectedDate) => {
+                                    setShowDatePicker(Platform.OS === 'ios');
+                                    if (selectedDate) setDate(selectedDate);
+                                }}
+                            />
                         )}
-                    </TouchableOpacity>
-                </View>
-            </ScrollView>
+                    </View>
 
-            <LocationPicker
-                visible={isLocationPickerVisible}
-                onClose={() => setIsLocationPickerVisible(false)}
-                onSelect={loc => setLocationData({ ...loc })}
-                initialLocation={locationData?.latitude !== 0 ? locationData : undefined}
-            />
+                    {/* Cover Image */}
+                    <View className="mb-4">
+                        <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                            Cover Image
+                        </Text>
+                        <TouchableOpacity
+                            className="bg-white/5 rounded-2xl border dark:border-white/10 border-black/10 h-48 justify-center items-center overflow-hidden"
+                            onPress={pickImage}
+                        >
+                            {image ? (
+                                <>
+                                    <Image
+                                        source={image}
+                                        className="w-full h-full"
+                                        contentFit="cover"
+                                    />
+                                    <View className="absolute bottom-3 right-3 bg-black/60 rounded-full px-3 py-1 flex-row items-center">
+                                        <MaterialIcons name="edit" size={14} color="white" />
+                                        <Text className="text-white text-xs ml-1">Change</Text>
+                                    </View>
+                                </>
+                            ) : (
+                                <View className="items-center">
+                                    <MaterialIcons name="add-a-photo" size={32} color="#9ca3af" />
+                                    <Text className="text-gray-400 mt-2 text-sm font-medium">
+                                        Select a photo
+                                    </Text>
+                                </View>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                </ScrollView>
+
+                <LocationPicker
+                    visible={isLocationPickerVisible}
+                    onClose={() => setIsLocationPickerVisible(false)}
+                    onSelect={loc => setLocationData({ ...loc })}
+                    initialLocation={locationData?.latitude !== 0 ? locationData : undefined}
+                />
+            </KeyboardAvoidingView>
         </ScreenWrapper>
     );
 }
