@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { Alert, View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -36,6 +36,7 @@ type GroupedGoals = {
 
 export default function ArchiveScreen() {
     const { getCompletedGoals } = useGoalStore();
+    const deleteGoal = useGoalStore(s => s.deleteGoal);
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
@@ -284,6 +285,38 @@ export default function ArchiveScreen() {
                 ))}
 
                 <View style={{ height: 100 }} />
+
+                <TouchableOpacity
+                    onPress={() =>
+                        Alert.alert(
+                            'Clear All Completed?',
+                            'This will delete all completed goals.',
+                            [
+                                { text: 'Cancel', style: 'cancel' },
+                                {
+                                    text: 'Clear All',
+                                    style: 'destructive',
+                                    onPress: () => {
+                                        completedGoals.forEach(g => deleteGoal(g.id));
+                                    },
+                                },
+                            ]
+                        )
+                    }
+                    style={{
+                        margin: 24,
+                        backgroundColor: 'rgba(239,68,68,0.12)',
+                        borderRadius: 16,
+                        padding: 16,
+                        alignItems: 'center',
+                        borderWidth: 1,
+                        borderColor: 'rgba(239,68,68,0.25)',
+                    }}
+                >
+                    <Text style={{ color: '#ef4444', fontWeight: '700', fontSize: 14 }}>
+                        🗑 Clear All Completed
+                    </Text>
+                </TouchableOpacity>
             </ScrollView>
 
             {/* Confetti celebration */}
