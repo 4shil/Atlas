@@ -56,6 +56,11 @@ export default function AddGoal() {
     });
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [priority, setPriority] = useState<'low' | 'medium' | 'high'>(
+        existingGoal?.priority ?? 'medium'
+    );
+    const [tags, setTags] = useState<string[]>(existingGoal?.tags ?? []);
+    const [tagInput, setTagInput] = useState('');
 
     const pickImage = async () => {
         try {
@@ -131,6 +136,8 @@ export default function AddGoal() {
             timelineDate: date.toISOString(),
             notes: notes.trim(),
             location: safeLocation,
+            priority,
+            tags,
         };
 
         try {
@@ -275,6 +282,99 @@ export default function AddGoal() {
                         multiline
                         numberOfLines={3}
                         textAlignVertical="top"
+                    />
+                </View>
+
+                {/* Priority */}
+                <View className="mb-7">
+                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-3">
+                        Priority
+                    </Text>
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                        {(['low', 'medium', 'high'] as const).map(p => {
+                            const colors = { low: '#4ade80', medium: '#eab308', high: '#ef4444' };
+                            const active = priority === p;
+                            return (
+                                <TouchableOpacity
+                                    key={p}
+                                    onPress={() => {
+                                        Haptics.selectionAsync();
+                                        setPriority(p);
+                                    }}
+                                    style={{
+                                        flex: 1,
+                                        paddingVertical: 10,
+                                        borderRadius: 12,
+                                        borderWidth: 1.5,
+                                        alignItems: 'center',
+                                        borderColor: active ? colors[p] : 'rgba(255,255,255,0.1)',
+                                        backgroundColor: active
+                                            ? `${colors[p]}20`
+                                            : 'rgba(255,255,255,0.03)',
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            color: active ? colors[p] : 'rgba(255,255,255,0.4)',
+                                            fontWeight: '600',
+                                            fontSize: 13,
+                                            textTransform: 'capitalize',
+                                        }}
+                                    >
+                                        {p}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                </View>
+
+                {/* Tags */}
+                <View className="mb-7">
+                    <Text className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                        Tags
+                    </Text>
+                    <View
+                        style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}
+                    >
+                        {tags.map((tag, i) => (
+                            <TouchableOpacity
+                                key={i}
+                                onPress={() => setTags(tags.filter((_, j) => j !== i))}
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    backgroundColor: 'rgba(96,165,250,0.15)',
+                                    borderRadius: 99,
+                                    paddingHorizontal: 10,
+                                    paddingVertical: 4,
+                                    gap: 4,
+                                }}
+                            >
+                                <Text style={{ color: '#60a5fa', fontSize: 12, fontWeight: '600' }}>
+                                    #{tag}
+                                </Text>
+                                <MaterialIcons name="close" size={12} color="#60a5fa" />
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                    <TextInput
+                        className="dark:text-white text-gray-900 text-base bg-white/5 rounded-2xl px-4 py-3 border dark:border-white/10 border-black/10"
+                        placeholder="Add tag, press space..."
+                        placeholderTextColor="#4b5563"
+                        value={tagInput}
+                        onChangeText={v => {
+                            if (v.endsWith(' ') || v.endsWith(',')) {
+                                const t = v.replace(/[, ]+$/, '').trim();
+                                if (t && !tags.includes(t)) setTags([...tags, t]);
+                                setTagInput('');
+                            } else setTagInput(v);
+                        }}
+                        onSubmitEditing={() => {
+                            const t = tagInput.trim();
+                            if (t && !tags.includes(t)) setTags([...tags, t]);
+                            setTagInput('');
+                        }}
                     />
                 </View>
 
