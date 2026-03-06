@@ -102,23 +102,51 @@ export const GoalCard = React.memo(
                             className="absolute inset-0 pointer-events-none"
                         />
 
-                        {/* #14 - Category Badge */}
+                        {/* Badges */}
                         <View
                             style={{
                                 position: 'absolute',
                                 top: 12,
                                 left: 12,
-                                backgroundColor:
-                                    CATEGORY_COLORS[goal.category.toLowerCase()] ??
-                                    CATEGORY_COLORS.default,
-                                borderRadius: 99,
-                                paddingHorizontal: 8,
-                                paddingVertical: 3,
+                                flexDirection: 'row',
+                                gap: 6,
+                                alignItems: 'center',
                             }}
                         >
-                            <Text style={{ color: 'white', fontSize: 10, fontWeight: '700' }}>
-                                {goal.category}
-                            </Text>
+                            {/* #14 - Category Badge */}
+                            <View
+                                style={{
+                                    backgroundColor:
+                                        CATEGORY_COLORS[goal.category.toLowerCase()] ??
+                                        CATEGORY_COLORS.default,
+                                    borderRadius: 99,
+                                    paddingHorizontal: 8,
+                                    paddingVertical: 3,
+                                }}
+                            >
+                                <Text style={{ color: 'white', fontSize: 10, fontWeight: '700' }}>
+                                    {goal.category}
+                                </Text>
+                            </View>
+
+                            {/* Priority Badge */}
+                            {goal.priority && (
+                                <View
+                                    style={{
+                                        width: 12,
+                                        height: 12,
+                                        borderRadius: 6,
+                                        backgroundColor:
+                                            goal.priority === 'high'
+                                                ? '#ef4444'
+                                                : goal.priority === 'medium'
+                                                  ? '#eab308'
+                                                  : '#22c55e',
+                                        borderWidth: 1.5,
+                                        borderColor: 'rgba(255,255,255,0.8)',
+                                    }}
+                                />
+                            )}
                         </View>
 
                         {isInteractive && (
