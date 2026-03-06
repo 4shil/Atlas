@@ -237,6 +237,49 @@ export const GoalCard = React.memo(
                                                     : ''}
                                             </Text>
                                         </View>
+                                        {goal.tags && goal.tags.length > 0 && (
+                                            <View
+                                                style={{
+                                                    flexDirection: 'row',
+                                                    flexWrap: 'wrap',
+                                                    gap: 4,
+                                                    marginTop: 6,
+                                                }}
+                                            >
+                                                {goal.tags.slice(0, 3).map((tag, i) => (
+                                                    <View
+                                                        key={i}
+                                                        style={{
+                                                            backgroundColor: 'rgba(96,165,250,0.2)',
+                                                            borderRadius: 99,
+                                                            paddingHorizontal: 8,
+                                                            paddingVertical: 2,
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                color: '#93c5fd',
+                                                                fontSize: 10,
+                                                                fontWeight: '600',
+                                                            }}
+                                                        >
+                                                            #{tag}
+                                                        </Text>
+                                                    </View>
+                                                ))}
+                                                {goal.tags.length > 3 && (
+                                                    <Text
+                                                        style={{
+                                                            color: 'rgba(255,255,255,0.3)',
+                                                            fontSize: 10,
+                                                            alignSelf: 'center',
+                                                        }}
+                                                    >
+                                                        +{goal.tags.length - 3}
+                                                    </Text>
+                                                )}
+                                            </View>
+                                        )}
                                     </View>
 
                                     {isInteractive && onNext && (
