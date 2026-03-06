@@ -30,12 +30,13 @@ import { hapticImpact, hapticSelect } from '../../utils/haptics';
 import { Confetti } from '../../components/Confetti';
 import { isOverdue } from '../../utils/dateUtils';
 
-type SortMode = 'date' | 'category' | 'name';
+type SortMode = 'date' | 'category' | 'name' | 'priority';
 
 const SORT_LABELS: Record<SortMode, string> = {
     date: 'By Date',
     category: 'By Category',
     name: 'By Name',
+    priority: 'By Priority',
 };
 
 export default function DashboardDark() {
@@ -129,6 +130,12 @@ export default function DashboardDark() {
         if (sortMode === 'category')
             return list.sort((a, b) => a.category.localeCompare(b.category));
         if (sortMode === 'name') return list.sort((a, b) => a.title.localeCompare(b.title));
+        if (sortMode === 'priority') {
+            const order = { high: 0, medium: 1, low: 2 };
+            return list.sort(
+                (a, b) => order[a.priority ?? 'medium'] - order[b.priority ?? 'medium']
+            );
+        }
         return list;
     }, [allPending, sortMode]);
 
