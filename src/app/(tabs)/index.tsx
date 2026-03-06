@@ -68,6 +68,7 @@ export default function DashboardDark() {
     };
 
     const onRefresh = React.useCallback(async () => {
+        hapticImpact();
         setRefreshing(true);
         await syncFromCloud();
         setRefreshing(false);
@@ -75,6 +76,7 @@ export default function DashboardDark() {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [showSearch, setShowSearch] = useState(false);
+    const [activeTag, setActiveTag] = useState<string | null>(null);
     const [sortMode, setSortMode] = useState<SortMode>('date');
     const [showSortMenu, setShowSortMenu] = useState(false);
 
@@ -139,18 +141,23 @@ export default function DashboardDark() {
         return list;
     }, [allPending, sortMode]);
 
+    const allTags = useMemo(() => [...new Set(goals.flatMap(g => g.tags ?? []))], [goals]);
+
     const filteredGoals = useMemo(() => {
-        if (!searchQuery.trim()) return sortedPending;
+        let list = sortedPending;
+        if (activeTag) list = list.filter(g => g.tags?.includes(activeTag));
+        if (!searchQuery.trim()) return list;
         const q = searchQuery.toLowerCase();
-        return sortedPending.filter(
+        return list.filter(
             g =>
                 g.title.toLowerCase().includes(q) ||
                 g.description.toLowerCase().includes(q) ||
                 g.location.city.toLowerCase().includes(q) ||
                 g.location.country.toLowerCase().includes(q) ||
-                g.category.toLowerCase().includes(q)
+                g.category.toLowerCase().includes(q) ||
+                (g.tags ?? []).some(t => t.toLowerCase().includes(q))
         );
-    }, [sortedPending, searchQuery]);
+    }, [sortedPending, searchQuery, activeTag]);
 
     const scrollY = useSharedValue(0);
     const scrollHandler = useAnimatedScrollHandler({
