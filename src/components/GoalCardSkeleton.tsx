@@ -83,3 +83,5 @@ const styles = StyleSheet.create({
     date: { width: 60, height: 14, borderRadius: 6 },
     shimmer: { backgroundColor: 'rgba(255,255,255,0.12)' },
 });
+
+// shimmer: opacity pulse via reanimated withRepeat
