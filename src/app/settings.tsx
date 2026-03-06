@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Switch, Alert, Linking } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -498,6 +499,17 @@ export default function SettingsScreen() {
                         </View>
                     </View>
                 </AccordionItem>
+
+                <Text
+                    style={{
+                        color: 'rgba(255,255,255,0.2)',
+                        textAlign: 'center',
+                        fontSize: 12,
+                        marginBottom: 16,
+                    }}
+                >
+                    Atlas v{Constants.expoConfig?.version ?? '1.0.0'}
+                </Text>
             </ScrollView>
         </ScreenWrapper>
     );
