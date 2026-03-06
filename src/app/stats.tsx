@@ -357,6 +357,28 @@ export default function StatsScreen() {
                         </View>
                     </View>
                     <BarChart data={stats.months} maxVal={stats.maxMonthVal} />
+                    {/* Completion rate bar */}
+                    <View
+                        style={{
+                            marginTop: 8,
+                            height: 6,
+                            backgroundColor: 'rgba(255,255,255,0.08)',
+                            borderRadius: 3,
+                            overflow: 'hidden',
+                        }}
+                    >
+                        <View
+                            style={{
+                                height: '100%',
+                                width: `${stats.rate}%`,
+                                backgroundColor: '#4ade80',
+                                borderRadius: 3,
+                            }}
+                        />
+                    </View>
+                    <Text style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, marginTop: 4 }}>
+                        {stats.rate}% completion rate
+                    </Text>
                 </View>
 
                 {/* Priority breakdown */}
