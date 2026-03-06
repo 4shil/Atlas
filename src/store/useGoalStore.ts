@@ -49,6 +49,7 @@ export interface Goal {
     progressPhotos?: string[];
     milestones?: Milestone[];
     priority?: 'low' | 'medium' | 'high';
+    tags?: string[];
 }
 
 // Map local Goal shape to Supabase row shape
@@ -74,6 +75,7 @@ function toRow(goal: Goal, userId: string) {
         completion_photo_url: goal.completionPhoto ?? null,
         milestones: goal.milestones ?? [],
         priority: goal.priority ?? 'medium',
+        tags: goal.tags ?? [],
     };
 }
 
@@ -101,6 +103,7 @@ function fromRow(row: Record<string, any>): Goal {
         completionPhoto: row.completion_photo_url ?? null,
         milestones: row.milestones ?? [],
         priority: row.priority ?? 'medium',
+        tags: row.tags ?? [],
     };
 }
 
