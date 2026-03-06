@@ -23,8 +23,8 @@ import Animated, {
     useDerivedValue,
     useAnimatedProps,
 } from 'react-native-reanimated';
-import { useProfileStore } from '../store/useProfileStore';
 import { useGoalStore } from '../store/useGoalStore';
+import { useProfileStore } from '../store/useProfileStore';
 import { useTheme } from '../theme';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { getCategoryIcon } from '../utils/Icons';
@@ -35,6 +35,8 @@ const AnimatedText = Animated.createAnimatedComponent(Text);
 export default function Profile() {
     const router = useRouter();
     const { isDark } = useTheme();
+    const { getMonthlyCompletionStreak } = useGoalStore();
+    const streak = getMonthlyCompletionStreak();
     const { profile, updateProfile } = useProfileStore();
     const { goals, getCompletedGoals } = useGoalStore();
 
