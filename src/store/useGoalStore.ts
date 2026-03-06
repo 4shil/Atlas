@@ -48,6 +48,7 @@ export interface Goal {
     completionPhoto?: string | null;
     progressPhotos?: string[];
     milestones?: Milestone[];
+    priority?: 'low' | 'medium' | 'high';
 }
 
 // Map local Goal shape to Supabase row shape
@@ -72,6 +73,7 @@ function toRow(goal: Goal, userId: string) {
         location_place_id: goal.location.placeId ?? null,
         completion_photo_url: goal.completionPhoto ?? null,
         milestones: goal.milestones ?? [],
+        priority: goal.priority ?? 'medium',
     };
 }
 
@@ -98,6 +100,7 @@ function fromRow(row: Record<string, any>): Goal {
         },
         completionPhoto: row.completion_photo_url ?? null,
         milestones: row.milestones ?? [],
+        priority: row.priority ?? 'medium',
     };
 }
 
@@ -140,6 +143,7 @@ export const useGoalStore = create<GoalState>()(
                     createdAt: new Date().toISOString(),
                     completed: false,
                     completedAt: null,
+                    priority: goalData.priority ?? 'medium',
                 };
 
                 // Optimistic local update
