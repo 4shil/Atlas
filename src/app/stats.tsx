@@ -261,6 +261,10 @@ export default function StatsScreen() {
         else if (countries.length >= 5) milestone = '5 countries down! 🌏 The world awaits!';
         else if (countries.length >= 1) milestone = 'First country unlocked! 🚀 Adventure begins!';
 
+        const highCount = goals.filter(g => g.priority === 'high').length;
+        const mediumCount = goals.filter(g => (g.priority ?? 'medium') === 'medium').length;
+        const lowCount = goals.filter(g => g.priority === 'low').length;
+
         return {
             completed,
             pending,
@@ -276,6 +280,9 @@ export default function StatsScreen() {
             cities,
             countryPct,
             milestone,
+            highCount,
+            mediumCount,
+            lowCount,
         };
     }, [goals]);
 
@@ -350,6 +357,55 @@ export default function StatsScreen() {
                         </View>
                     </View>
                     <BarChart data={stats.months} maxVal={stats.maxMonthVal} />
+                </View>
+
+                {/* Priority breakdown */}
+                <Text style={styles.sectionTitle}>PRIORITY BREAKDOWN</Text>
+                <View style={styles.card}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+                        <View style={{ alignItems: 'center' }}>
+                            <Text style={{ color: '#ef4444', fontSize: 28, fontWeight: '800' }}>
+                                {stats.highCount}
+                            </Text>
+                            <Text
+                                style={{
+                                    color: 'rgba(255,255,255,0.4)',
+                                    fontSize: 12,
+                                    marginTop: 2,
+                                }}
+                            >
+                                High
+                            </Text>
+                        </View>
+                        <View style={{ alignItems: 'center' }}>
+                            <Text style={{ color: '#eab308', fontSize: 28, fontWeight: '800' }}>
+                                {stats.mediumCount}
+                            </Text>
+                            <Text
+                                style={{
+                                    color: 'rgba(255,255,255,0.4)',
+                                    fontSize: 12,
+                                    marginTop: 2,
+                                }}
+                            >
+                                Medium
+                            </Text>
+                        </View>
+                        <View style={{ alignItems: 'center' }}>
+                            <Text style={{ color: '#4ade80', fontSize: 28, fontWeight: '800' }}>
+                                {stats.lowCount}
+                            </Text>
+                            <Text
+                                style={{
+                                    color: 'rgba(255,255,255,0.4)',
+                                    fontSize: 12,
+                                    marginTop: 2,
+                                }}
+                            >
+                                Low
+                            </Text>
+                        </View>
+                    </View>
                 </View>
 
                 {/* Category distribution */}
