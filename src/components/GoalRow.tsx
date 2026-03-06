@@ -248,6 +248,22 @@ export const GoalRow = React.memo(
                                         {goal.category}
                                     </Text>
                                 </View>
+                                {goal.priority && (
+                                    <View
+                                        style={{
+                                            width: 8,
+                                            height: 8,
+                                            borderRadius: 4,
+                                            backgroundColor:
+                                                goal.priority === 'high'
+                                                    ? '#ef4444'
+                                                    : goal.priority === 'medium'
+                                                      ? '#eab308'
+                                                      : '#22c55e',
+                                            marginLeft: 8,
+                                        }}
+                                    />
+                                )}
                             </View>
                         </View>
 
