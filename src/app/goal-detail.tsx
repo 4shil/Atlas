@@ -482,20 +482,39 @@ export default function GoalDetail() {
                                 color={milestone.completed ? '#a78bfa' : 'rgba(255,255,255,0.3)'}
                                 style={{ marginRight: 10 }}
                             />
-                            <Text
-                                style={{
-                                    color: milestone.completed
-                                        ? 'rgba(255,255,255,0.4)'
-                                        : 'rgba(255,255,255,0.85)',
-                                    fontSize: 14,
-                                    flex: 1,
-                                    textDecorationLine: milestone.completed
-                                        ? 'line-through'
-                                        : 'none',
-                                }}
-                            >
-                                {milestone.title}
-                            </Text>
+                            <View style={{ flex: 1 }}>
+                                <Text
+                                    style={{
+                                        color: milestone.completed
+                                            ? 'rgba(255,255,255,0.4)'
+                                            : 'rgba(255,255,255,0.85)',
+                                        fontSize: 14,
+                                        textDecorationLine: milestone.completed
+                                            ? 'line-through'
+                                            : 'none',
+                                    }}
+                                >
+                                    {milestone.title}
+                                </Text>
+                                {milestone.targetDate && (
+                                    <Text
+                                        style={{
+                                            color: 'rgba(255,255,255,0.4)',
+                                            fontSize: 11,
+                                            marginTop: 2,
+                                        }}
+                                    >
+                                        {new Date(milestone.targetDate).toLocaleDateString(
+                                            'en-US',
+                                            {
+                                                month: 'short',
+                                                day: 'numeric',
+                                                year: 'numeric',
+                                            }
+                                        )}
+                                    </Text>
+                                )}
+                            </View>
                         </TouchableOpacity>
                     ))}
 
