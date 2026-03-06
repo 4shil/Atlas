@@ -286,6 +286,35 @@ export default function GoalDetail() {
                             </View>
                         )}
                     </View>
+                    {goal.tags && goal.tags.length > 0 && (
+                        <View
+                            style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 }}
+                        >
+                            {goal.tags.map((tag, i) => (
+                                <View
+                                    key={i}
+                                    style={{
+                                        backgroundColor: 'rgba(96,165,250,0.12)',
+                                        borderRadius: 99,
+                                        paddingHorizontal: 10,
+                                        paddingVertical: 4,
+                                        borderWidth: 1,
+                                        borderColor: 'rgba(96,165,250,0.25)',
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            color: '#60a5fa',
+                                            fontSize: 12,
+                                            fontWeight: '600',
+                                        }}
+                                    >
+                                        #{tag}
+                                    </Text>
+                                </View>
+                            ))}
+                        </View>
+                    )}
                     <Text className="text-3xl font-bold text-white leading-tight">
                         {goal.title}
                     </Text>
