@@ -72,6 +72,7 @@ export default function DashboardDark() {
         setRefreshing(true);
         await syncFromCloud();
         setRefreshing(false);
+        hapticImpact();
     }, []);
 
     const [searchQuery, setSearchQuery] = useState('');
