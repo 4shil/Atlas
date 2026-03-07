@@ -371,7 +371,9 @@ export default function Profile() {
                                         height: 6,
                                         borderRadius: 3,
                                         overflow: 'hidden',
-                                        backgroundColor: 'rgba(255,255,255,0.08)',
+                                        backgroundColor: isDark
+                                            ? 'rgba(255,255,255,0.08)'
+                                            : 'rgba(0,0,0,0.08)',
                                     }}
                                 >
                                     <View
@@ -453,20 +455,20 @@ export default function Profile() {
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        backgroundColor: '#1a1a2e',
+                        backgroundColor: isDark ? '#1a1a2e' : '#ffffff',
                         borderTopLeftRadius: 24,
                         borderTopRightRadius: 24,
                         padding: 24,
                         paddingBottom: 40,
                         borderTopWidth: 1,
-                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
                     }}
                 >
                     <View
                         style={{
                             width: 36,
                             height: 4,
-                            backgroundColor: 'rgba(255,255,255,0.2)',
+                            backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
                             borderRadius: 2,
                             alignSelf: 'center',
                             marginBottom: 20,
@@ -474,7 +476,7 @@ export default function Profile() {
                     />
                     <Text
                         style={{
-                            color: 'rgba(255,255,255,0.5)',
+                            color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)',
                             fontSize: 11,
                             fontWeight: '600',
                             textTransform: 'uppercase',
@@ -488,7 +490,7 @@ export default function Profile() {
                         value={editingName ? nameInput : bioInput}
                         onChangeText={editingName ? setNameInput : setBioInput}
                         style={{
-                            color: 'white',
+                            color: isDark ? 'white' : '#111827',
                             fontSize: 18,
                             borderBottomWidth: 1,
                             borderBottomColor: '#3b82f6',

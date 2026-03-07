@@ -12,21 +12,32 @@ import { useGoalStore } from '../store/useGoalStore';
 import { useProfileStore } from '../store/useProfileStore';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/useAuthStore';
+import { useTheme } from '../theme';
 
 interface AccordionItemProps {
     title: string;
     icon: keyof typeof MaterialIcons.glyphMap;
     children: React.ReactNode;
     defaultExpanded?: boolean;
+    isDark?: boolean;
 }
 
-function AccordionItem({ title, icon, children, defaultExpanded = false }: AccordionItemProps) {
+function AccordionItem({
+    title,
+    icon,
+    children,
+    defaultExpanded = false,
+    isDark = true,
+}: AccordionItemProps) {
     const [expanded, setExpanded] = useState(defaultExpanded);
 
     const toggle = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setExpanded(!expanded);
     };
+
+    const iconColor = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)';
+    const arrowColor = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
 
     return (
         <View className="dark:bg-white/[0.05] bg-black/[0.04] border dark:border-white/[0.08] border-black/[0.08] rounded-2xl mb-4 overflow-hidden">
@@ -36,7 +47,7 @@ function AccordionItem({ title, icon, children, defaultExpanded = false }: Accor
                 className="flex-row items-center justify-between p-4"
             >
                 <View className="flex-row items-center">
-                    <MaterialIcons name={icon} size={22} color="rgba(255,255,255,0.7)" />
+                    <MaterialIcons name={icon} size={22} color={iconColor} />
                     <Text className="dark:text-white text-gray-900 text-base font-semibold ml-3">
                         {title}
                     </Text>
@@ -44,12 +55,16 @@ function AccordionItem({ title, icon, children, defaultExpanded = false }: Accor
                 <MaterialIcons
                     name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
                     size={24}
-                    color="rgba(255,255,255,0.3)"
+                    color={arrowColor}
                 />
             </TouchableOpacity>
 
             {expanded && (
-                <View className="p-4 pt-0 border-t border-white/[0.06] mt-2">{children}</View>
+                <View
+                    className={`p-4 pt-0 border-t ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'} mt-2`}
+                >
+                    {children}
+                </View>
             )}
         </View>
     );
@@ -57,6 +72,8 @@ function AccordionItem({ title, icon, children, defaultExpanded = false }: Accor
 
 export default function SettingsScreen() {
     const router = useRouter();
+
+    const { isDark } = useTheme();
 
     // Global Settings State
     const {
@@ -209,7 +226,9 @@ export default function SettingsScreen() {
     return (
         <ScreenWrapper bgClass="dark:bg-black bg-slate-50">
             {/* Header */}
-            <View className="px-6 py-4 flex-row items-center border-b border-white/[0.06] mt-12 mb-4">
+            <View
+                className={`px-6 py-4 flex-row items-center border-b ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'} mt-12 mb-4`}
+            >
                 <TouchableOpacity
                     className="w-10 h-10 rounded-full dark:bg-white/10 bg-black/10 border dark:border-white/[0.08] border-black/[0.08] items-center justify-center mr-4"
                     onPress={() => {
@@ -217,7 +236,11 @@ export default function SettingsScreen() {
                         router.back();
                     }}
                 >
-                    <MaterialIcons name="arrow-back" size={20} color="white" />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={20}
+                        color={isDark ? 'white' : '#111827'}
+                    />
                 </TouchableOpacity>
                 <Text className="dark:text-white text-gray-900 font-semibold text-xl">
                     Settings
@@ -229,7 +252,12 @@ export default function SettingsScreen() {
                 contentContainerStyle={{ paddingBottom: 60 }}
                 showsVerticalScrollIndicator={false}
             >
-                <AccordionItem title="Preferences" icon="tune" defaultExpanded={true}>
+                <AccordionItem
+                    title="Preferences"
+                    icon="tune"
+                    defaultExpanded={true}
+                    isDark={isDark}
+                >
                     <View className="mb-4 mt-2">
                         <Text className="dark:text-white/70 text-gray-700 text-base mb-2">
                             Theme
@@ -305,7 +333,7 @@ export default function SettingsScreen() {
                     </View>
                 </AccordionItem>
 
-                <AccordionItem title="Goals & Map" icon="map">
+                <AccordionItem title="Goals & Map" icon="map" isDark={isDark}>
                     <View className="mt-2 mb-4">
                         <Text className="dark:text-white/70 text-gray-700 text-base mb-2">
                             Default Goal Category
@@ -345,7 +373,7 @@ export default function SettingsScreen() {
                     </View>
                 </AccordionItem>
 
-                <AccordionItem title="Notifications" icon="notifications-none">
+                <AccordionItem title="Notifications" icon="notifications-none" isDark={isDark}>
                     <View className="flex-row items-center justify-between mb-4 mt-2">
                         <Text className="dark:text-white/70 text-gray-700 text-base">
                             Push Notifications
@@ -393,7 +421,7 @@ export default function SettingsScreen() {
                     </View>
                 </AccordionItem>
 
-                <AccordionItem title="Privacy & Security" icon="security">
+                <AccordionItem title="Privacy & Security" icon="security" isDark={isDark}>
                     <View className="flex-row items-center justify-between mb-4 mt-2">
                         <Text className="dark:text-white/70 text-gray-700 text-base">
                             Location Services
@@ -443,7 +471,7 @@ export default function SettingsScreen() {
                     </TouchableOpacity>
                 </AccordionItem>
 
-                <AccordionItem title="About Atlas" icon="info-outline">
+                <AccordionItem title="About Atlas" icon="info-outline" isDark={isDark}>
                     <View className="items-center py-4">
                         <View className="w-16 h-16 bg-white/15 rounded-2xl items-center justify-center mb-3 border dark:border-white/10 border-black/10">
                             <MaterialIcons name="explore" size={32} color="#60a5fa" />
@@ -502,7 +530,7 @@ export default function SettingsScreen() {
 
                 <Text
                     style={{
-                        color: 'rgba(255,255,255,0.2)',
+                        color: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.3)',
                         textAlign: 'center',
                         fontSize: 12,
                         marginBottom: 16,
