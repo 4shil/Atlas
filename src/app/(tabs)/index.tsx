@@ -400,28 +400,6 @@ export default function DashboardDark() {
                                                     padding: 8,
                                                 }}
                                             >
-                                                {goal.completed && (
-                                                    <View
-                                                        style={{
-                                                            backgroundColor: 'rgba(74,222,128,0.9)',
-                                                            borderRadius: 99,
-                                                            paddingHorizontal: 6,
-                                                            paddingVertical: 2,
-                                                            alignSelf: 'flex-start',
-                                                            marginBottom: 3,
-                                                        }}
-                                                    >
-                                                        <Text
-                                                            style={{
-                                                                color: '#000',
-                                                                fontSize: 8,
-                                                                fontWeight: '700',
-                                                            }}
-                                                        >
-                                                            ✓ DONE
-                                                        </Text>
-                                                    </View>
-                                                )}
                                                 <Text
                                                     style={{
                                                         color: 'white',
