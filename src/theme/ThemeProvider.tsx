@@ -79,12 +79,10 @@ export function ThemeProvider({ children, defaultMode }: ThemeProviderProps) {
     const setSettingsDarkMode = useSettingsStore(state => state.setDarkMode);
     const setThemeMode = useSettingsStore(state => state.setThemeMode);
 
-    // Resolve effective mode
+    // Resolve effective mode — always 'dark' or 'light' for themes lookup
     const effectiveDark =
         themeMode === 'system' ? systemColorScheme === 'dark' : themeMode === 'dark';
-
-    // Determine initial mode (prioritizes Settings Store > defaultProp > System)
-    const mode: ThemeMode = defaultMode ?? (effectiveDark ? 'dark' : 'light');
+    const mode: 'dark' | 'light' = effectiveDark ? 'dark' : 'light';
 
     const [isReducedMotion, setReducedMotion] = useState(false);
 
@@ -100,16 +98,16 @@ export function ThemeProvider({ children, defaultMode }: ThemeProviderProps) {
 
     // Toggle between dark and light by dispatching to the Zustand settings store directly
     const toggleMode = useCallback(() => {
-        setSettingsDarkMode(!settingsDarkMode);
-        setThemeMode(settingsDarkMode ? 'light' : 'dark');
-    }, [settingsDarkMode, setSettingsDarkMode, setThemeMode]);
+        const newMode = effectiveDark ? 'light' : 'dark';
+        setThemeMode(newMode);
+    }, [effectiveDark, setThemeMode]);
 
     // Shim to maintain backwards compatibility with any component hitting ThemeContext.setMode directly
     const setMode = useCallback(
         (newMode: ThemeMode) => {
-            setSettingsDarkMode(newMode === 'dark');
+            setThemeMode(newMode);
         },
-        [setSettingsDarkMode]
+        [setThemeMode]
     );
 
     // Memoized theme value

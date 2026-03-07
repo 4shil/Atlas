@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { type ThemeMode } from '../theme/tokens/colors';
 
 const noopStorage = {
     getItem: async (_key: string) => null,
@@ -12,7 +13,7 @@ const persistStorage = createJSONStorage(() =>
     typeof window === 'undefined' ? noopStorage : (AsyncStorage as any)
 );
 
-export type ThemeMode = 'dark' | 'light' | 'system';
+export type { ThemeMode };
 export type MapStylePref = 'standard' | 'satellite';
 
 export interface SettingsState {
@@ -61,7 +62,8 @@ export const useSettingsStore = create<SettingsState>()(
 
             setDarkMode: value => set({ darkMode: value }),
             setThemeMode: value => {
-                const isDark = value === 'dark' || value === 'system';
+                // For 'system', darkMode will be resolved by ThemeProvider using useColorScheme
+                const isDark = value === 'dark';
                 set({ themeMode: value, darkMode: isDark });
             },
             setUnitSystem: value => set({ unitSystem: value }),

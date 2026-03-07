@@ -121,9 +121,9 @@ export const semanticColors = {
 // ============================================
 // THEME VARIANTS
 // ============================================
-export type ThemeMode = 'dark' | 'light' | 'highContrast';
+export type ThemeMode = 'dark' | 'light' | 'system';
 
-export const themes: Record<ThemeMode, Colors> = {
+export const themes: Record<'dark' | 'light', Colors> = {
     dark: semanticColors,
 
     light: {
@@ -151,42 +151,6 @@ export const themes: Record<ThemeMode, Colors> = {
             blur: 'rgba(255, 255, 255, 0.6)',
             light: 'rgba(255, 255, 255, 0.3)',
             dark: 'rgba(0, 0, 0, 0.5)',
-        },
-    },
-
-    highContrast: {
-        background: {
-            primary: rawColors.black,
-            secondary: rawColors.black,
-            tertiary: rawColors.gray[900],
-            inverted: rawColors.white,
-        },
-        text: {
-            primary: rawColors.white,
-            secondary: rawColors.white,
-            tertiary: rawColors.gray[300],
-            inverted: rawColors.black,
-            muted: rawColors.gray[300],
-        },
-        accent: {
-            primary: '#00BFFF', // Brighter for accessibility
-            secondary: '#FF69B4',
-        },
-        status: {
-            completed: '#00FF7F',
-            planned: '#00BFFF',
-            wishlist: '#FF69B4',
-            error: '#FF4500',
-        },
-        border: {
-            subtle: rawColors.white,
-            medium: rawColors.white,
-            strong: rawColors.white,
-        },
-        overlay: {
-            blur: 'rgba(0, 0, 0, 0.9)',
-            light: 'rgba(0, 0, 0, 0.5)',
-            dark: 'rgba(0, 0, 0, 0.95)',
         },
     },
 };
