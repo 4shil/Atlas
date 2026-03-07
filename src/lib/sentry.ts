@@ -9,7 +9,7 @@ export function initSentry() {
     // Only initialize if DSN is configured (production)
     const dsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
     if (!dsn || dsn.includes('your-dsn')) {
-        console.log('[Sentry] DSN not configured — error reporting disabled');
+        // console.log('[Sentry] DSN not configured — error reporting disabled');
         return;
     }
 
