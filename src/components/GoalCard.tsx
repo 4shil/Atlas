@@ -9,7 +9,6 @@ import Animated, {
     useSharedValue,
     withSequence,
     withSpring,
-    SharedValue,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { Goal } from '../store/useGoalStore';
