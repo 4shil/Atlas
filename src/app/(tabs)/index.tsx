@@ -573,7 +573,7 @@ export default function DashboardDark() {
                                 <Text className="text-gray-500 text-sm mt-3 text-center">
                                     {showSearch && searchQuery
                                         ? `No goals matching "${searchQuery}"`
-                                        : 'All adventures completed! 🎉\nAdd a new one.'}
+                                        : 'Nothing here yet'}
                                 </Text>
                             </View>
                         ) : (

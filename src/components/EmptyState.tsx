@@ -10,8 +10,8 @@ interface EmptyStateProps {
 
 export function EmptyState({
     icon = 'explore',
-    title = 'No dreams yet',
-    subtitle = 'Add your first adventure!',
+    title = 'Nothing here yet',
+    subtitle = 'Nothing completed',
 }: EmptyStateProps) {
     return (
         <View style={{ alignItems: 'center', paddingVertical: 48 }}>
