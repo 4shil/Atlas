@@ -14,6 +14,7 @@ import {
 import AnimatedReanimated, {
     useSharedValue,
     useAnimatedScrollHandler,
+    runOnJS,
 } from 'react-native-reanimated';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -160,10 +161,17 @@ export default function DashboardDark() {
         );
     }, [sortedPending, searchQuery, activeTag]);
 
+    const dismissSearch = () => {
+        setShowSearch(false);
+        setSearchQuery('');
+    };
     const scrollY = useSharedValue(0);
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: event => {
             scrollY.value = event.contentOffset.y;
+            if (event.contentOffset.y > 50) {
+                runOnJS(dismissSearch)();
+            }
         },
     });
 
