@@ -69,8 +69,11 @@ export const GoalCard = React.memo(
                 <TouchableOpacity
                     activeOpacity={0.95}
                     style={cardShadow}
-                    className="relative w-[300px] h-[420px] rounded-[28px] overflow-hidden"
+                    className="relative w-[300px] h-[420px] rounded-[24px] overflow-hidden"
                     onPress={onPress}
+                    accessible={true}
+                    accessibilityRole="button"
+                    accessibilityLabel={`View goal: ${goal.title}`}
                     disabled={!isInteractive}
                     onPressIn={() => {
                         // #32 - 3D tilt on press

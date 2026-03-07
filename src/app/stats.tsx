@@ -286,6 +286,18 @@ export default function StatsScreen() {
         };
     }, [goals]);
 
+    if (goals.length === 0)
+        return (
+            <View
+                style={[
+                    styles.container,
+                    { paddingTop: insets.top, justifyContent: 'center', alignItems: 'center' },
+                ]}
+            >
+                <Text style={{ color: 'white' }}>Add some goals to see your stats</Text>
+            </View>
+        );
+
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             <StatusBar barStyle="light-content" />
