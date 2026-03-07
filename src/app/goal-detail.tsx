@@ -59,6 +59,7 @@ export default function GoalDetail() {
     const heroOpacity = useSharedValue(0);
     const heroScale = useSharedValue(1.06);
     useEffect(() => {
+        heroOpacity.value = withTiming(1, { duration: 350 });
         heroOpacity.value = withTiming(1, { duration: 400 });
         heroScale.value = withTiming(1, { duration: 400 });
     }, []);
