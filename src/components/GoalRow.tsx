@@ -184,7 +184,7 @@ export const GoalRow = React.memo(
                                     color: goal.completed ? 'rgba(255,255,255,0.4)' : 'white',
                                     fontSize: 15,
                                     fontWeight: '700',
-                                    letterSpacing: -0.2,
+                                    // letterSpacing: -0.2,
                                     marginBottom: 3,
                                 }}
                                 numberOfLines={1}
@@ -242,7 +242,7 @@ export const GoalRow = React.memo(
                                             color: 'rgba(255,255,255,0.3)',
                                             fontSize: 11,
                                             marginLeft: 4,
-                                            fontWeight: '600',
+                                            fontWeight: '500',
                                         }}
                                     >
                                         {goal.category}
