@@ -28,6 +28,7 @@ import Animated, {
     withTiming,
     FadeIn,
     FadeOut,
+    useAnimatedStyle,
 } from 'react-native-reanimated';
 import { getCategoryIcon } from '../utils/Icons';
 import { getDaysUntil, isOverdue } from '../utils/dateUtils';

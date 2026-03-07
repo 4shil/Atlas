@@ -63,7 +63,7 @@ async function scheduleNotification(args: {
 }) {
     const Notifications = await getNotificationsModule();
     if (!Notifications) return;
-    await Notifications.scheduleNotificationAsync(args);
+    await Notifications.scheduleNotificationAsync(args as any);
 }
 
 async function getAllScheduledNotifications() {
@@ -139,7 +139,7 @@ async function scheduleGoalNotification(goalId: string, goalTitle: string, daysL
     }
 }
 
-async function rescheduleAllGoals(goals: ReturnType<typeof useGoalStore>['goals']) {
+async function rescheduleAllGoals(goals: any[]) {
     const status = await getNotificationsPermissionStatus();
     if (status !== 'granted') return;
 
@@ -180,7 +180,7 @@ type NotificationItem = {
 export default function NotificationsScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { goals } = useGoalStore();
+    const goals = useGoalStore(s => s.goals);
     const pendingGoals = goals.filter(g => !g.completed);
 
     const [mutedGoals, setMutedGoals] = useState<Set<string>>(new Set());

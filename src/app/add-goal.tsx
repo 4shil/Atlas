@@ -7,10 +7,8 @@ import {
     TextInput,
     TouchableOpacity,
     ScrollView,
-    Platform,
     Alert,
     ActivityIndicator,
-    KeyboardAvoidingView,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';

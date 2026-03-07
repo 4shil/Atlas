@@ -297,7 +297,7 @@ export default function ArchiveScreen() {
                                     text: 'Clear All',
                                     style: 'destructive',
                                     onPress: () => {
-                                        completedGoals.forEach(g => deleteGoal(g.id));
+                                        getCompletedGoals().forEach((g: any) => deleteGoal(g.id));
                                     },
                                 },
                             ]
