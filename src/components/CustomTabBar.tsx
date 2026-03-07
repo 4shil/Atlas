@@ -16,6 +16,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useRouter } from 'expo-router';
+import { useTheme } from '../theme';
 
 const TAB_ICONS: Record<string, keyof typeof MaterialIcons.glyphMap> = {
     index: 'space-dashboard',
@@ -40,6 +41,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
     const insets = useSafeAreaInsets();
     const bottomPad = Math.max(insets.bottom, 14);
     const router = useRouter();
+    const { isDark } = useTheme();
 
     // #17 - FAB breathing animation
     const fabScale = useSharedValue(1);
@@ -70,11 +72,38 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
 
     return (
         <View style={[styles.wrapper, { bottom: bottomPad }]} pointerEvents="box-none">
-            <View style={styles.container}>
-                <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill}>
-                    <View style={styles.blurTint} />
+            <View
+                style={[
+                    styles.container,
+                    { borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)' },
+                ]}
+            >
+                <BlurView
+                    intensity={60}
+                    tint={isDark ? 'dark' : 'light'}
+                    style={StyleSheet.absoluteFill}
+                >
+                    <View
+                        style={[
+                            styles.blurTint,
+                            {
+                                backgroundColor: isDark
+                                    ? 'rgba(15, 15, 20, 0.55)'
+                                    : 'rgba(255, 255, 255, 0.7)',
+                            },
+                        ]}
+                    />
                 </BlurView>
-                <View style={styles.innerHighlight} />
+                <View
+                    style={[
+                        styles.innerHighlight,
+                        {
+                            backgroundColor: isDark
+                                ? 'rgba(255, 255, 255, 0.18)'
+                                : 'rgba(0, 0, 0, 0.06)',
+                        },
+                    ]}
+                />
 
                 <View style={styles.tabRow}>
                     {state.routes.map((route, index) => {
@@ -122,6 +151,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                                     label={label}
                                     isFocused={isFocused}
                                     showAllLabels={showAllLabels}
+                                    isDark={isDark}
                                     onPress={() => {
                                         const event = navigation.emit({
                                             type: 'tabPress',
@@ -154,6 +184,7 @@ interface TabItemProps {
     label: string;
     isFocused: boolean;
     showAllLabels: boolean;
+    isDark: boolean;
     onPress: () => void;
     onLongPress: () => void;
 }
@@ -163,6 +194,7 @@ function TabItem({
     label,
     isFocused,
     showAllLabels,
+    isDark,
     onPress,
     onLongPress,
 }: TabItemProps) {
@@ -176,7 +208,7 @@ function TabItem({
         backgroundColor: interpolateColor(
             progress.value,
             [0, 1],
-            ['transparent', 'rgba(255, 255, 255, 0.1)']
+            ['transparent', isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)']
         ),
     }));
 
@@ -209,10 +241,21 @@ function TabItem({
                     <MaterialIcons
                         name={iconName}
                         size={ICON_SIZE}
-                        color={isFocused ? '#ffffff' : '#666'}
+                        color={
+                            isFocused
+                                ? isDark
+                                    ? '#ffffff'
+                                    : '#111827'
+                                : isDark
+                                  ? '#666'
+                                  : '#9ca3af'
+                        }
                     />
                 </Animated.View>
-                <Animated.Text style={[styles.label, labelStyle]} numberOfLines={1}>
+                <Animated.Text
+                    style={[styles.label, { color: isDark ? '#fff' : '#111827' }, labelStyle]}
+                    numberOfLines={1}
+                >
                     {label}
                 </Animated.Text>
             </Animated.View>
@@ -232,7 +275,6 @@ const styles = StyleSheet.create({
         borderRadius: 26,
         overflow: 'hidden',
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: 'rgba(255,255,255,0.12)',
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
@@ -245,7 +287,6 @@ const styles = StyleSheet.create({
     },
     blurTint: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(15, 15, 20, 0.55)',
     },
     innerHighlight: {
         position: 'absolute',
@@ -253,7 +294,6 @@ const styles = StyleSheet.create({
         left: 16,
         right: 16,
         height: StyleSheet.hairlineWidth,
-        backgroundColor: 'rgba(255, 255, 255, 0.18)',
     },
     tabRow: {
         flexDirection: 'row',
@@ -277,7 +317,6 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#fff',
         letterSpacing: 0.2,
     },
 });
