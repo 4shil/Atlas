@@ -279,8 +279,8 @@ export default function DashboardDark() {
                                     marginBottom: 8,
                                 }}
                             >
-                                🕐 {overdueGoals.length} overdue dream
-                                {overdueGoals.length !== 1 ? 's' : ''} — want to reschedule?
+                                {overdueGoals.length} {overdueGoals.length === 1 ? 'goal' : 'goals'}{' '}
+                                past due
                             </Text>
                             <View style={{ flexDirection: 'row', gap: 8 }}>
                                 <TouchableOpacity
@@ -303,7 +303,7 @@ export default function DashboardDark() {
                                             fontWeight: '600',
                                         }}
                                     >
-                                        Reschedule
+                                        View
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
