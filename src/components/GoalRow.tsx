@@ -101,6 +101,9 @@ export const GoalRow = React.memo(
                     swipeableRef.current?.close();
                     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                     onComplete();
+                    Animated.spring(scaleAnim, { toValue: 0.98, useNativeDriver: true }).start(() =>
+                        Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }).start()
+                    );
                 }}
             >
                 <MaterialIcons name="check" size={24} color="white" />
@@ -295,6 +298,15 @@ export const GoalRow = React.memo(
                                     e.stopPropagation?.();
                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                                     onComplete();
+                                    Animated.spring(scaleAnim, {
+                                        toValue: 0.98,
+                                        useNativeDriver: true,
+                                    }).start(() =>
+                                        Animated.spring(scaleAnim, {
+                                            toValue: 1,
+                                            useNativeDriver: true,
+                                        }).start()
+                                    );
                                 }}
                                 style={{
                                     width: 32,
