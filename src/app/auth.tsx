@@ -36,13 +36,11 @@ export default function Auth() {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             showToast('Please fill in all fields.', 'error');
             return;
-            return;
         }
 
         if (mode === 'signup' && password !== confirmPassword) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             showToast('Passwords do not match.', 'error');
-            return;
             return;
         }
 
@@ -75,7 +73,7 @@ export default function Auth() {
     };
 
     return (
-        <LinearGradient colors={['#0f172a', '#1e3a5f', '#0f172a']} className="flex-1">
+        <View style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
             <SafeAreaView className="flex-1">
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -119,7 +117,10 @@ export default function Auth() {
                             </Text>
 
                             {/* Email */}
-                            <View className="bg-white/[0.07] border border-white/10 rounded-2xl px-4 py-4 flex-row items-center mb-4">
+                            <View
+                                style={{ borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' }}
+                                className="rounded-2xl px-4 py-4 flex-row items-center mb-4"
+                            >
                                 <MaterialIcons
                                     name="email"
                                     size={20}
@@ -139,7 +140,13 @@ export default function Auth() {
 
                             {/* Password */}
                             {mode !== 'forgot' && (
-                                <View className="bg-white/[0.07] border border-white/10 rounded-2xl px-4 py-4 flex-row items-center mb-4">
+                                <View
+                                    style={{
+                                        borderWidth: 1,
+                                        borderColor: 'rgba(255,255,255,0.07)',
+                                    }}
+                                    className="rounded-2xl px-4 py-4 flex-row items-center mb-4"
+                                >
                                     <MaterialIcons
                                         name="lock-outline"
                                         size={20}
@@ -166,7 +173,13 @@ export default function Auth() {
 
                             {/* Confirm Password (signup only) */}
                             {mode === 'signup' && (
-                                <View className="bg-white/[0.07] border border-white/10 rounded-2xl px-4 py-4 flex-row items-center mb-4">
+                                <View
+                                    style={{
+                                        borderWidth: 1,
+                                        borderColor: 'rgba(255,255,255,0.07)',
+                                    }}
+                                    className="rounded-2xl px-4 py-4 flex-row items-center mb-4"
+                                >
                                     <MaterialIcons
                                         name="lock-outline"
                                         size={20}
@@ -239,6 +252,6 @@ export default function Auth() {
                 visible={toast.visible}
                 onHide={hideToast}
             />
-        </LinearGradient>
+        </View>
     );
 }
