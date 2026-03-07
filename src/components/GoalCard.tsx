@@ -69,7 +69,7 @@ export const GoalCard = React.memo(
                 <TouchableOpacity
                     activeOpacity={0.95}
                     style={cardShadow}
-                    className="relative w-[300px] h-[440px] rounded-[28px] overflow-hidden"
+                    className="relative w-[300px] h-[420px] rounded-[28px] overflow-hidden"
                     onPress={onPress}
                     disabled={!isInteractive}
                     onPressIn={() => {
@@ -98,7 +98,12 @@ export const GoalCard = React.memo(
                             accessibilityLabel={goal.title}
                         />
                         <LinearGradient
-                            colors={['transparent', 'rgba(0,0,0,0.85)']}
+                            colors={[
+                                'transparent',
+                                'transparent',
+                                'rgba(0,0,0,0.3)',
+                                'rgba(0,0,0,0.72)',
+                            ]}
                             className="absolute inset-0 pointer-events-none"
                         />
 
