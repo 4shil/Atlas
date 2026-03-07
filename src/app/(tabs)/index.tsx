@@ -337,8 +337,8 @@ export default function DashboardDark() {
                     {!showSearch && goals.length > 0 && (
                         <View className="mt-4 mb-2">
                             <View className="flex-row items-center justify-between px-6 mb-3">
-                                <Text className="text-xs font-semibold dark:text-white/40 text-gray-500 uppercase tracking-widest">
-                                    Your Adventures
+                                <Text className="text-sm font-semibold dark:text-white/40 text-gray-500">
+                                    Recent
                                 </Text>
                                 <TouchableOpacity onPress={() => router.push('/(tabs)/gallery')}>
                                     <Text className="text-xs text-blue-400 font-semibold">
