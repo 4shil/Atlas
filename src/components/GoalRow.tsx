@@ -340,8 +340,9 @@ export const GoalRow = React.memo(
     (prev, next) =>
         prev.goal.id === next.goal.id &&
         prev.goal.completed === next.goal.completed &&
-        prev.goal.completedAt === next.goal.completedAt &&
-        prev.goal.title === next.goal.title
+        prev.goal.title === next.goal.title &&
+        prev.goal.timelineDate === next.goal.timelineDate &&
+        prev.goal.image === next.goal.image
 );
 
 // step 24: relative date util imported
